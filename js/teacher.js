@@ -1101,22 +1101,22 @@
       *{box-sizing:border-box}
       body{font-family:"Times New Roman",Times,serif;color:#000;margin:0;background:#fff}
       .award-pdf{
-        width:1122px;height:793px;padding:10px 12px 8px;background:#fff;
+        width:1122px;height:793px;padding:6px 10px 5px;background:#fff;
         display:flex;flex-direction:column;overflow:hidden;
       }
       .pdf-title{
-        text-align:center;font-size:16px;font-weight:700;letter-spacing:.05em;
-        margin:0;line-height:1.2;text-transform:uppercase;
-        border:2.5px solid #000;padding:5px 10px;
+        text-align:center;font-size:15px;font-weight:700;letter-spacing:.04em;
+        margin:0;line-height:1.15;text-transform:uppercase;
+        border:2px solid #000;padding:3px 8px;
       }
       .pdf-badge{
         text-align:center;font-weight:700;border:1.5px solid #000;
-        padding:1px 32px;margin:5px auto 6px;display:block;width:fit-content;
-        font-size:11.5px;letter-spacing:.08em;
+        padding:0 28px;margin:3px auto 4px;display:block;width:fit-content;
+        font-size:10.5px;letter-spacing:.06em;line-height:1.35;
       }
       .pdf-page{display:none}
-      .meta-lines{width:100%;margin:0 0 6px;font-size:9px;line-height:1.55}
-      .meta-lines .row{display:flex;flex-wrap:nowrap;gap:10px;margin-bottom:2px;align-items:baseline}
+      .meta-lines{width:100%;margin:0 0 4px;font-size:8.5px;line-height:1.35}
+      .meta-lines .row{display:flex;flex-wrap:nowrap;gap:8px;margin-bottom:1px;align-items:baseline}
       .meta-lines .field{white-space:nowrap}
       .meta-lines .field.grow{flex:1;min-width:0}
       .meta-lines .lab{font-weight:700}
@@ -1126,22 +1126,25 @@
       }
       .meta-lines .val.wide{min-width:9em}
       .meta-lines .val.mid{min-width:5.5em}
-      .grid-wrap{flex:1;min-height:0}
+      .grid-wrap{flex:0 0 auto}
       .grid{
-        width:100%;height:100%;border-collapse:collapse;table-layout:fixed;
+        width:100%;height:auto;border-collapse:collapse;table-layout:fixed;
         border:2px solid #000;
       }
       .grid th,.grid td{
         border:1px solid #000;text-align:center;vertical-align:middle;
-        padding:0 1px;line-height:1.05;overflow:hidden;
+        padding:0;line-height:1;overflow:hidden;
       }
       .grid thead th{
-        font-size:6.2px;font-weight:700;padding:1px 0;height:auto;
+        font-size:5.8px;font-weight:700;padding:0;height:auto;line-height:1.05;
       }
-      .grid thead .top{font-size:7.5px;letter-spacing:.03em}
-      .grid thead .sub{font-size:6.4px}
+      .grid thead .top{font-size:7px;letter-spacing:.02em;padding:1px 0}
+      .grid thead .sub{font-size:5.9px;padding:1px 0}
+      /* Official sheet: data rows are razor-thin — text nearly touches borders */
+      .grid tbody tr{height:15px}
       .grid tbody td{
-        font-size:7.2px;height:19px;max-height:19px;padding:0 1px;line-height:1;
+        font-size:6.8px;height:15px;max-height:15px;min-height:15px;
+        padding:0 1px;line-height:15px;
       }
       .grid tbody tr:nth-child(even) td{background:#eef3f8}
       .grid tbody tr:nth-child(even) td.avg,
@@ -1151,10 +1154,10 @@
       .grid tbody tr:nth-child(even) td.rnd,
       .grid tbody tr:nth-child(even) td.gp{background:#f5d9c8}
       .grid col.roll,.grid .roll{
-        width:3.2%;font-weight:700;white-space:nowrap;font-size:7px;padding:0 2px;
+        width:3.2%;font-weight:700;white-space:nowrap;font-size:6.8px;padding:0 1px;
       }
       .grid col.nm,.grid .nm{
-        width:12.5%;text-align:left;padding-left:3px;font-size:6.6px;
+        width:12.5%;text-align:left;padding-left:2px;font-size:6.4px;
         font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:clip;
       }
       .grid col.c-q{width:2.55%}
