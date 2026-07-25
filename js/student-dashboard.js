@@ -4,12 +4,14 @@
 
   const LS_PROFILE = "ulc_student_profile_v1";
   const LS_RECORDS = "ulc_semester_records_v1";
+  const LS_SUBJECT_MARKS = "ulc_subject_marks_v1";
   const ORD = ["", "1ST", "2ND", "3RD", "4TH", "5TH", "6TH", "7TH", "8TH", "9TH", "10TH"];
 
   let activeDashTab = "profile";
   let editingSem = 1;
   let authFlowOpen = false;
   let guestBrowsing = false;
+  let editingSubjectMarksId = null;
 
   function esc(s) {
     return String(s || "").replace(/[<>&]/g, (c) => ({ "<": "&lt;", ">": "&gt;", "&": "&amp;" }[c]));
@@ -63,6 +65,50 @@
     return String(u.roll || "").trim().toUpperCase() || null;
   }
 
+  function getSubjectMarksStore() {
+    return loadJSON(LS_SUBJECT_MARKS, {});
+  }
+  function getSubjectMarksMap(u) {
+    const key = accountKey(u);
+    if (!key) return {};
+    return getSubjectMarksStore()[key] || {};
+  }
+  function setSubjectMarksMap(u, map) {
+    const key = accountKey(u);
+    if (!key) return;
+    const all = getSubjectMarksStore();
+    all[key] = map;
+    saveJSON(LS_SUBJECT_MARKS, all);
+  }
+  function subjectMarksId(sem, code) {
+    return String(sem) + "|" + String(code || "").trim().toUpperCase();
+  }
+
+  function calcAwardFrom(data) {
+    if (global.ULC_MATH?.calcAwardFrom) return ULC_MATH.calcAwardFrom(data);
+    const qs = [data.q1, data.q2, data.q3, data.q4, data.q5].map((n) => +n || 0);
+    const top = [...qs].sort((a, b) => b - a).slice(0, 3);
+    const quiz = top.reduce((a, b) => a + b, 0) / 3;
+    const assn = ((+data.a1 || 0) + (+data.a2 || 0)) / 2;
+    const midObt = Math.min(100, +data.mid || 0);
+    const finObt = Math.min(100, +data.final || 0);
+    const mid30 = midObt * 0.3;
+    const fin40 = finObt * 0.4;
+    const grand = quiz + assn + mid30 + fin40;
+    const rounded = Math.round(grand);
+    return {
+      quiz,
+      assn,
+      midObt,
+      finObt,
+      mid30,
+      fin40,
+      grand,
+      rounded,
+      grade: letterFromRounded(rounded),
+      gp: gpFromRounded(rounded),
+    };
+  }
   function getProfileStore() {
     return loadJSON(LS_PROFILE, {});
   }
@@ -284,6 +330,7 @@
       p.classList.toggle("active", p.id === "dash-" + activeDashTab);
     });
     if (activeDashTab === "profile") renderProfile();
+    if (activeDashTab === "marks") renderSubjectMarks();
     if (activeDashTab === "records") renderRecords();
     if (activeDashTab === "gpa") renderGpaAnalysis();
     if (activeDashTab === "chat") renderChatWelcome();
@@ -409,6 +456,313 @@
       msg.className = "msg show ok";
     }
     refreshHomeShell();
+  }
+
+  /* -------- Add your marks (award formula) -------- */
+  function numId(id) {
+    const el = document.getElementById(id);
+    return el ? +el.value || 0 : 0;
+  }
+  function setNum(id, v) {
+    const el = document.getElementById(id);
+    if (el) el.value = v == null || v === "" ? "0" : v;
+  }
+
+  function renderSubjectMarks() {
+    const u = currentUser();
+    if (!u || u.role === "teacher") return;
+    const semSel = document.getElementById("sm-sem");
+    if (semSel && !semSel.dataset.ready) {
+      semSel.innerHTML = Object.keys(syllabus())
+        .map((n) => `<option value="${n}">Semester ${n}</option>`)
+        .join("");
+      semSel.dataset.ready = "1";
+    }
+    const p = getProfile(u);
+    if (semSel) {
+      const prefer = p.currentSemester || u.currentSemester || 1;
+      if (![...semSel.options].some((o) => o.selected && o.value)) {
+        semSel.value = String(prefer);
+      }
+    }
+    fillSubjectMarksSubjects();
+    renderSavedSubjectMarks();
+    liveSubjectMarks();
+  }
+
+  function fillSubjectMarksSubjects() {
+    const sem = +document.getElementById("sm-sem")?.value || 1;
+    const subj = document.getElementById("sm-subj");
+    if (!subj) return;
+    const list = syllabus()[sem] || [];
+    const prev = subj.value;
+    subj.innerHTML =
+      '<option value="">Select subject</option>' +
+      list
+        .map((x, i) => `<option value="${i}">${esc(x[0])} — ${esc(x[1])}</option>`)
+        .join("");
+    if (prev && [...subj.options].some((o) => o.value === prev)) subj.value = prev;
+    onSubjectMarksSubjChange();
+  }
+
+  function onSubjectMarksSemChange() {
+    editingSubjectMarksId = null;
+    fillSubjectMarksSubjects();
+    resetSubjectMarksInputs();
+    liveSubjectMarks();
+  }
+
+  function onSubjectMarksSubjChange() {
+    const sem = +document.getElementById("sm-sem")?.value || 1;
+    const idx = document.getElementById("sm-subj")?.value;
+    const list = syllabus()[sem] || [];
+    const row = idx === "" || idx == null ? null : list[+idx];
+    const codeEl = document.getElementById("sm-code");
+    const chEl = document.getElementById("sm-ch");
+    if (!row) {
+      if (codeEl) codeEl.value = "";
+      if (chEl) chEl.value = "";
+      return;
+    }
+    if (codeEl) codeEl.value = row[0];
+    if (chEl) chEl.value = (+row[2] || 0).toFixed(2);
+    const u = currentUser();
+    if (!u) return;
+    const id = subjectMarksId(sem, row[0]);
+    const saved = getSubjectMarksMap(u)[id];
+    if (saved) {
+      editingSubjectMarksId = id;
+      applySubjectMarksToForm(saved);
+    } else if (editingSubjectMarksId !== id) {
+      editingSubjectMarksId = null;
+      resetSubjectMarksInputs();
+    }
+    liveSubjectMarks();
+  }
+
+  function resetSubjectMarksInputs() {
+    ["sm-q1", "sm-q2", "sm-q3", "sm-q4", "sm-q5", "sm-a1", "sm-a2", "sm-mid-obj", "sm-mid-sub", "sm-mid", "sm-fin-obj", "sm-fin-sub", "sm-fin"].forEach(
+      (id) => setNum(id, 0)
+    );
+  }
+
+  function resetSubjectMarksForm() {
+    editingSubjectMarksId = null;
+    const subj = document.getElementById("sm-subj");
+    if (subj) subj.value = "";
+    document.getElementById("sm-code") && (document.getElementById("sm-code").value = "");
+    document.getElementById("sm-ch") && (document.getElementById("sm-ch").value = "");
+    resetSubjectMarksInputs();
+    const msg = document.getElementById("sm-msg");
+    if (msg) msg.className = "msg";
+    liveSubjectMarks();
+  }
+
+  function applySubjectMarksToForm(row) {
+    setNum("sm-q1", row.q1);
+    setNum("sm-q2", row.q2);
+    setNum("sm-q3", row.q3);
+    setNum("sm-q4", row.q4);
+    setNum("sm-q5", row.q5);
+    setNum("sm-a1", row.a1);
+    setNum("sm-a2", row.a2);
+    setNum("sm-mid-obj", row.mid_obj);
+    setNum("sm-mid-sub", row.mid_sub);
+    setNum("sm-mid", row.mid);
+    setNum("sm-fin-obj", row.fin_obj);
+    setNum("sm-fin-sub", row.fin_sub);
+    setNum("sm-fin", row.final);
+  }
+
+  function readSubjectMarksForm() {
+    return {
+      q1: numId("sm-q1"),
+      q2: numId("sm-q2"),
+      q3: numId("sm-q3"),
+      q4: numId("sm-q4"),
+      q5: numId("sm-q5"),
+      a1: numId("sm-a1"),
+      a2: numId("sm-a2"),
+      mid_obj: numId("sm-mid-obj"),
+      mid_sub: numId("sm-mid-sub"),
+      mid: numId("sm-mid"),
+      fin_obj: numId("sm-fin-obj"),
+      fin_sub: numId("sm-fin-sub"),
+      final: numId("sm-fin"),
+    };
+  }
+
+  function onSubjectMidParts() {
+    const tot = Math.min(100, numId("sm-mid-obj") + numId("sm-mid-sub"));
+    setNum("sm-mid", tot);
+    liveSubjectMarks();
+  }
+  function onSubjectFinParts() {
+    const tot = Math.min(100, numId("sm-fin-obj") + numId("sm-fin-sub"));
+    setNum("sm-fin", tot);
+    liveSubjectMarks();
+  }
+
+  function liveSubjectMarks() {
+    const r = calcAwardFrom(readSubjectMarksForm());
+    const setT = (id, t) => {
+      const el = document.getElementById(id);
+      if (el) el.textContent = t;
+    };
+    setT("sm-k-quiz", r.quiz.toFixed(2));
+    setT("sm-k-assn", r.assn.toFixed(2));
+    setT("sm-k-mid", r.mid30.toFixed(2));
+    setT("sm-k-fin", r.fin40.toFixed(2));
+    setT("sm-k-mid-line", r.mid30.toFixed(2));
+    setT("sm-k-fin-line", r.fin40.toFixed(2));
+    const tot = document.getElementById("sm-k-total");
+    if (tot) tot.innerHTML = r.grand.toFixed(2) + "<small> / 100</small>";
+    setT("sm-k-round", String(r.rounded));
+    setT("sm-k-grade", r.grade);
+    setT("sm-k-gp", r.gp.toFixed(2));
+    const brk = document.getElementById("sm-k-brk");
+    if (brk) {
+      brk.textContent = `Mid paper ${r.midObt.toFixed(1)}/100 · Final ${r.finObt.toFixed(1)}/100 → Grand ${r.grand.toFixed(2)} → rounded ${r.rounded} → Grade ${r.grade} · GP ${r.gp.toFixed(2)}`;
+    }
+  }
+
+  function syncSubjectMarksToSemesterRecord(u, row, result) {
+    const sem = +row.sem;
+    const records = getRecords(u);
+    let courses = records[sem]?.courses?.length
+      ? records[sem].courses.map((c) => ({ ...c }))
+      : coursesFromSyllabus(sem);
+    const syl = coursesFromSyllabus(sem);
+    if (courses.length !== syl.length) {
+      const byCode = Object.fromEntries(courses.map((c) => [c.code, c]));
+      courses = syl.map((s) => ({
+        ...s,
+        marks: byCode[s.code]?.marks ?? "",
+        gp: byCode[s.code]?.gp ?? null,
+        grade: byCode[s.code]?.grade ?? "",
+      }));
+    }
+    let hit = false;
+    courses = courses.map((c) => {
+      if (String(c.code).toUpperCase() !== String(row.code).toUpperCase()) return c;
+      hit = true;
+      return {
+        ...c,
+        marks: result.rounded,
+        gp: result.gp,
+        grade: result.grade,
+      };
+    });
+    if (!hit) {
+      courses.push({
+        code: row.code,
+        title: row.title,
+        ch: +row.ch || 0,
+        marks: result.rounded,
+        gp: result.gp,
+        grade: result.grade,
+      });
+    }
+    const filled = courses.filter((c) => c.marks !== "" && c.marks != null);
+    const stats = calcSemesterGpa(
+      filled.map((c) => ({ ch: c.ch, gp: c.gp, marks: c.marks }))
+    );
+    records[sem] = {
+      courses,
+      gpa: +stats.gpa.toFixed(4),
+      pct: +stats.pct.toFixed(2),
+      obtained: stats.obtained,
+      updatedAt: Date.now(),
+    };
+    setRecords(u, records);
+  }
+
+  function saveSubjectMarks() {
+    const u = currentUser();
+    if (!u) return;
+    const sem = +document.getElementById("sm-sem")?.value || 1;
+    const idx = document.getElementById("sm-subj")?.value;
+    const list = syllabus()[sem] || [];
+    const row = idx === "" || idx == null ? null : list[+idx];
+    if (!row) {
+      alert("Select a subject first.");
+      return;
+    }
+    const form = readSubjectMarksForm();
+    const result = calcAwardFrom(form);
+    const id = subjectMarksId(sem, row[0]);
+    const map = getSubjectMarksMap(u);
+    map[id] = {
+      id,
+      sem,
+      code: row[0],
+      title: row[1],
+      ch: +row[2] || 0,
+      ...form,
+      grand: result.grand,
+      rounded: result.rounded,
+      grade: result.grade,
+      gp: result.gp,
+      updatedAt: Date.now(),
+    };
+    setSubjectMarksMap(u, map);
+    editingSubjectMarksId = id;
+    syncSubjectMarksToSemesterRecord(u, map[id], result);
+    const msg = document.getElementById("sm-msg");
+    if (msg) {
+      msg.textContent = `Saved ${row[0]} · Grand ${result.grand.toFixed(2)} → ${result.rounded} · ${result.grade} · GP ${result.gp.toFixed(2)}. Also updated Semester Records.`;
+      msg.className = "msg show ok";
+    }
+    renderSavedSubjectMarks();
+    refreshHomeShell();
+  }
+
+  function renderSavedSubjectMarks() {
+    const u = currentUser();
+    const el = document.getElementById("sm-saved");
+    if (!u || !el) return;
+    const map = getSubjectMarksMap(u);
+    const rows = Object.values(map).sort((a, b) => a.sem - b.sem || String(a.code).localeCompare(String(b.code)));
+    if (!rows.length) {
+      el.innerHTML = '<div class="empty">No subject marks yet. Fill the form and tap Save marks.</div>';
+      return;
+    }
+    el.innerHTML = rows
+      .map((r) => {
+        const res = calcAwardFrom(r);
+        return `<div class="sr-saved-item">
+          <div>
+            <div class="t">Sem ${r.sem} · ${esc(r.code)}</div>
+            <div class="m">${esc(r.title)} · Grand ${res.grand.toFixed(2)} → ${res.rounded} · ${res.grade} · GP ${res.gp.toFixed(2)}</div>
+          </div>
+          <div class="sr-saved-actions">
+            <button type="button" class="btn btn-ghost btn-sm" onclick='StudentDash.editSubjectMarks(${JSON.stringify(r.id)})'>Edit</button>
+          </div>
+        </div>`;
+      })
+      .join("");
+  }
+
+  function editSubjectMarks(id) {
+    const u = currentUser();
+    if (!u) return;
+    const row = getSubjectMarksMap(u)[id];
+    if (!row) return;
+    setDashTab("marks");
+    const semSel = document.getElementById("sm-sem");
+    if (semSel) {
+      semSel.value = String(row.sem);
+      fillSubjectMarksSubjects();
+    }
+    const list = syllabus()[row.sem] || [];
+    const idx = list.findIndex((x) => String(x[0]).toUpperCase() === String(row.code).toUpperCase());
+    const subj = document.getElementById("sm-subj");
+    if (subj && idx >= 0) subj.value = String(idx);
+    document.getElementById("sm-code") && (document.getElementById("sm-code").value = row.code);
+    document.getElementById("sm-ch") && (document.getElementById("sm-ch").value = (+row.ch || 0).toFixed(2));
+    editingSubjectMarksId = id;
+    applySubjectMarksToForm(row);
+    liveSubjectMarks();
   }
 
   /* -------- Semester records -------- */
@@ -630,10 +984,16 @@
     el.innerHTML = keys
       .map((n) => {
         const r = records[n];
-        return `<button type="button" class="sr-saved-item" onclick="StudentDash.editSemester(${n})">
-          <div><div class="t">Semester ${n}</div><div class="m">GPA ${Number(r.gpa).toFixed(2)} · ${Number(r.pct).toFixed(1)}% · ${r.obtained} marks</div></div>
-          <span class="pill">Edit</span>
-        </button>`;
+        return `<div class="sr-saved-item">
+          <div>
+            <div class="t">Semester ${n}</div>
+            <div class="m">GPA ${Number(r.gpa).toFixed(2)} · ${Number(r.pct).toFixed(1)}% · ${r.obtained} marks</div>
+          </div>
+          <div class="sr-saved-actions">
+            <button type="button" class="btn btn-ghost btn-sm" onclick="StudentDash.editSemester(${n})">Edit results</button>
+            <button type="button" class="btn btn-gold btn-sm" onclick="StudentDash.generateTranscript(${n})">Generate transcript</button>
+          </div>
+        </div>`;
       })
       .join("");
   }
@@ -718,6 +1078,7 @@
       )
       .join("");
     return `<div class="tx-cert">
+      <div class="tx-watermark" aria-hidden="true"><span>DUPLICATE</span></div>
       <div class="tx-outer">
         <div class="tx-inner">
           <div class="tx-head">
@@ -805,7 +1166,7 @@
     );
   }
 
-  async function generateTranscript() {
+  async function generateTranscript(semArg) {
     const u = currentUser();
     if (!u) {
       alert("Login required.");
@@ -822,7 +1183,7 @@
       }
     }
     const records = getRecords(u);
-    let sem = editingSem;
+    let sem = semArg != null && semArg !== "" ? +semArg : editingSem;
     if (!records[sem]) {
       const keys = Object.keys(records)
         .map(Number)
@@ -834,8 +1195,8 @@
         return;
       }
       sem = keys[0];
-      editingSem = sem;
     }
+    editingSem = sem;
     const filled = (records[sem].courses || []).filter((c) => c.marks !== "" && c.marks != null);
     if (!filled.length) {
       alert("Enter and save marks first.");
@@ -975,8 +1336,13 @@
       answer:
         "GPA Analysis on Home charts your saved semester GPAs and compares the latest semester to overall CGPA. Grade points follow the official ULC table (80+ = 4.00, below 50 = 0.00).",
     },
-    {
-      keys: ["photo", "profile", "picture", "cnic", "father"],
+      {
+        keys: ["marks", "quiz", "assignment", "mid", "final", "award", "add your marks"],
+        answer:
+          "Open Add your marks on Home. Pick semester and subject, enter 5 quizzes (/15), 2 assignments (/15), mid and final (obj + sub or total /100). The toolkit uses the official formula: best-3 quiz avg + assignment avg + mid×30% + final×40% → rounded marks → Grade & GP. Saving also updates Semester Records for that subject.",
+      },
+      {
+        keys: ["photo", "profile", "picture", "cnic", "father"],
       answer:
         "Open the Profile tab on Home. Upload a photo (it is compressed on device), fill father name, CNIC, DOB, registration, session, and program, then Save profile.",
     },
@@ -1052,6 +1418,15 @@
     renderProfile,
     onPhotoSelected,
     saveProfile,
+    renderSubjectMarks,
+    onSubjectMarksSemChange,
+    onSubjectMarksSubjChange,
+    onSubjectMidParts,
+    onSubjectFinParts,
+    liveSubjectMarks,
+    resetSubjectMarksForm,
+    saveSubjectMarks,
+    editSubjectMarks,
     renderRecords,
     openRecordsModal,
     closeRecordsModal,

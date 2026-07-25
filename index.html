@@ -437,9 +437,11 @@ body.landing-open .app{visibility:hidden;pointer-events:none}
 .sr-marks{display:grid;grid-template-columns:1fr 64px 52px;gap:8px;align-items:center}
 .sr-marks input{width:100%;font-family:var(--sans);font-size:14px;text-align:center;border:1px solid var(--line);border-radius:9px;padding:9px 8px}
 .sr-gp,.sr-gr{font-size:13px;font-weight:700;color:var(--navy);text-align:center}
-.sr-saved-item{width:100%;display:flex;justify-content:space-between;align-items:center;gap:10px;background:#fff;border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin-bottom:8px;cursor:pointer;font-family:var(--sans);text-align:left}
+.sr-saved-item{width:100%;display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:12px;background:#fff;border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin-bottom:8px;font-family:var(--sans);text-align:left}
 .sr-saved-item .t{font-size:13.5px;font-weight:600;color:var(--navy)}
 .sr-saved-item .m{font-size:12px;color:var(--slate)}
+.sr-saved-item .sr-saved-actions{display:flex;flex-wrap:wrap;gap:8px;margin-left:auto}
+.sr-saved-item .sr-saved-actions .btn{width:auto;padding:9px 12px;font-size:12.5px;border-radius:9px}
 .gpa-bars{display:flex;align-items:flex-end;gap:10px;min-height:160px;padding:12px 8px 4px;background:#fff;border:1px solid var(--line);border-radius:14px;overflow-x:auto}
 .gpa-bar-col{flex:1;min-width:44px;display:flex;flex-direction:column;align-items:center;gap:6px;height:148px}
 .gpa-bar-val{font-size:11px;font-weight:700;color:var(--navy)}
@@ -453,14 +455,16 @@ body.landing-open .app{visibility:hidden;pointer-events:none}
 .chat-compose{display:grid;grid-template-columns:1fr auto;gap:8px}
 .chat-compose input{width:100%;font-family:var(--sans);font-size:14px;border:1px solid var(--line);border-radius:10px;padding:11px 12px}
 /* Transcript certificate (screen + PDF capture) */
-.tx-cert{width:1122px;background:#fff;color:#0a2a5c;font-family:Arial,Helvetica,sans-serif;box-sizing:border-box}
-.tx-outer{border:3px solid #0a2a5c;padding:6px}
+.tx-cert{width:1122px;background:#fff;color:#0a2a5c;font-family:Arial,Helvetica,sans-serif;box-sizing:border-box;position:relative;overflow:hidden}
+.tx-outer{border:3px solid #0a2a5c;padding:6px;position:relative;z-index:1}
+.tx-watermark{position:absolute;inset:0;z-index:5;pointer-events:none;overflow:hidden}
+.tx-watermark span{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%) rotate(-32deg);font-family:Arial,Helvetica,sans-serif;font-size:96px;font-weight:800;letter-spacing:.2em;text-transform:uppercase;color:rgba(10,42,92,.14);white-space:nowrap;user-select:none;line-height:1}
 .tx-inner{border:1.5px solid #0a2a5c;padding:14px 16px 12px}
-.tx-head{display:grid;grid-template-columns:90px 1fr 90px;gap:12px;align-items:center;text-align:center;margin-bottom:10px}
-.tx-logo{width:78px;height:78px;object-fit:contain;justify-self:center}
-.tx-logo-uob{width:78px;height:78px;border-radius:50%;border:3px solid #1a6bb5;background:radial-gradient(circle at 35% 30%,#e8f4ff,#7eb6e8 45%,#1a5a9a);display:grid;place-items:center;color:#fff;font-weight:800;font-size:16px;letter-spacing:.04em;box-shadow:inset 0 0 0 4px rgba(255,255,255,.35)}
-.tx-uni{font-size:22px;font-weight:800;letter-spacing:.04em;color:#0a2a5c}
-.tx-unit{font-size:15px;font-weight:700;margin-top:2px}
+.tx-head{display:grid;grid-template-columns:120px 1fr 120px;gap:14px;align-items:center;text-align:center;margin-bottom:12px}
+.tx-logo{width:112px;height:112px;object-fit:contain;justify-self:center}
+.tx-logo-uob{width:112px;height:112px;border-radius:50%;border:3px solid #1a6bb5;background:radial-gradient(circle at 35% 30%,#e8f4ff,#7eb6e8 45%,#1a5a9a);display:grid;place-items:center;color:#fff;font-weight:800;font-size:16px;letter-spacing:.04em;box-shadow:inset 0 0 0 4px rgba(255,255,255,.35)}
+.tx-uni{font-size:24px;font-weight:800;letter-spacing:.04em;color:#0a2a5c}
+.tx-unit{font-size:16px;font-weight:700;margin-top:2px}
 .tx-prog,.tx-sem{font-size:13px;font-weight:700;margin-top:2px}
 .tx-title{font-size:16px;font-weight:800;margin-top:6px;padding-bottom:6px;border-bottom:2px solid #0a2a5c;display:inline-block;min-width:60%}
 .tx-student{display:grid;grid-template-columns:1fr 110px;gap:10px;border:1.5px solid #0a2a5c;background:#e8ecf0;padding:8px;margin-bottom:10px}
@@ -722,6 +726,7 @@ body.landing-open .app{visibility:hidden;pointer-events:none}
 
           <div class="dash-tabs" role="tablist">
             <button type="button" class="dash-tab active" data-dash="profile" onclick="StudentDash.setDashTab('profile')">Profile</button>
+            <button type="button" class="dash-tab" data-dash="marks" onclick="StudentDash.setDashTab('marks')">Add your marks</button>
             <button type="button" class="dash-tab" data-dash="records" onclick="StudentDash.setDashTab('records')">Semester Records</button>
             <button type="button" class="dash-tab" data-dash="gpa" onclick="StudentDash.setDashTab('gpa')">GPA Analysis</button>
             <button type="button" class="dash-tab" data-dash="chat" onclick="StudentDash.setDashTab('chat')">Ask ULC</button>
@@ -761,6 +766,92 @@ body.landing-open .app{visibility:hidden;pointer-events:none}
               <div class="field"><label>Coordinator (name)</label><input id="sp-coordinator" placeholder="Full name as on certificate"></div>
               <div class="field"><label>Principal (name)</label><input id="sp-principal" placeholder="Full name as on certificate"></div>
               <button class="btn btn-primary" type="button" onclick="StudentDash.saveProfile()">Save profile</button>
+            </div>
+          </div>
+
+          <div class="dash-panel" id="dash-marks">
+            <div class="card">
+              <h3>Add your marks</h3>
+              <p class="hint" style="margin-top:-4px;margin-bottom:12px">Official award formula: Quizzes 15% (best 3 of 5) · Assignments 15% · Mid 30% · Final 40%. Grand total → rounded marks → Grade &amp; GP.</p>
+              <div class="msg" id="sm-msg"></div>
+              <div class="row2">
+                <div class="field"><label>Semester</label><select id="sm-sem" onchange="StudentDash.onSubjectMarksSemChange()"></select></div>
+                <div class="field"><label>Subject</label><select id="sm-subj" onchange="StudentDash.onSubjectMarksSubjChange()"></select></div>
+              </div>
+              <div class="row2">
+                <div class="field"><label>Course code</label><input id="sm-code" readonly></div>
+                <div class="field"><label>Credit hours</label><input id="sm-ch" readonly></div>
+              </div>
+
+              <div class="subhead">Quizzes <span class="pill">15%</span></div>
+              <p class="hint" style="margin-top:-4px;margin-bottom:8px">Each quiz /15 · average of best three</p>
+              <div class="row5">
+                <div class="field mark-field"><label>Q1</label><input id="sm-q1" type="number" min="0" max="15" step="0.5" value="0" oninput="StudentDash.liveSubjectMarks()"></div>
+                <div class="field mark-field"><label>Q2</label><input id="sm-q2" type="number" min="0" max="15" step="0.5" value="0" oninput="StudentDash.liveSubjectMarks()"></div>
+                <div class="field mark-field"><label>Q3</label><input id="sm-q3" type="number" min="0" max="15" step="0.5" value="0" oninput="StudentDash.liveSubjectMarks()"></div>
+                <div class="field mark-field"><label>Q4</label><input id="sm-q4" type="number" min="0" max="15" step="0.5" value="0" oninput="StudentDash.liveSubjectMarks()"></div>
+                <div class="field mark-field"><label>Q5</label><input id="sm-q5" type="number" min="0" max="15" step="0.5" value="0" oninput="StudentDash.liveSubjectMarks()"></div>
+              </div>
+
+              <div class="subhead">Assignments <span class="pill">15%</span></div>
+              <p class="hint" style="margin-top:-4px;margin-bottom:8px">Each /15 · average of both</p>
+              <div class="row2">
+                <div class="field mark-field"><label>A1</label><input id="sm-a1" type="number" min="0" max="15" step="0.5" value="0" oninput="StudentDash.liveSubjectMarks()"></div>
+                <div class="field mark-field"><label>A2</label><input id="sm-a2" type="number" min="0" max="15" step="0.5" value="0" oninput="StudentDash.liveSubjectMarks()"></div>
+              </div>
+            </div>
+
+            <div class="exam-box mid">
+              <h4>Mid exam</h4>
+              <div class="ex-sub">Paper marks out of 100 → counted as <b>30%</b> of grand total</div>
+              <div class="row3">
+                <div class="field mark-field"><label>Objective</label><input id="sm-mid-obj" type="number" min="0" step="0.5" value="0" oninput="StudentDash.onSubjectMidParts()"></div>
+                <div class="field mark-field"><label>Subjective</label><input id="sm-mid-sub" type="number" min="0" step="0.5" value="0" oninput="StudentDash.onSubjectMidParts()"></div>
+                <div class="field mark-field"><label>Total /100</label><input id="sm-mid" type="number" min="0" max="100" step="0.5" value="0" oninput="StudentDash.liveSubjectMarks()"></div>
+              </div>
+              <div class="line" style="display:flex;justify-content:space-between;font-size:13px;color:var(--slate)">
+                <span>30% of mid paper</span><b id="sm-k-mid-line" style="color:var(--navy)">0.00</b>
+              </div>
+            </div>
+
+            <div class="exam-box fin">
+              <h4>Final exam</h4>
+              <div class="ex-sub">Paper marks out of 100 → counted as <b>40%</b> of grand total</div>
+              <div class="row3">
+                <div class="field mark-field"><label>Objective</label><input id="sm-fin-obj" type="number" min="0" step="0.5" value="0" oninput="StudentDash.onSubjectFinParts()"></div>
+                <div class="field mark-field"><label>Subjective</label><input id="sm-fin-sub" type="number" min="0" step="0.5" value="0" oninput="StudentDash.onSubjectFinParts()"></div>
+                <div class="field mark-field"><label>Total /100</label><input id="sm-fin" type="number" min="0" max="100" step="0.5" value="0" oninput="StudentDash.liveSubjectMarks()"></div>
+              </div>
+              <div style="display:flex;justify-content:space-between;font-size:13px;color:var(--slate)">
+                <span>40% of final paper</span><b id="sm-k-fin-line" style="color:var(--navy)">0.00</b>
+              </div>
+            </div>
+
+            <div class="clean-sum">
+              <div class="line"><span>Quiz average (best 3) · 15%</span><b id="sm-k-quiz">0.00</b></div>
+              <div class="line"><span>Assignment average · 15%</span><b id="sm-k-assn">0.00</b></div>
+              <div class="line"><span>Mid exam · 30%</span><b id="sm-k-mid">0.00</b></div>
+              <div class="line"><span>Final exam · 40%</span><b id="sm-k-fin">0.00</b></div>
+              <div class="total">
+                <div class="lab">Grand total</div>
+                <div class="val" id="sm-k-total">0.00<small> / 100</small></div>
+              </div>
+              <div class="gp-row">
+                <div class="gp-box"><div class="n" id="sm-k-round">0</div><div class="l">Rounded</div></div>
+                <div class="gp-box"><div class="n" id="sm-k-grade">—</div><div class="l">Grade</div></div>
+                <div class="gp-box"><div class="n" id="sm-k-gp">—</div><div class="l">GP</div></div>
+              </div>
+              <p class="hint" id="sm-k-brk" style="margin-top:10px">GP uses rounded grand marks from the official Grade Value table.</p>
+            </div>
+
+            <div class="btn-row" style="margin-top:12px">
+              <button class="btn btn-ghost" type="button" onclick="StudentDash.resetSubjectMarksForm()">Clear form</button>
+              <button class="btn btn-primary" type="button" onclick="StudentDash.saveSubjectMarks()">Save marks</button>
+            </div>
+
+            <div class="card" style="margin-top:14px">
+              <h3>Saved subject marks</h3>
+              <div id="sm-saved"></div>
             </div>
           </div>
 
