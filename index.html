@@ -23,6 +23,7 @@
 <script src="js/award-math.js"></script>
 <script src="js/ulc-cloud.js"></script>
 <script src="js/teacher.js"></script>
+<script src="js/student-dashboard.js"></script>
 <style>
 :root{
   --navy:#0b3a6b; --navy-2:#12508f; --navy-deep:#082744;
@@ -352,14 +353,170 @@ main{flex:1;padding:18px 16px calc(var(--nav-h) + 28px);width:100%}
 @media print{
   @page{size:A4;margin:0}
   body,.app{background:#fff}
-  .topbar,.tabbar,.sidebar,.site-footer,main>.view:not(#printhost),.no-print{display:none!important}
-  #printhost{display:block!important;padding:0}
+  .topbar,.tabbar,.sidebar,.site-footer,main>.view:not(#printhost),.no-print,.landing-gate{display:none!important}
+  #printhost,#transcriptHost{display:block!important;padding:0}
   .print-cover{display:block!important;width:100%;min-height:100vh;aspect-ratio:auto;border:none;box-shadow:none}
+  .tx-cert{width:100%!important}
 }
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+/* Landing gate — scrollable: hero + features (no login required for tools) */
+.landing-gate{position:fixed;inset:0;z-index:100;display:none;flex-direction:column;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;background:var(--bg)}
+.landing-gate.show{display:flex}
+body.landing-open{overflow:hidden}
+body.landing-open .app{visibility:hidden;pointer-events:none}
+.landing-hero{position:relative;flex:none;min-height:100dvh;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;background:#082744 center/cover no-repeat;background-image:linear-gradient(165deg,rgba(8,39,68,.72),rgba(11,58,107,.55) 45%,rgba(8,39,68,.78)),url(assets/campus-hero.jpg)}
+.landing-inner{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;text-align:center;padding:28px 22px 18px;max-width:480px;margin:0 auto;width:100%;color:#fff;box-sizing:border-box}
+.landing-crest{width:88px;height:88px;object-fit:contain;filter:drop-shadow(0 6px 18px rgba(0,0,0,.45));margin-bottom:18px;animation:landIn .7s ease both}
+.landing-kicker{font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--gold-lt);font-weight:700;margin-bottom:10px;animation:landIn .7s .08s ease both}
+.landing-inner h1{font-family:var(--serif);font-size:28px;line-height:1.15;margin:0 0 10px;text-shadow:0 2px 16px rgba(0,0,0,.35);animation:landIn .7s .12s ease both}
+.landing-inner .lead{font-size:14px;color:#d5e2ef;max-width:34ch;margin:0 auto 22px;line-height:1.55;animation:landIn .7s .18s ease both}
+.landing-ctas{display:grid;grid-template-columns:1fr 1fr;gap:10px;width:100%;animation:landIn .7s .24s ease both}
+.landing-ctas .btn{box-shadow:0 8px 24px rgba(0,0,0,.25)}
+.landing-ctas .btn-ghost{background:rgba(255,255,255,.12);color:#fff;border-color:rgba(226,197,104,.45)}
+.landing-scroll-hint{display:flex;flex-direction:column;align-items:center;gap:4px;padding:8px 16px calc(18px + env(safe-area-inset-bottom));color:rgba(255,255,255,.85);font-size:12px;font-weight:600;letter-spacing:.04em;animation:landIn .7s .32s ease both}
+.landing-scroll-hint span{opacity:.9}
+.landing-scroll-hint svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;animation:landBounce 1.4s ease-in-out infinite}
+@keyframes landBounce{0%,100%{transform:translateY(0)}50%{transform:translateY(5px)}}
+.landing-features{flex:none;background:var(--bg);color:var(--ink);padding:28px 18px calc(40px + env(safe-area-inset-bottom));max-width:720px;margin:0 auto;width:100%;box-sizing:border-box}
+.landing-features .lf-head{margin-bottom:16px}
+.landing-features .lf-head h2{font-family:var(--serif);font-size:22px;color:var(--navy);margin:0 0 6px}
+.landing-features .lf-head p{font-size:13px;color:var(--slate);margin:0;line-height:1.45}
+.landing-features .tool-grid{margin-top:4px}
+.landing-features .lf-note{margin-top:18px;padding:14px 16px;border-radius:14px;background:linear-gradient(120deg,#fff 55%,#f7efd8);border:1px solid var(--line);font-size:13px;color:var(--slate);line-height:1.45}
+.landing-features .lf-note strong{color:var(--navy)}
+@keyframes landIn{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+@media (min-width:900px){
+  .landing-inner{max-width:560px;padding-bottom:24px}
+  .landing-inner h1{font-size:34px}
+  .landing-features{padding:36px 28px 48px;max-width:900px}
+  .landing-features .tool-grid{grid-template-columns:repeat(3,1fr)}
+  .landing-features .tool-card.featured{grid-column:span 3}
+}
+/* Student dashboard */
+.dash-welcome{background:linear-gradient(155deg,var(--navy-deep),var(--navy) 50%,var(--navy-2));color:var(--paper);border-radius:18px;padding:18px 18px 16px;margin-bottom:14px;box-shadow:var(--shadow);position:relative;overflow:hidden}
+.dash-welcome:before{content:"";position:absolute;inset:0;background:radial-gradient(140px 100px at 100% 0%,rgba(198,161,60,.25),transparent 60%);pointer-events:none}
+.dash-welcome .kicker{font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--gold-lt);position:relative}
+.dash-welcome h2{font-family:var(--serif);font-size:20px;margin:6px 0 4px;position:relative}
+.dash-welcome p{font-size:12.5px;color:#cdd9e6;position:relative;margin:0}
+.dash-tabs{display:flex;gap:6px;overflow-x:auto;padding:2px 0 12px;scrollbar-width:none}
+.dash-tabs::-webkit-scrollbar{display:none}
+.dash-tab{flex:none;padding:9px 12px;border-radius:10px;border:1px solid var(--line);background:#fff;font-size:12.5px;font-weight:600;color:var(--navy);cursor:pointer;font-family:var(--sans)}
+.dash-tab.active{background:var(--navy);color:#fff;border-color:var(--navy)}
+.dash-panel{display:none}
+.dash-panel.active{display:block}
+.photo-upload{display:flex;gap:14px;align-items:center;margin-bottom:12px}
+.photo-upload img,.photo-ph{width:84px;height:100px;object-fit:cover;border-radius:8px;border:1px solid var(--line);background:#eef2f7;flex:none}
+.photo-ph{display:grid;place-items:center;font-size:11px;color:var(--slate);font-weight:600}
+.sr-row{background:#fff;border:1px solid var(--line);border-radius:12px;padding:10px 12px;margin-bottom:8px}
+.sr-meta{display:flex;flex-wrap:wrap;gap:6px 10px;align-items:baseline;margin-bottom:8px}
+.sr-meta .code{font-size:11.5px;font-weight:700;color:var(--slate)}
+.sr-meta .ttl{flex:1;font-size:13px;font-weight:600;color:var(--navy);min-width:120px}
+.sr-meta .ch{font-size:11px;color:var(--slate);font-weight:600}
+.sr-marks{display:grid;grid-template-columns:1fr 64px 52px;gap:8px;align-items:center}
+.sr-marks input{width:100%;font-family:var(--sans);font-size:14px;text-align:center;border:1px solid var(--line);border-radius:9px;padding:9px 8px}
+.sr-gp,.sr-gr{font-size:13px;font-weight:700;color:var(--navy);text-align:center}
+.sr-saved-item{width:100%;display:flex;justify-content:space-between;align-items:center;gap:10px;background:#fff;border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin-bottom:8px;cursor:pointer;font-family:var(--sans);text-align:left}
+.sr-saved-item .t{font-size:13.5px;font-weight:600;color:var(--navy)}
+.sr-saved-item .m{font-size:12px;color:var(--slate)}
+.gpa-bars{display:flex;align-items:flex-end;gap:10px;min-height:160px;padding:12px 8px 4px;background:#fff;border:1px solid var(--line);border-radius:14px;overflow-x:auto}
+.gpa-bar-col{flex:1;min-width:44px;display:flex;flex-direction:column;align-items:center;gap:6px;height:148px}
+.gpa-bar-val{font-size:11px;font-weight:700;color:var(--navy)}
+.gpa-bar-track{flex:1;width:100%;max-width:36px;background:#eef2f7;border-radius:8px 8px 4px 4px;display:flex;align-items:flex-end;overflow:hidden}
+.gpa-bar-fill{width:100%;background:linear-gradient(180deg,var(--gold),var(--navy));border-radius:8px 8px 0 0;min-height:4px;transition:height .35s ease}
+.gpa-bar-lbl{font-size:10px;color:var(--slate);font-weight:600}
+.chat-log{background:#fff;border:1px solid var(--line);border-radius:14px;padding:12px;max-height:280px;overflow:auto;display:flex;flex-direction:column;gap:8px;margin-bottom:10px}
+.chat-bubble{max-width:92%;padding:10px 12px;border-radius:12px;font-size:13px;line-height:1.45}
+.chat-bubble.bot{align-self:flex-start;background:#eef2f7;color:var(--ink);border-bottom-left-radius:4px}
+.chat-bubble.user{align-self:flex-end;background:var(--navy);color:#fff;border-bottom-right-radius:4px}
+.chat-compose{display:grid;grid-template-columns:1fr auto;gap:8px}
+.chat-compose input{width:100%;font-family:var(--sans);font-size:14px;border:1px solid var(--line);border-radius:10px;padding:11px 12px}
+/* Transcript certificate (screen + PDF capture) */
+.tx-cert{width:1122px;background:#fff;color:#0a2a5c;font-family:Arial,Helvetica,sans-serif;box-sizing:border-box}
+.tx-outer{border:3px solid #0a2a5c;padding:6px}
+.tx-inner{border:1.5px solid #0a2a5c;padding:14px 16px 12px}
+.tx-head{display:grid;grid-template-columns:90px 1fr 90px;gap:12px;align-items:center;text-align:center;margin-bottom:10px}
+.tx-logo{width:78px;height:78px;object-fit:contain;justify-self:center}
+.tx-logo-uob{width:78px;height:78px;border-radius:50%;border:3px solid #1a6bb5;background:radial-gradient(circle at 35% 30%,#e8f4ff,#7eb6e8 45%,#1a5a9a);display:grid;place-items:center;color:#fff;font-weight:800;font-size:16px;letter-spacing:.04em;box-shadow:inset 0 0 0 4px rgba(255,255,255,.35)}
+.tx-uni{font-size:22px;font-weight:800;letter-spacing:.04em;color:#0a2a5c}
+.tx-unit{font-size:15px;font-weight:700;margin-top:2px}
+.tx-prog,.tx-sem{font-size:13px;font-weight:700;margin-top:2px}
+.tx-title{font-size:16px;font-weight:800;margin-top:6px;padding-bottom:6px;border-bottom:2px solid #0a2a5c;display:inline-block;min-width:60%}
+.tx-student{display:grid;grid-template-columns:1fr 110px;gap:10px;border:1.5px solid #0a2a5c;background:#e8ecf0;padding:8px;margin-bottom:10px}
+.tx-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px 12px}
+.tx-cell{display:grid;grid-template-columns:118px 1fr;gap:6px;align-items:center;font-size:12px}
+.tx-cell label{font-weight:700;color:#0a2a5c}
+.tx-cell span{background:#fff;border:1px solid #333;padding:4px 6px;min-height:22px;font-weight:600}
+.tx-photo{border:1.5px solid #0a2a5c;background:#fff;min-height:128px;display:grid;place-items:center;overflow:hidden}
+.tx-photo img{width:100%;height:128px;object-fit:cover}
+.tx-photo-ph{font-size:11px;font-weight:700;color:#889}
+.tx-table{width:100%;border-collapse:collapse;font-size:12px;margin-bottom:0}
+.tx-table th,.tx-table td{border:1px solid #222;padding:5px 6px;text-align:center}
+.tx-table td.left{text-align:left}
+.tx-table-banner th{background:#dfe6ee;font-size:13px;letter-spacing:.08em;padding:7px}
+.tx-table thead tr:last-child th{background:#f3f5f8;font-size:11px}
+.tx-summary{display:flex;flex-wrap:wrap;justify-content:space-between;gap:8px 14px;background:#1e4f9a;color:#fff;font-weight:700;font-size:12.5px;padding:9px 12px;border:1px solid #0a2a5c;border-top:none}
+.tx-footer{margin-top:10px;border:1px solid #0a2a5c;padding:7px 10px;font-size:10px;line-height:1.45;color:#1a2a40;text-align:center}
 </style>
 </head>
 <body>
+<div id="landingGate" class="landing-gate" aria-hidden="true">
+  <div class="landing-hero">
+    <div class="landing-inner">
+      <img class="landing-crest" src="icons/ulc-logo.png" alt="University Law College crest">
+      <div class="landing-kicker">University Law College · Quetta</div>
+      <h1>Welcome to ULC Toolkit</h1>
+      <p class="lead">Your campus companion for covers, semester records, transcripts, and study tools.</p>
+      <div class="landing-ctas">
+        <button type="button" class="btn btn-gold" onclick="StudentDash.openAuthFromLanding('signup')">Create account</button>
+        <button type="button" class="btn btn-ghost" onclick="StudentDash.openAuthFromLanding('login')">Login</button>
+      </div>
+    </div>
+    <a class="landing-scroll-hint" href="#landingFeatures" onclick="event.preventDefault();document.getElementById('landingFeatures')?.scrollIntoView({behavior:'smooth'})">
+      <span>Scroll for features</span>
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+    </a>
+  </div>
+  <section class="landing-features" id="landingFeatures" aria-label="Features available without login">
+    <div class="lf-head">
+      <h2>Features</h2>
+      <p>Use these tools right away — no account needed. Sign in anytime to save your profile, semester records, and transcripts.</p>
+    </div>
+    <div class="tool-grid">
+      <button type="button" class="tool-card featured" onclick="StudentDash.openToolFromLanding('cover')">
+        <div class="ic ic-cover"><svg viewBox="0 0 24 24"><path d="M6 2h9l3 3v17H6z"/><path d="M15 2v4h4"/><path d="M9 13h6M9 17h4"/></svg></div>
+        <div class="txt"><h4>Assignment Cover Page</h4><p>Templates for print-ready covers — open without login.</p></div>
+      </button>
+      <button type="button" class="tool-card" onclick="StudentDash.openToolFromLanding('syllabus')">
+        <div class="ic ic-syllabus"><svg viewBox="0 0 24 24"><path d="M4 5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2z"/><path d="M4 19a2 2 0 0 1 2-2h13"/><path d="M8 7h8M8 11h6"/></svg></div>
+        <h4>LLB Syllabus</h4>
+        <p>All ten semesters — codes and credit hours.</p>
+      </button>
+      <button type="button" class="tool-card" onclick="StudentDash.openToolFromLanding('award')">
+        <div class="ic ic-award"><svg viewBox="0 0 24 24"><path d="M8 21h8"/><path d="M12 17v4"/><path d="M7 4h10v8a5 5 0 0 1-10 0V4z"/><path d="M5 8H3a2 2 0 0 0 2 2"/><path d="M19 8h2a2 2 0 0 1-2 2"/></svg></div>
+        <h4>Award List</h4>
+        <p>Quizzes, assignments &amp; papers — official formula.</p>
+      </button>
+      <button type="button" class="tool-card" onclick="StudentDash.openToolFromLanding('aggregate')">
+        <div class="ic ic-agg"><svg viewBox="0 0 24 24"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/></svg></div>
+        <h4>Admission Aggregate</h4>
+        <p>Matric · Inter · LAT merit calculator.</p>
+      </button>
+      <button type="button" class="tool-card" onclick="StudentDash.openToolFromLanding('gpa')">
+        <div class="ic ic-gpa"><svg viewBox="0 0 24 24"><path d="M4 19V5"/><path d="M4 19h16"/><path d="M8 15l3-4 3 2 4-6"/></svg></div>
+        <h4>GPA Tracker</h4>
+        <p>Course grades · semester GPA &amp; CGPA.</p>
+      </button>
+      <button type="button" class="tool-card" onclick="StudentDash.openToolFromLanding('timetable')">
+        <div class="ic ic-time"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/><path d="M8 14h.01M12 14h.01M16 14h.01"/></svg></div>
+        <h4>Timetable</h4>
+        <p>Weekly class schedule on this device.</p>
+      </button>
+    </div>
+    <div class="lf-note">
+      <strong>Want saved records &amp; transcripts?</strong> Create a free account above — your student dashboard keeps profile, semester marks, and PDFs with your login.
+    </div>
+  </section>
+</div>
 <div class="app">
   <header class="topbar">
     <img class="seal-img" src="icons/ulc-logo.png" alt="ULC crest">
@@ -384,66 +541,217 @@ main{flex:1;padding:18px 16px calc(var(--nav-h) + 28px);width:100%}
     <main>
       <!-- HOME -->
       <section class="view active" id="v-home">
-        <div class="hero">
-          <div class="hero-copy">
-            <div class="kicker">Affiliated · University of Balochistan</div>
-            <h2 id="heroTitle">ULC Toolkit</h2>
-            <p id="heroSub">Covers, award lists, syllabus, and more — built for University Law College, Quetta.</p>
+        <!-- Guest (rare — landing usually covers; shown if gate closed) -->
+        <div id="homeGuest">
+          <div class="hero">
+            <div class="hero-copy">
+              <div class="kicker">Affiliated · University of Balochistan</div>
+              <h2 id="heroTitle">ULC Toolkit</h2>
+              <p id="heroSub">Covers, award lists, syllabus, and more — built for University Law College, Quetta.</p>
+            </div>
+            <img class="hero-seal" src="icons/ulc-logo.png" alt="">
           </div>
-          <img class="hero-seal" src="icons/ulc-logo.png" alt="">
+          <div class="auth-banner show" style="margin-top:14px">
+            <strong>Sign in for your student dashboard.</strong>
+            <p style="font-size:13px;color:var(--slate);margin:6px 0 12px">Create an account or log in to save profile, semester records, and transcripts. Tools below work without login.</p>
+            <div class="btn-row">
+              <button class="btn btn-gold" type="button" onclick="StudentDash.openAuthFromLanding('signup')">Create account</button>
+              <button class="btn btn-primary" type="button" onclick="StudentDash.openAuthFromLanding('login')">Login</button>
+            </div>
+          </div>
+          <div class="section-head"><h3>Features</h3><span>No login needed</span></div>
+          <div class="tool-grid">
+            <button class="tool-card featured" onclick="go('cover')">
+              <div class="ic ic-cover"><svg viewBox="0 0 24 24"><path d="M6 2h9l3 3v17H6z"/><path d="M15 2v4h4"/><path d="M9 13h6M9 17h4"/></svg></div>
+              <div class="txt"><h4>Assignment Cover Page</h4><p>Make the assignment cover page in one click.</p></div>
+            </button>
+            <button class="tool-card" onclick="go('syllabus')">
+              <div class="ic ic-syllabus"><svg viewBox="0 0 24 24"><path d="M4 5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2z"/><path d="M4 19a2 2 0 0 1 2-2h13"/><path d="M8 7h8M8 11h6"/></svg></div>
+              <h4>LLB Syllabus</h4>
+              <p>Browse all ten semesters — codes and credit hours.</p>
+            </button>
+            <button class="tool-card" onclick="go('award')">
+              <div class="ic ic-award"><svg viewBox="0 0 24 24"><path d="M8 21h8"/><path d="M12 17v4"/><path d="M7 4h10v8a5 5 0 0 1-10 0V4z"/><path d="M5 8H3a2 2 0 0 0 2 2"/><path d="M19 8h2a2 2 0 0 1-2 2"/></svg></div>
+              <h4>Award List</h4>
+              <p>Quizzes, assignments &amp; papers — official formula.</p>
+            </button>
+            <button class="tool-card" onclick="go('aggregate')">
+              <div class="ic ic-agg"><svg viewBox="0 0 24 24"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/></svg></div>
+              <h4>Admission Aggregate</h4>
+              <p>Matric · Inter · LAT merit calculator.</p>
+            </button>
+            <button class="tool-card" onclick="go('gpa')">
+              <div class="ic ic-gpa"><svg viewBox="0 0 24 24"><path d="M4 19V5"/><path d="M4 19h16"/><path d="M8 15l3-4 3 2 4-6"/></svg></div>
+              <h4>GPA Tracker</h4>
+              <p>Manual course grades · semester GPA &amp; CGPA.</p>
+            </button>
+            <button class="tool-card" onclick="go('timetable')">
+              <div class="ic ic-time"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/><path d="M8 14h.01M12 14h.01M16 14h.01"/></svg></div>
+              <h4>Timetable</h4>
+              <p>Weekly class schedule.</p>
+            </button>
+            <button class="tool-card" onclick="go('account')">
+              <div class="ic ic-account"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c1.5-3.5 4-5 8-5s6.5 1.5 8 5"/></svg></div>
+              <h4>Account</h4>
+              <p>Sign in to unlock your student dashboard.</p>
+            </button>
+          </div>
         </div>
 
-        <div class="section-head"><h3>Documents</h3><span>Print &amp; PDF</span></div>
-        <div class="tool-grid">
-          <button class="tool-card featured" onclick="go('cover')">
-            <div class="ic ic-cover"><svg viewBox="0 0 24 24"><path d="M6 2h9l3 3v17H6z"/><path d="M15 2v4h4"/><path d="M9 13h6M9 17h4"/></svg></div>
-            <div class="txt"><h4>Assignment Cover Page</h4><p>Make The Assignment cover page in one click.</p></div>
-          </button>
+        <!-- Teacher home -->
+        <div id="homeTeacher" style="display:none">
+          <div class="dash-welcome">
+            <div class="kicker">Teacher</div>
+            <h2 id="homeTeacherTitle">Welcome</h2>
+            <p id="homeTeacherSub">Open Teacher desk for classes and award lists.</p>
+          </div>
+          <button class="btn btn-primary" type="button" onclick="go('teacher')" style="margin-bottom:14px">Open Teacher desk</button>
+          <div class="section-head"><h3>More tools</h3><span>Shared</span></div>
+          <div class="tool-grid">
+            <button class="tool-card" onclick="go('cover')">
+              <div class="ic ic-cover"><svg viewBox="0 0 24 24"><path d="M6 2h9l3 3v17H6z"/><path d="M15 2v4h4"/></svg></div>
+              <h4>Cover Page</h4>
+              <p>Assignment covers for print or PDF.</p>
+            </button>
+            <button class="tool-card" onclick="go('syllabus')">
+              <div class="ic ic-syllabus"><svg viewBox="0 0 24 24"><path d="M4 5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2z"/><path d="M4 19a2 2 0 0 1 2-2h13"/></svg></div>
+              <h4>Syllabus</h4>
+              <p>LLB five-year scheme by semester.</p>
+            </button>
+            <button class="tool-card" onclick="go('account')">
+              <div class="ic ic-account"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c1.5-3.5 4-5 8-5s6.5 1.5 8 5"/></svg></div>
+              <h4>Account</h4>
+              <p>Profile and logout.</p>
+            </button>
+          </div>
         </div>
 
-        <div class="section-head"><h3>My academics</h3><span>Login required</span></div>
-        <div class="tool-grid">
-          <button class="tool-card" onclick="go('award')">
-            <div class="ic ic-award"><svg viewBox="0 0 24 24"><path d="M8 21h8"/><path d="M12 17v4"/><path d="M7 4h10v8a5 5 0 0 1-10 0V4z"/><path d="M5 8H3a2 2 0 0 0 2 2"/><path d="M19 8h2a2 2 0 0 1-2 2"/></svg></div>
-            <h4>Award List</h4>
-            <p>Track quizzes, assignments &amp; papers — check your result in one place.</p>
-          </button>
-          <button class="tool-card" onclick="go('account')">
-            <div class="ic ic-account"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c1.5-3.5 4-5 8-5s6.5 1.5 8 5"/></svg></div>
-            <h4>Account</h4>
-            <p>Student or teacher — sign in once; your data stays with your account.</p>
-          </button>
-          <button class="tool-card" onclick="go('teacher')">
-            <div class="ic ic-teacher"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>
-            <h4>Teacher desk</h4>
-            <p>Classes, attendance, marks &amp; official award-list PDF — stays on your teacher account only.</p>
-          </button>
-        </div>
+        <!-- Student dashboard -->
+        <div id="homeStudent" style="display:none">
+          <div class="dash-welcome">
+            <div class="kicker">Student dashboard</div>
+            <h2 id="dashWelcomeTitle">Welcome</h2>
+            <p id="dashWelcomeSub">Profile, semester records, GPA, and Ask ULC.</p>
+          </div>
 
-        <div class="section-head"><h3>Study tools</h3><span>Open to all</span></div>
-        <div class="tool-grid">
-          <button class="tool-card" onclick="go('syllabus')">
-            <div class="ic ic-syllabus"><svg viewBox="0 0 24 24"><path d="M4 5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2z"/><path d="M4 19a2 2 0 0 1 2-2h13"/><path d="M8 7h8M8 11h6"/></svg></div>
-            <h4>LLB Syllabus</h4>
-            <p>Browse all ten semesters — codes and credit hours at a glance.</p>
-          </button>
-          <button class="tool-card" onclick="go('aggregate')">
-            <div class="ic ic-agg"><svg viewBox="0 0 24 24"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/></svg></div>
-            <h4>Admission Aggregate Calculator</h4>
-            <p>Find your admission merit aggregate in one click.</p>
-          </button>
-          <button class="tool-card" onclick="go('gpa')">
-            <div class="ic ic-gpa"><svg viewBox="0 0 24 24"><path d="M4 19V5"/><path d="M4 19h16"/><path d="M8 15l3-4 3 2 4-6"/></svg></div>
-            <h4>GPA Tracker</h4>
-            <p>Add grades once — see semester GPA and CGPA instantly.</p>
-          </button>
-          <button class="tool-card" onclick="go('timetable')">
-            <div class="ic ic-time"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/><path d="M8 14h.01M12 14h.01M16 14h.01"/></svg></div>
-            <h4>Timetable</h4>
-            <p>Build your weekly class schedule in one place.</p>
-          </button>
+          <div class="dash-tabs" role="tablist">
+            <button type="button" class="dash-tab active" data-dash="profile" onclick="StudentDash.setDashTab('profile')">Profile</button>
+            <button type="button" class="dash-tab" data-dash="records" onclick="StudentDash.setDashTab('records')">Semester Records</button>
+            <button type="button" class="dash-tab" data-dash="gpa" onclick="StudentDash.setDashTab('gpa')">GPA Analysis</button>
+            <button type="button" class="dash-tab" data-dash="chat" onclick="StudentDash.setDashTab('chat')">Ask ULC</button>
+          </div>
+
+          <div class="dash-panel active" id="dash-profile">
+            <div class="card">
+              <h3>Student profile</h3>
+              <div class="msg" id="sp-msg"></div>
+              <div class="photo-upload">
+                <img id="sp-photo-preview" alt="Photo preview" style="display:none">
+                <div>
+                  <div class="field" style="margin-bottom:8px"><label>Photo</label><input id="sp-photo" type="file" accept="image/*" onchange="StudentDash.onPhotoSelected(this.files[0])"></div>
+                  <p class="hint">Passport-style photo for your transcript header. Compressed on this device.</p>
+                </div>
+              </div>
+              <div class="row2">
+                <div class="field"><label>Name</label><input id="sp-name" readonly></div>
+                <div class="field"><label>Roll No.</label><input id="sp-roll" readonly></div>
+              </div>
+              <div class="row2">
+                <div class="field"><label>Father name</label><input id="sp-father" placeholder="As on college records"></div>
+                <div class="field"><label>CNIC</label><input id="sp-cnic" placeholder="XXXXX-XXXXXXX-X"></div>
+              </div>
+              <div class="row2">
+                <div class="field"><label>Date of birth</label><input id="sp-dob" type="date"></div>
+                <div class="field"><label>Registration No.</label><input id="sp-reg" placeholder="N/L if none"></div>
+              </div>
+              <div class="row2">
+                <div class="field"><label>Session</label><input id="sp-session" placeholder="2025–2029"></div>
+                <div class="field"><label>Program</label><input id="sp-program" value="LL.B Five Year"></div>
+              </div>
+              <div class="field"><label>Current semester</label><select id="sp-sem"></select></div>
+              <button class="btn btn-primary" type="button" onclick="StudentDash.saveProfile()">Save profile</button>
+            </div>
+          </div>
+
+          <div class="dash-panel" id="dash-records">
+            <div class="card">
+              <h3>Semester records</h3>
+              <p class="hint" style="margin-top:-4px;margin-bottom:10px">Subjects load from the LLB syllabus. Enter marks /100 — GP and grade use the official ULC table.</p>
+              <div class="msg" id="sr-msg"></div>
+              <div class="field"><label>Semester</label><select id="sr-sem" onchange="StudentDash.onRecordsSemChange()"></select></div>
+              <div id="sr-courses"></div>
+              <p class="hint" id="sr-live" style="margin:8px 0 12px">Enter marks to see semester GPA.</p>
+              <div class="btn-row">
+                <button class="btn btn-primary" type="button" onclick="StudentDash.saveSemester()">Save semester</button>
+                <button class="btn btn-gold" type="button" id="sr-tx-btn" onclick="StudentDash.generateTranscript()">Generate transcript</button>
+              </div>
+            </div>
+            <div class="card">
+              <h3>Saved semesters</h3>
+              <div id="sr-saved"></div>
+            </div>
+          </div>
+
+          <div class="dash-panel" id="dash-gpa">
+            <div class="card">
+              <h3>GPA over semesters</h3>
+              <p class="hint" style="margin-top:-4px;margin-bottom:10px">From your saved Semester Records (same source as transcripts).</p>
+              <div class="gpa-bars" id="gpa-bars"></div>
+              <div id="gpa-analysis-summary" style="margin-top:12px"></div>
+            </div>
+            <div class="note">Need a manual course-by-course tracker? Open <button type="button" style="background:none;border:none;color:var(--navy);font-weight:700;cursor:pointer;font-family:var(--sans);padding:0;text-decoration:underline" onclick="go('gpa')">GPA Tracker</button> in More tools.</div>
+          </div>
+
+          <div class="dash-panel" id="dash-chat">
+            <div class="card">
+              <h3>Ask ULC</h3>
+              <p class="hint" style="margin-top:-4px;margin-bottom:10px">Built-in FAQ helper — no external AI or API keys.</p>
+              <div class="chat-log" id="chatLog"></div>
+              <div class="chat-compose">
+                <input id="chatInput" type="text" placeholder="e.g. How do I download my transcript?" onkeydown="StudentDash.onChatKey(event)">
+                <button class="btn btn-primary btn-sm" type="button" onclick="StudentDash.sendChat()">Send</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="section-head"><h3>More tools</h3><span>Menu</span></div>
+          <div class="tool-grid">
+            <button class="tool-card featured" onclick="go('cover')">
+              <div class="ic ic-cover"><svg viewBox="0 0 24 24"><path d="M6 2h9l3 3v17H6z"/><path d="M15 2v4h4"/><path d="M9 13h6M9 17h4"/></svg></div>
+              <div class="txt"><h4>Assignment Cover Page</h4><p>Make the assignment cover page in one click.</p></div>
+            </button>
+            <button class="tool-card" onclick="go('award')">
+              <div class="ic ic-award"><svg viewBox="0 0 24 24"><path d="M8 21h8"/><path d="M12 17v4"/><path d="M7 4h10v8a5 5 0 0 1-10 0V4z"/><path d="M5 8H3a2 2 0 0 0 2 2"/><path d="M19 8h2a2 2 0 0 1-2 2"/></svg></div>
+              <h4>Award List</h4>
+              <p>Quizzes, assignments &amp; papers — official formula.</p>
+            </button>
+            <button class="tool-card" onclick="go('syllabus')">
+              <div class="ic ic-syllabus"><svg viewBox="0 0 24 24"><path d="M4 5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2z"/><path d="M4 19a2 2 0 0 1 2-2h13"/><path d="M8 7h8M8 11h6"/></svg></div>
+              <h4>LLB Syllabus</h4>
+              <p>All ten semesters — codes and credit hours.</p>
+            </button>
+            <button class="tool-card" onclick="go('aggregate')">
+              <div class="ic ic-agg"><svg viewBox="0 0 24 24"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/></svg></div>
+              <h4>Admission Aggregate</h4>
+              <p>Matric · Inter · LAT merit calculator.</p>
+            </button>
+            <button class="tool-card" onclick="go('gpa')">
+              <div class="ic ic-gpa"><svg viewBox="0 0 24 24"><path d="M4 19V5"/><path d="M4 19h16"/><path d="M8 15l3-4 3 2 4-6"/></svg></div>
+              <h4>GPA Tracker</h4>
+              <p>Manual course grades · semester GPA &amp; CGPA.</p>
+            </button>
+            <button class="tool-card" onclick="go('timetable')">
+              <div class="ic ic-time"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/><path d="M8 14h.01M12 14h.01M16 14h.01"/></svg></div>
+              <h4>Timetable</h4>
+              <p>Weekly class schedule.</p>
+            </button>
+            <button class="tool-card" onclick="go('account')">
+              <div class="ic ic-account"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c1.5-3.5 4-5 8-5s6.5 1.5 8 5"/></svg></div>
+              <h4>Account</h4>
+              <p>Sign out or edit onboarding info.</p>
+            </button>
+          </div>
         </div>
-        <div class="note">Create an account with your <b>email</b> to save and check your award lists.</div>
       </section>
 
       <!-- COVER -->
@@ -775,7 +1083,7 @@ main{flex:1;padding:18px 16px calc(var(--nav-h) + 28px);width:100%}
           <div class="card">
             <h3>Quick actions</h3>
             <div class="btn-row" id="accQuickStudent">
-              <button class="btn btn-primary" onclick="go('award')">My award lists</button>
+              <button class="btn btn-primary" onclick="go('home')">Student dashboard</button>
               <button class="btn btn-ghost" onclick="prefillCoverFromAccount()">Fill cover form</button>
             </div>
             <button class="btn btn-danger" style="margin-top:10px" onclick="doLogout()">Logout</button>
@@ -959,6 +1267,7 @@ main{flex:1;padding:18px 16px calc(var(--nav-h) + 28px);width:100%}
   </footer>
 
   <div id="printhost" class="no-print" style="display:none"></div>
+  <div id="transcriptHost" style="display:none" aria-hidden="true"></div>
 
   <div class="overlay" id="onboardOverlay">
     <div class="sheet">
@@ -1048,12 +1357,19 @@ function go(t){
   window.scrollTo({top:0,behavior:'instant'});
   if(t==='award'){ fillInstructorList(); refreshAwardView(); }
   if(t==='account') refreshAccountView();
-  if(t==='home') refreshHeroWelcome();
+  if(t==='home'){ refreshHeroWelcome(); if(window.StudentDash) StudentDash.refreshHomeShell(); }
   if(t==='gpa'){ onGpaSemChange(); renderGrades(); }
   if(t==='timetable'){ syncDayUi(); renderSlots(); }
   if(t==='syllabus') renderSyllabusAcc();
   if(t==='cover'){ fillInstructorList(); onSemChange(); }
   if(t==='teacher' && window.TeacherApp) TeacherApp.initTeacherView();
+  if(window.StudentDash){
+    if(t==='home' && !currentUser()) StudentDash.resetLandingForGuestHome();
+    else {
+      if(!currentUser() && t!=='home') StudentDash.markGuestBrowsing();
+      StudentDash.syncLanding();
+    }
+  }
 }
 function esc(s){return String(s||'').replace(/[<>&]/g,c=>({'<':'&lt;','>':'&gt;','&':'&amp;'}[c]));}
 function val(id){return esc(document.getElementById(id).value);}
@@ -1151,12 +1467,14 @@ function onSignupRoleChange(){
 function afterAuthLanding(){
   const u=currentUser();
   if(!u) return;
+  if(window.StudentDash) StudentDash.syncLanding();
   if(u.role==='teacher'){
     go('teacher');
   } else if(!u.profileComplete){
     openOnboarding(false);
   } else {
-    go('award');
+    go('home');
+    if(window.StudentDash) StudentDash.refreshHomeShell();
   }
 }
 function isAuthRateLimit(err){
@@ -1302,6 +1620,11 @@ async function doLogout(){
   _sbUser=null;
   setSession(null);
   refreshAccountView(); refreshTopAcc(); refreshAwardView();
+  if(window.StudentDash){
+    StudentDash.refreshHomeShell();
+    StudentDash.syncLanding();
+  }
+  go('home');
 }
 async function restoreCloudSession(){
   const sb=getSb(); if(!sb) return;
@@ -1335,7 +1658,8 @@ function openOnboarding(forceEdit){
 }
 function closeOnboarding(){
   document.getElementById('onboardOverlay').classList.remove('show');
-  go('award');
+  go('home');
+  if(window.StudentDash) StudentDash.refreshHomeShell();
 }
 async function saveOnboarding(){
   const u=currentUser(); if(!u) return;
@@ -1361,11 +1685,21 @@ async function saveOnboarding(){
     Object.assign(_sbUser, payload);
   }else{
     const users=getUsers();
-    if(users[u.roll]){ Object.assign(users[u.roll], payload); setUsers(users); }
+    const key=normalizeEmail(u.email)||u.roll;
+    if(users[key]){ Object.assign(users[key], payload); setUsers(users); }
+    else if(users[u.roll]){ Object.assign(users[u.roll], payload); setUsers(users); }
+  }
+  // Mirror session/semester into local student profile store
+  if(window.StudentDash && u.role!=='teacher'){
+    StudentDash.patchProfile({
+      session:payload.session||'',
+      currentSemester:payload.currentSemester
+    });
   }
   closeOnboarding();
   refreshAccountView(); refreshTopAcc();
-  go('award');
+  go('home');
+  if(window.StudentDash) StudentDash.refreshHomeShell();
 }
 function refreshTopAcc(){
   const u=currentUser();
@@ -1376,18 +1710,20 @@ function refreshHeroWelcome(){
   const u=currentUser();
   const title=document.getElementById('heroTitle');
   const sub=document.getElementById('heroSub');
-  if(!title||!sub) return;
-  if(u){
-    title.textContent='Welcome '+u.name;
-    if(u.role==='teacher'){
-      sub.textContent=(u.email||'Teacher')+' · Teacher desk for classes, attendance & award lists — private to your account.';
-    } else {
-      sub.textContent=(u.email||('Roll '+u.roll))+' · Your law-study toolkit for University Law College, Quetta.';
+  if(title&&sub){
+    if(u){
+      title.textContent='Welcome '+u.name;
+      if(u.role==='teacher'){
+        sub.textContent=(u.email||'Teacher')+' · Teacher desk for classes, attendance & award lists — private to your account.';
+      } else {
+        sub.textContent=(u.email||('Roll '+u.roll))+' · Your law-study toolkit for University Law College, Quetta.';
+      }
+    }else{
+      title.textContent='ULC Toolkit';
+      sub.textContent='Covers, award lists, syllabus, and more — built for University Law College, Quetta.';
     }
-  }else{
-    title.textContent='ULC Toolkit';
-    sub.textContent='Covers, award lists, syllabus, and more — built for University Law College, Quetta.';
   }
+  if(window.StudentDash) StudentDash.refreshHomeShell();
 }
 function syncRoleNav(){
   const teacher=isTeacher();
@@ -1401,6 +1737,7 @@ function refreshAccountView(){
   document.getElementById('accountLoggedOut').style.display=u?'none':'block';
   document.getElementById('accountLoggedIn').style.display=u?'block':'none';
   syncRoleNav();
+  if(window.StudentDash) StudentDash.syncLanding();
   if(u){
     const teacher=u.role==='teacher';
     document.getElementById('accAv').textContent=(u.name||'U').charAt(0).toUpperCase();
@@ -1922,6 +2259,10 @@ liveAward();
   await restoreCloudSession();
   refreshTopAcc();
   refreshAccountView();
+  if(window.StudentDash){
+    StudentDash.syncLanding();
+    StudentDash.refreshHomeShell();
+  }
   await refreshInstructorsFromCloud();
   fillInstructorList();
 })();

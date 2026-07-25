@@ -60,6 +60,22 @@
     }
     return ch ? points / ch : 0;
   }
+  /** Credit-weighted semester GPA plus percentage / obtained from marks (/100 each). */
+  function calcSemesterGpa(courses) {
+    const list = Array.isArray(courses) ? courses : [];
+    let points = 0, ch = 0, obtained = 0;
+    for (const c of list) {
+      const credits = +c.ch || 0;
+      const gp = +c.gp || 0;
+      points += gp * credits;
+      ch += credits;
+      obtained += +c.marks || 0;
+    }
+    const gpa = ch ? points / ch : 0;
+    const max = list.length * 100;
+    const pct = max ? (obtained / max) * 100 : 0;
+    return { gpa, pct, obtained, ch, max };
+  }
   function sampleFullAward(seed) {
     const s = (seed * 9301 + 49297) % 233280;
     const r = (n, max) => ((s * (n + 1)) % (max + 1));
@@ -70,5 +86,5 @@
       mid_obj: 0, mid_sub: 0, fin_obj: 0, fin_sub: 0,
     };
   }
-  return { best3Avg, gpFromRounded, letterFromRounded, calcAwardFrom, calcAggregate, calcGpa, sampleFullAward };
+  return { best3Avg, gpFromRounded, letterFromRounded, calcAwardFrom, calcAggregate, calcGpa, calcSemesterGpa, sampleFullAward };
 });
