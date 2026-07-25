@@ -67,6 +67,77 @@
     return u ? u.roll : null;
   }
 
+  let cloudSyncTimer = null;
+  let cloudPullDone = false;
+
+  function cloudUserId() {
+    const u = global.currentUser && global.currentUser();
+    return u && u.cloud && u.id ? u.id : null;
+  }
+
+  function scheduleTeacherCloudSync(st) {
+    const uid = cloudUserId();
+    if (!uid || !global.ULC_CLOUD?.saveWorkspace) return;
+    clearTimeout(cloudSyncTimer);
+    cloudSyncTimer = setTimeout(() => {
+      pushTeacherWorkspace(st).catch((e) => console.warn("[teacher] cloud sync", e?.message || e));
+    }, 700);
+  }
+
+  async function pushTeacherWorkspace(st) {
+    const uid = cloudUserId();
+    if (!uid || !global.ULC_CLOUD?.saveWorkspace) return;
+    const data = st || getStore();
+    if (!data) return;
+    await global.ULC_CLOUD.saveWorkspace(uid, {
+      official_name: data.officialName || "",
+      data: {
+        kind: "teacher",
+        version: 1,
+        officialName: data.officialName || "",
+        classes: data.classes || [],
+        activeClassId: data.activeClassId || null,
+        profileComplete: !!data.profileComplete,
+        syncedAt: Date.now(),
+      },
+    });
+  }
+
+  async function pullTeacherWorkspace(force) {
+    const uid = cloudUserId();
+    if (!uid || !global.ULC_CLOUD?.loadWorkspace) return false;
+    if (cloudPullDone && !force) return false;
+    try {
+      const remote = await global.ULC_CLOUD.loadWorkspace(uid);
+      cloudPullDone = true;
+      if (!remote || !remote.data) return false;
+      const d = remote.data;
+      if (d.kind && d.kind !== "teacher") return false;
+      const local = getStore();
+      const remoteTs = +d.syncedAt || Date.parse(remote.updated_at) || 0;
+      const localTs = +local?.cloudSyncedAt || 0;
+      const remoteHasClasses = Array.isArray(d.classes) && d.classes.length;
+      if (!remoteHasClasses) return false;
+      if (localTs && remoteTs && localTs > remoteTs && (local.classes || []).length) return false;
+      const merged = {
+        officialName: d.officialName || remote.official_name || local.officialName || "",
+        classes: d.classes || [],
+        activeClassId: d.activeClassId || (d.classes && d.classes[0] && d.classes[0].id) || null,
+        profileComplete: d.profileComplete != null ? !!d.profileComplete : !!(d.classes && d.classes.length),
+        cloudSyncedAt: remoteTs || Date.now(),
+      };
+      const key = teacherKey();
+      if (!key) return false;
+      const all = loadJSON(LS_TEACHER, {});
+      all[key] = merged;
+      saveJSON(LS_TEACHER, all);
+      return true;
+    } catch (e) {
+      console.warn("[teacher] cloud pull", e?.message || e);
+      return false;
+    }
+  }
+
   function getStore() {
     const all = loadJSON(LS_TEACHER, {});
     const key = teacherKey();
@@ -81,8 +152,10 @@
     const key = teacherKey();
     if (!key) return;
     const all = loadJSON(LS_TEACHER, {});
+    data.cloudSyncedAt = Date.now();
     all[key] = data;
     saveJSON(LS_TEACHER, all);
+    scheduleTeacherCloudSync(data);
   }
 
   function activeClass() {
@@ -1068,8 +1141,15 @@
       .grid thead .top{font-size:7.5px;letter-spacing:.03em}
       .grid thead .sub{font-size:6.4px}
       .grid tbody td{
-        font-size:7px;height:22px;max-height:22px;
+        font-size:7.2px;height:19px;max-height:19px;padding:0 1px;line-height:1;
       }
+      .grid tbody tr:nth-child(even) td{background:#eef3f8}
+      .grid tbody tr:nth-child(even) td.avg,
+      .grid tbody tr:nth-child(even) td.avg-a,
+      .grid tbody tr:nth-child(even) td.pct,
+      .grid tbody tr:nth-child(even) td.pct-f{background:#c8d2dc}
+      .grid tbody tr:nth-child(even) td.rnd,
+      .grid tbody tr:nth-child(even) td.gp{background:#f5d9c8}
       .grid col.roll,.grid .roll{
         width:3.2%;font-weight:700;white-space:nowrap;font-size:7px;padding:0 2px;
       }
@@ -1743,8 +1823,9 @@
     setStore(st);
   }
 
-  function initTeacherView() {
+  async function initTeacherView() {
     injectPdfStyles();
+    await pullTeacherWorkspace(false);
     const st = getStore();
     if (!st) return;
     if (!st.profileComplete || !st.classes.length) openTeacherSetup(false);
@@ -1780,6 +1861,8 @@
     onPdfModeChange,
     initTeacherView,
     renderTeacherHome,
+    pullTeacherWorkspace,
+    pushTeacherWorkspace,
     syncHomeOverview,
     saveClassDates,
     getStore,

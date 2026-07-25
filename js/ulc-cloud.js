@@ -137,6 +137,8 @@
             await upsertProfile(item.row);
           } else if (item.type === "award_delete") {
             await deleteAward(item.userId, item.awardId);
+          } else if (item.type === "workspace_upsert") {
+            await saveWorkspace(item.userId, item.payload);
           }
           flushed++;
         } catch (err) {
@@ -212,6 +214,51 @@
     } catch (_) { /* non-fatal */ }
   }
 
+  /** Generic per-user JSON workspace (table: teacher_workspaces). Used by teachers AND students. */
+  async function saveWorkspace(userId, payload) {
+    if (!userId) throw new Error("saveWorkspace: missing user id");
+    const row = {
+      user_id: userId,
+      official_name: payload.official_name || payload.officialName || null,
+      data: payload.data != null ? payload.data : {},
+      updated_at: new Date().toISOString(),
+    };
+    try {
+      return await sbCall("workspace.upsert", (sb) =>
+        sb.from("teacher_workspaces").upsert(row, { onConflict: "user_id" }).select("user_id,updated_at").single()
+      );
+    } catch (err) {
+      if (isRetryable(err)) enqueue({ type: "workspace_upsert", userId, payload: row });
+      throw err;
+    }
+  }
+
+  async function loadWorkspace(userId) {
+    if (!userId) return null;
+    const { data } = await sbCall("workspace.load", (sb) =>
+      sb.from("teacher_workspaces").select("user_id,official_name,data,updated_at").eq("user_id", userId).maybeSingle()
+    );
+    return data || null;
+  }
+
+  async function fetchProfile(userId) {
+    if (!userId) return null;
+    const { data } = await sbCall("profiles.get", (sb) =>
+      sb.from("profiles").select("*").eq("id", userId).maybeSingle()
+    );
+    return data || null;
+  }
+
+  async function listProfilesByRole(role, limit) {
+    const q = (sb) => {
+      let b = sb.from("profiles").select("id,roll_no,full_name,contact,role,current_semester,session,cgpa,profile_complete,created_at");
+      if (role) b = b.eq("role", role);
+      return b.order("created_at", { ascending: false }).limit(limit || 50);
+    };
+    const { data } = await sbCall("profiles.listRole", q);
+    return data || [];
+  }
+
   // Auto-flush queued writes when back online
   if (typeof window !== "undefined") {
     window.addEventListener("online", () => { flushQueue().catch(() => {}); });
@@ -221,6 +268,7 @@
   global.ULC_CLOUD = {
     ready, getClient, pingHealth, lastHealth, withRetry, sbCall,
     upsertProfile, listAwards, insertAwardsBatch, deleteAward, publishInstructor,
+    saveWorkspace, loadWorkspace, fetchProfile, listProfilesByRole,
     enqueue, flushQueue, loadQueue,
   };
 })(typeof window !== "undefined" ? window : globalThis);

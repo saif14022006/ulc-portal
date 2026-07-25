@@ -1964,6 +1964,10 @@ async function doLogin(){
       session:prof?.session, notes:prof?.notes, profileComplete: role==='teacher' ? true : !!prof?.profile_complete
     };
     setSession({ email:em, roll, cloud:true });
+    try {
+      if (role === 'teacher' && window.TeacherApp?.pullTeacherWorkspace) await TeacherApp.pullTeacherWorkspace(true);
+      else if (role !== 'teacher' && window.StudentDash?.pullStudentWorkspace) await StudentDash.pullStudentWorkspace(true);
+    } catch (e) { console.warn('workspace pull after login', e); }
     refreshAccountView(); refreshTopAcc();
     afterAuthLanding();
     return;
@@ -1999,6 +2003,14 @@ async function restoreCloudSession(){
     session:prof.session, notes:prof.notes, profileComplete: role==='teacher' ? true : !!prof.profile_complete
   };
   setSession({ email, roll:prof.roll_no, cloud:true });
+  try {
+    if (window.ULC_CLOUD) await ULC_CLOUD.flushQueue();
+    if (role === 'teacher' && window.TeacherApp?.pullTeacherWorkspace) {
+      await TeacherApp.pullTeacherWorkspace(true);
+    } else if (role !== 'teacher' && window.StudentDash?.pullStudentWorkspace) {
+      await StudentDash.pullStudentWorkspace(true);
+    }
+  } catch (e) { console.warn('cloud workspace pull', e); }
 }
 function openOnboarding(forceEdit){
   const u=currentUser(); if(!u) return;

@@ -5,6 +5,85 @@
   const LS_PROFILE = "ulc_student_profile_v1";
   const LS_RECORDS = "ulc_semester_records_v1";
   const LS_SUBJECT_MARKS = "ulc_subject_marks_v1";
+
+  let studentCloudTimer = null;
+  let studentPullDone = false;
+
+  function cloudUserId() {
+    const u = typeof currentUser === "function" ? currentUser() : null;
+    return u && u.cloud && u.id ? u.id : null;
+  }
+
+  function scheduleStudentCloudSync() {
+    const uid = cloudUserId();
+    if (!uid || !global.ULC_CLOUD?.saveWorkspace) return;
+    clearTimeout(studentCloudTimer);
+    studentCloudTimer = setTimeout(() => {
+      pushStudentWorkspace().catch((e) => console.warn("[student] cloud sync", e?.message || e));
+    }, 700);
+  }
+
+  async function pushStudentWorkspace() {
+    const u = typeof currentUser === "function" ? currentUser() : null;
+    const uid = cloudUserId();
+    if (!u || !uid || u.role === "teacher" || !global.ULC_CLOUD?.saveWorkspace) return;
+    const profile = getProfile(u);
+    const records = getRecords(u);
+    const marksAll = loadJSON(LS_SUBJECT_MARKS, {});
+    const subjectMarks = marksAll[accountKey(u)] || {};
+    await global.ULC_CLOUD.saveWorkspace(uid, {
+      official_name: u.name || "",
+      data: {
+        kind: "student",
+        version: 1,
+        profile,
+        semesterRecords: records,
+        subjectMarks,
+        syncedAt: Date.now(),
+      },
+    });
+  }
+
+  async function pullStudentWorkspace(force) {
+    const u = typeof currentUser === "function" ? currentUser() : null;
+    const uid = cloudUserId();
+    if (!u || !uid || u.role === "teacher" || !global.ULC_CLOUD?.loadWorkspace) return false;
+    if (studentPullDone && !force) return false;
+    try {
+      const remote = await global.ULC_CLOUD.loadWorkspace(uid);
+      studentPullDone = true;
+      if (!remote || !remote.data || remote.data.kind !== "student") return false;
+      const d = remote.data;
+      const remoteTs = +d.syncedAt || Date.parse(remote.updated_at) || 0;
+      const localP = getProfile(u);
+      const localTs = +localP.updatedAt || 0;
+      const remotePhoto = d.profile && d.profile.photo;
+      const shouldApply =
+        force ||
+        !localTs ||
+        remoteTs >= localTs ||
+        (remotePhoto && !localP.photo);
+      if (!shouldApply) return false;
+      if (d.profile && typeof d.profile === "object") {
+        const key = accountKey(u);
+        const all = getProfileStore();
+        all[key] = { ...(all[key] || {}), ...d.profile, updatedAt: remoteTs || Date.now() };
+        saveJSON(LS_PROFILE, all);
+      }
+      if (d.semesterRecords && typeof d.semesterRecords === "object") {
+        setRecords(u, d.semesterRecords);
+      }
+      if (d.subjectMarks && typeof d.subjectMarks === "object") {
+        const allM = loadJSON(LS_SUBJECT_MARKS, {});
+        allM[accountKey(u)] = d.subjectMarks;
+        saveJSON(LS_SUBJECT_MARKS, allM);
+      }
+      return true;
+    } catch (e) {
+      console.warn("[student] cloud pull", e?.message || e);
+      return false;
+    }
+  }
   const ORD = ["", "1ST", "2ND", "3RD", "4TH", "5TH", "6TH", "7TH", "8TH", "9TH", "10TH"];
 
   let activeDashTab = "gpa";
@@ -79,6 +158,7 @@
     const all = getSubjectMarksStore();
     all[key] = map;
     saveJSON(LS_SUBJECT_MARKS, all);
+    scheduleStudentCloudSync();
   }
   function subjectMarksId(sem, code) {
     return String(sem) + "|" + String(code || "").trim().toUpperCase();
@@ -126,6 +206,7 @@
     const all = getProfileStore();
     all[key] = { ...(all[key] || {}), ...data, updatedAt: Date.now() };
     saveJSON(LS_PROFILE, all);
+    scheduleStudentCloudSync();
   }
   function patchProfile(data) {
     const u = typeof currentUser === "function" ? currentUser() : null;
@@ -143,6 +224,7 @@
     const all = getRecordStore();
     all[key] = data;
     saveJSON(LS_RECORDS, all);
+    scheduleStudentCloudSync();
   }
 
   function syllabus() {
@@ -502,7 +584,7 @@
     const msg = document.getElementById("sp-msg");
     if (msg) {
       msg.textContent = photo
-        ? "Profile saved on this device (photo + signature names included)."
+        ? "Profile saved to this device and synced to cloud (photo included)."
         : "Profile saved. Upload a photo so it appears on your transcript.";
       msg.className = "msg show ok";
     }
@@ -1580,6 +1662,8 @@
     getRecords,
     patchProfile,
     accountKey,
+    pullStudentWorkspace,
+    pushStudentWorkspace,
   };
 
   global.StudentDash = StudentDash;

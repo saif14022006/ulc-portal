@@ -9,7 +9,9 @@
     "start": "npx --yes serve -p 8080",
     "load-test": "node scripts/load-stress.mjs",
     "load-test:full": "node scripts/load-stress.mjs --students 1000 --teachers 1000 --awards 200 --covers 100",
-    "load-test:reset": "node -e \"import('fs').then(fs=>fs.promises.rm('scripts/.load-progress.json',{force:true}).then(()=>console.log('progress cleared')))\""
+    "load-test:reset": "node -e \"import('fs').then(fs=>fs.promises.rm('scripts/.load-progress.json',{force:true}).then(()=>console.log('progress cleared')))\"",
+    "test:sync": "node scripts/sync-accuracy.mjs",
+    "test:probe": "node scripts/probe-supabase.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.110.8"
