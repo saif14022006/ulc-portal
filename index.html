@@ -281,6 +281,8 @@ main{flex:1;padding:18px 16px 36px;width:100%}
 .gp-box .l{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:#a9c1da;margin-top:4px}
 .overlay{position:fixed;inset:0;z-index:80;background:rgba(8,39,68,.55);display:none;align-items:flex-end;justify-content:center;padding:16px;padding-bottom:calc(16px + env(safe-area-inset-bottom))}
 .overlay.show{display:flex}
+#profileOverlay{z-index:220}
+#profileOverlay .sheet{max-height:90dvh}
 .sheet{background:var(--paper-2);border-radius:18px 18px 14px 14px;padding:20px 18px;width:100%;max-width:480px;max-height:88dvh;overflow:auto;box-shadow:0 -8px 40px rgba(0,0,0,.25)}
 .sheet h2{font-family:var(--serif);font-size:20px;color:var(--navy);margin-bottom:4px}
 .sheet .lead{font-size:13px;color:var(--slate);margin-bottom:14px}
@@ -479,7 +481,9 @@ body.landing-open .app{visibility:hidden;pointer-events:none}
 .tx-cert{width:1122px;background:#fff;color:#0a2a5c;font-family:Arial,Helvetica,sans-serif;box-sizing:border-box;position:relative;overflow:hidden}
 .tx-outer{border:3px solid #0a2a5c;padding:6px;position:relative;z-index:1}
 .tx-watermark{position:absolute;inset:0;z-index:5;pointer-events:none;overflow:hidden}
-.tx-watermark span{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%) rotate(-32deg);font-family:Arial,Helvetica,sans-serif;font-size:96px;font-weight:800;letter-spacing:.2em;text-transform:uppercase;color:rgba(10,42,92,.14);white-space:nowrap;user-select:none;line-height:1}
+.tx-watermark span{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%) rotate(-34deg);font-family:Arial Black,Arial,Helvetica,sans-serif;font-size:108px;font-weight:900;letter-spacing:.22em;text-transform:uppercase;color:rgba(10,42,92,.2);white-space:nowrap;user-select:none;line-height:1;-webkit-text-stroke:1px rgba(10,42,92,.08)}
+.tx-watermark span.wm-b{top:28%;font-size:72px;opacity:.85;letter-spacing:.16em}
+.tx-watermark span.wm-c{top:72%;font-size:72px;opacity:.85;letter-spacing:.16em}
 .tx-inner{border:1.5px solid #0a2a5c;padding:14px 16px 12px}
 .tx-head{display:grid;grid-template-columns:120px 1fr 120px;gap:14px;align-items:center;text-align:center;margin-bottom:12px}
 .tx-logo{width:112px;height:112px;object-fit:contain;justify-self:center}
@@ -744,7 +748,7 @@ body.landing-open .app{visibility:hidden;pointer-events:none}
                 <span class="val" id="dashCgpaVal">—</span>
                 <span class="hint" id="dashCgpaHint">from records</span>
               </div>
-              <button type="button" class="dash-profile-btn" onclick="StudentDash.openProfileModal()" title="Edit profile">
+              <button type="button" class="dash-profile-btn" id="dashProfileBtn" title="Edit profile">
                 <span class="av" id="dashProfileAv">?</span>
                 <span>Edit profile</span>
               </button>
@@ -764,12 +768,18 @@ body.landing-open .app{visibility:hidden;pointer-events:none}
               <p class="hint" style="margin:0">Semester GPA vs cumulative CGPA from your saved records.</p>
               <div class="gpa-dual-stats">
                 <div class="pill-stat">
-                  <div class="n" id="dashLatestGpa">—</div>
-                  <div class="l" id="dashLatestGpaLbl">Latest GPA</div>
+                  <div class="n" id="dashPrevCgpa">—</div>
+                  <div class="l">Previous CGPA</div>
                 </div>
                 <div class="pill-stat cg">
                   <div class="n" id="dashOverviewCgpa">—</div>
-                  <div class="l">Overall CGPA</div>
+                  <div class="l">Current CGPA</div>
+                </div>
+              </div>
+              <div class="gpa-dual-stats" style="margin-top:-6px">
+                <div class="pill-stat" style="grid-column:1/-1">
+                  <div class="n" id="dashLatestGpa">—</div>
+                  <div class="l" id="dashLatestGpaLbl">Latest semester GPA</div>
                 </div>
               </div>
               <div class="gpa-legend">
@@ -1451,7 +1461,7 @@ body.landing-open .app{visibility:hidden;pointer-events:none}
   <div id="printhost" class="no-print" style="display:none"></div>
   <div id="transcriptHost" style="display:none" aria-hidden="true"></div>
 
-  <div class="overlay" id="profileOverlay">
+  <div class="overlay" id="profileOverlay" onclick="if(event.target===this)StudentDash.closeProfileModal()">
     <div class="sheet sheet-wide sheet-profile">
       <h2>Edit profile</h2>
       <p class="lead">Photo and details used on your provisional transcript.</p>
@@ -1594,7 +1604,7 @@ function go(t){
   window.scrollTo({top:0,behavior:'instant'});
   if(t==='award'){ fillInstructorList(); refreshAwardView(); }
   if(t==='account') refreshAccountView();
-  if(t==='home'){ refreshHeroWelcome(); if(window.StudentDash) StudentDash.refreshHomeShell(); }
+  if(t==='home'){ refreshHeroWelcome(); if(window.StudentDash) StudentDash.refreshHomeShell({overview:true}); }
   if(t==='gpa'){ onGpaSemChange(); renderGrades(); }
   if(t==='timetable'){ syncDayUi(); renderSlots(); }
   if(t==='syllabus') renderSyllabusAcc();

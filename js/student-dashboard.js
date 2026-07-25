@@ -241,7 +241,7 @@
   }
 
   /* -------- Home shell -------- */
-  function refreshHomeShell() {
+  function refreshHomeShell(opts) {
     const u = typeof currentUser === "function" ? currentUser() : null;
     const guest = document.getElementById("homeGuest");
     const student = document.getElementById("homeStudent");
@@ -304,7 +304,18 @@
         av.textContent = (name.charAt(0) || "?").toUpperCase();
       }
     }
-    setDashTab(activeDashTab === "profile" ? "gpa" : activeDashTab, true);
+    const profileBtn = document.getElementById("dashProfileBtn");
+    if (profileBtn && !profileBtn.dataset.bound) {
+      profileBtn.dataset.bound = "1";
+      profileBtn.addEventListener("click", (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        openProfileModal();
+      });
+    }
+    if (opts && opts.overview) activeDashTab = "gpa";
+    if (!activeDashTab || activeDashTab === "profile") activeDashTab = "gpa";
+    setDashTab(activeDashTab, true);
   }
 
   function studentCgpaSummary(u) {
@@ -344,11 +355,26 @@
   }
 
   function openProfileModal() {
+    const u = typeof currentUser === "function" ? currentUser() : null;
+    if (!u || u.role === "teacher") {
+      alert("Login as a student to edit your profile.");
+      return;
+    }
     renderProfile();
-    document.getElementById("profileOverlay")?.classList.add("show");
+    const ov = document.getElementById("profileOverlay");
+    if (!ov) {
+      alert("Profile popup is missing. Hard-refresh the page (cache v28+).");
+      return;
+    }
+    ov.classList.add("show");
+    ov.setAttribute("aria-hidden", "false");
   }
   function closeProfileModal() {
-    document.getElementById("profileOverlay")?.classList.remove("show");
+    const ov = document.getElementById("profileOverlay");
+    if (ov) {
+      ov.classList.remove("show");
+      ov.setAttribute("aria-hidden", "true");
+    }
   }
 
   /* -------- Profile -------- */
@@ -370,7 +396,11 @@
     set("sp-program", p.program || "LL.B Five Year");
     const semSel = document.getElementById("sp-sem");
     if (semSel && !semSel.dataset.ready) {
-      semSel.innerHTML = Object.keys(syllabus())
+      const keys = Object.keys(global.SYLLABUS || syllabus() || {})
+        .map(Number)
+        .filter((n) => n > 0)
+        .sort((a, b) => a - b);
+      semSel.innerHTML = (keys.length ? keys : [1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
         .map((n) => `<option value="${n}">Semester ${n}</option>`)
         .join("");
       semSel.dataset.ready = "1";
@@ -1040,10 +1070,29 @@
           <div class="sr-saved-actions">
             <button type="button" class="btn btn-ghost btn-sm" onclick="StudentDash.editSemester(${n})">Edit results</button>
             <button type="button" class="btn btn-gold btn-sm" onclick="StudentDash.generateTranscript(${n})">Generate transcript</button>
+            <button type="button" class="btn btn-danger btn-sm" onclick="StudentDash.deleteSemester(${n})">Delete</button>
           </div>
         </div>`;
       })
       .join("");
+  }
+
+  function deleteSemester(n) {
+    const u = currentUser();
+    if (!u) return;
+    n = +n;
+    if (!confirm(`Delete Semester ${n} record? This cannot be undone.`)) return;
+    const records = getRecords(u);
+    delete records[n];
+    setRecords(u, records);
+    if (editingSem === n) editingSem = 1;
+    const msg = document.getElementById("sr-msg");
+    if (msg) {
+      msg.textContent = `Semester ${n} deleted.`;
+      msg.className = "msg show ok";
+    }
+    renderSavedSemesters();
+    refreshHomeShell();
   }
 
   function editSemester(n) {
@@ -1126,7 +1175,11 @@
       )
       .join("");
     return `<div class="tx-cert">
-      <div class="tx-watermark" aria-hidden="true"><span>DUPLICATE</span></div>
+      <div class="tx-watermark" aria-hidden="true">
+        <span class="wm-b">DUPLICATE</span>
+        <span>DUPLICATE</span>
+        <span class="wm-c">DUPLICATE</span>
+      </div>
       <div class="tx-outer">
         <div class="tx-inner">
           <div class="tx-head">
@@ -1323,6 +1376,7 @@
     const latestEl = document.getElementById("dashLatestGpa");
     const latestLbl = document.getElementById("dashLatestGpaLbl");
     const overviewCg = document.getElementById("dashOverviewCgpa");
+    const prevCgEl = document.getElementById("dashPrevCgpa");
     if (!u || !bars) return;
     const records = getRecords(u);
     const keys = Object.keys(records)
@@ -1334,11 +1388,20 @@
       if (summary) summary.textContent = "";
       if (latestEl) latestEl.textContent = "—";
       if (overviewCg) overviewCg.textContent = "—";
-      if (latestLbl) latestLbl.textContent = "Latest GPA";
+      if (prevCgEl) prevCgEl.textContent = "—";
+      if (latestLbl) latestLbl.textContent = "Latest semester GPA";
       return;
     }
     const maxG = 4;
-    const overallCgpa = cumulativeThrough(records, keys[keys.length - 1]);
+    const latest = keys[keys.length - 1];
+    const currentCgpa = cumulativeThrough(records, latest);
+    const previousCgpa = keys.length > 1 ? cumulativeThrough(records, keys[keys.length - 2]) : cumulativeBefore(records, latest);
+    const prevFallback =
+      previousCgpa > 0
+        ? previousCgpa
+        : u.prevGpa != null && u.prevGpa !== ""
+          ? +u.prevGpa
+          : 0;
     bars.innerHTML = keys
       .map((n) => {
         const g = Number(records[n].gpa) || 0;
@@ -1357,17 +1420,17 @@
       })
       .join("");
 
-    const latest = keys[keys.length - 1];
     const latestGpa = Number(records[latest].gpa) || 0;
     if (latestEl) latestEl.textContent = latestGpa.toFixed(2);
-    if (latestLbl) latestLbl.textContent = "Latest GPA · Sem " + latest;
-    if (overviewCg) overviewCg.textContent = overallCgpa.toFixed(2);
+    if (latestLbl) latestLbl.textContent = "Latest semester GPA · Sem " + latest;
+    if (overviewCg) overviewCg.textContent = currentCgpa.toFixed(2);
+    if (prevCgEl) prevCgEl.textContent = Number(prevFallback).toFixed(2);
 
     let cmp = "equal to";
-    if (latestGpa > overallCgpa + 0.01) cmp = "above";
-    else if (latestGpa < overallCgpa - 0.01) cmp = "below";
+    if (latestGpa > currentCgpa + 0.01) cmp = "above";
+    else if (latestGpa < currentCgpa - 0.01) cmp = "below";
     if (summary) {
-      summary.innerHTML = `<p class="hint" style="margin:0">Your latest semester GPA (<b>${latestGpa.toFixed(2)}</b>) is <b>${cmp}</b> your overall CGPA (<b>${overallCgpa.toFixed(2)}</b>) across ${keys.length} saved semester${keys.length > 1 ? "s" : ""}.</p>`;
+      summary.innerHTML = `<p class="hint" style="margin:0">Previous CGPA <b>${Number(prevFallback).toFixed(2)}</b> · Current CGPA <b>${currentCgpa.toFixed(2)}</b>. Latest semester GPA (<b>${latestGpa.toFixed(2)}</b>) is <b>${cmp}</b> your current CGPA.</p>`;
     }
   }
 
@@ -1504,6 +1567,7 @@
     onMarksInput,
     saveSemester,
     editSemester,
+    deleteSemester,
     generateTranscript,
     renderGpaAnalysis,
     sendChat,
