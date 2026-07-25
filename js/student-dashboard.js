@@ -7,7 +7,7 @@
   const LS_SUBJECT_MARKS = "ulc_subject_marks_v1";
   const ORD = ["", "1ST", "2ND", "3RD", "4TH", "5TH", "6TH", "7TH", "8TH", "9TH", "10TH"];
 
-  let activeDashTab = "profile";
+  let activeDashTab = "gpa";
   let editingSem = 1;
   let authFlowOpen = false;
   let guestBrowsing = false;
@@ -296,7 +296,15 @@
     if (cgpaHint) {
       cgpaHint.textContent = cgpaInfo.hint;
     }
-    setDashTab(activeDashTab, true);
+    const av = document.getElementById("dashProfileAv");
+    if (av) {
+      if (p.photo) {
+        av.innerHTML = `<img src="${p.photo}" alt="">`;
+      } else {
+        av.textContent = (name.charAt(0) || "?").toUpperCase();
+      }
+    }
+    setDashTab(activeDashTab === "profile" ? "gpa" : activeDashTab, true);
   }
 
   function studentCgpaSummary(u) {
@@ -322,18 +330,25 @@
 
   function setDashTab(tab, force) {
     if (!force && activeDashTab === tab) return;
-    activeDashTab = tab || "profile";
+    activeDashTab = tab === "profile" ? "gpa" : tab || "gpa";
     document.querySelectorAll(".dash-tab").forEach((b) => {
       b.classList.toggle("active", b.dataset.dash === activeDashTab);
     });
     document.querySelectorAll(".dash-panel").forEach((p) => {
       p.classList.toggle("active", p.id === "dash-" + activeDashTab);
     });
-    if (activeDashTab === "profile") renderProfile();
     if (activeDashTab === "marks") renderSubjectMarks();
     if (activeDashTab === "records") renderRecords();
     if (activeDashTab === "gpa") renderGpaAnalysis();
     if (activeDashTab === "chat") renderChatWelcome();
+  }
+
+  function openProfileModal() {
+    renderProfile();
+    document.getElementById("profileOverlay")?.classList.add("show");
+  }
+  function closeProfileModal() {
+    document.getElementById("profileOverlay")?.classList.remove("show");
   }
 
   /* -------- Profile -------- */
@@ -456,6 +471,7 @@
       msg.className = "msg show ok";
     }
     refreshHomeShell();
+    closeProfileModal();
   }
 
   /* -------- Add your marks (award formula) -------- */
@@ -746,10 +762,33 @@
           </div>
           <div class="sr-saved-actions">
             <button type="button" class="btn btn-ghost btn-sm" onclick='StudentDash.editSubjectMarks(${JSON.stringify(r.id)})'>Edit</button>
+            <button type="button" class="btn btn-danger btn-sm" onclick='StudentDash.deleteSubjectMarks(${JSON.stringify(r.id)})'>Delete</button>
           </div>
         </div>`;
       })
       .join("");
+  }
+
+  function deleteSubjectMarks(id) {
+    const u = currentUser();
+    if (!u) return;
+    const map = getSubjectMarksMap(u);
+    const row = map[id];
+    if (!row) return;
+    if (!confirm(`Delete marks for ${row.code} (Semester ${row.sem})?`)) return;
+    delete map[id];
+    setSubjectMarksMap(u, map);
+    if (editingSubjectMarksId === id) {
+      editingSubjectMarksId = null;
+      resetSubjectMarksForm();
+    }
+    const msg = document.getElementById("sm-msg");
+    if (msg) {
+      msg.textContent = `Deleted ${row.code}.`;
+      msg.className = "msg show ok";
+    }
+    renderSavedSubjectMarks();
+    refreshHomeShell();
   }
 
   function editSubjectMarks(id) {
@@ -1187,7 +1226,7 @@
         "No student photo found on your profile. Upload a photo in Profile first?\n\nOK = open Profile · Cancel = generate without photo"
       );
       if (goPhoto) {
-        setDashTab("profile");
+        openProfileModal();
         return;
       }
     }
@@ -1281,6 +1320,9 @@
     const u = currentUser();
     const bars = document.getElementById("gpa-bars");
     const summary = document.getElementById("gpa-analysis-summary");
+    const latestEl = document.getElementById("dashLatestGpa");
+    const latestLbl = document.getElementById("dashLatestGpaLbl");
+    const overviewCg = document.getElementById("dashOverviewCgpa");
     if (!u || !bars) return;
     const records = getRecords(u);
     const keys = Object.keys(records)
@@ -1288,35 +1330,44 @@
       .filter((n) => records[n]?.gpa != null)
       .sort((a, b) => a - b);
     if (!keys.length) {
-      bars.innerHTML = '<div class="empty">Save semester records to see GPA over time.</div>';
+      bars.innerHTML = '<div class="empty">Save semester records or subject marks to see your GPA &amp; CGPA chart.</div>';
       if (summary) summary.textContent = "";
+      if (latestEl) latestEl.textContent = "—";
+      if (overviewCg) overviewCg.textContent = "—";
+      if (latestLbl) latestLbl.textContent = "Latest GPA";
       return;
     }
     const maxG = 4;
+    const overallCgpa = cumulativeThrough(records, keys[keys.length - 1]);
     bars.innerHTML = keys
       .map((n) => {
         const g = Number(records[n].gpa) || 0;
+        const cg = cumulativeThrough(records, n);
         const h = Math.max(4, (g / maxG) * 100);
+        const ch = Math.max(4, (cg / maxG) * 100);
         return `<div class="gpa-bar-col">
           <div class="gpa-bar-val">${g.toFixed(2)}</div>
-          <div class="gpa-bar-track"><div class="gpa-bar-fill" style="height:${h}%"></div></div>
+          <div class="gpa-bar-pair">
+            <div class="gpa-bar-track" title="Semester GPA"><div class="gpa-bar-fill" style="height:${h}%"></div></div>
+            <div class="gpa-bar-track" title="CGPA to date"><div class="gpa-bar-fill cg" style="height:${ch}%"></div></div>
+          </div>
           <div class="gpa-bar-lbl">Sem ${n}</div>
+          <div class="gpa-bar-lbl" style="font-size:9px;opacity:.85">CG ${cg.toFixed(2)}</div>
         </div>`;
       })
       .join("");
 
     const latest = keys[keys.length - 1];
     const latestGpa = Number(records[latest].gpa) || 0;
-    const cgpa = cumulativeThrough(records, latest);
+    if (latestEl) latestEl.textContent = latestGpa.toFixed(2);
+    if (latestLbl) latestLbl.textContent = "Latest GPA · Sem " + latest;
+    if (overviewCg) overviewCg.textContent = overallCgpa.toFixed(2);
+
     let cmp = "equal to";
-    if (latestGpa > cgpa + 0.01) cmp = "above";
-    else if (latestGpa < cgpa - 0.01) cmp = "below";
+    if (latestGpa > overallCgpa + 0.01) cmp = "above";
+    else if (latestGpa < overallCgpa - 0.01) cmp = "below";
     if (summary) {
-      summary.innerHTML = `<div class="gpa-stats" style="margin-bottom:10px">
-        <div class="stat"><div class="n">${latestGpa.toFixed(2)}</div><div class="l">Latest · Sem ${latest}</div></div>
-        <div class="stat"><div class="n">${cgpa.toFixed(2)}</div><div class="l">Overall CGPA</div></div>
-      </div>
-      <p class="hint">Your latest semester GPA is <b>${cmp}</b> your cumulative CGPA across ${keys.length} saved semester${keys.length > 1 ? "s" : ""}.</p>`;
+      summary.innerHTML = `<p class="hint" style="margin:0">Your latest semester GPA (<b>${latestGpa.toFixed(2)}</b>) is <b>${cmp}</b> your overall CGPA (<b>${overallCgpa.toFixed(2)}</b>) across ${keys.length} saved semester${keys.length > 1 ? "s" : ""}.</p>`;
     }
   }
 
@@ -1360,7 +1411,7 @@
       {
         keys: ["photo", "profile", "picture", "cnic", "father"],
       answer:
-        "Open the Profile tab on Home. Upload a photo (it is compressed on device), fill father name, CNIC, DOB, registration, session, and program, then Save profile.",
+        "Tap Edit profile on your dashboard (avatar button). Upload a photo, fill father name, CNIC, DOB, registration, session, program, and signature names, then Save.",
     },
     {
       keys: ["teacher", "desk", "attendance"],
@@ -1431,6 +1482,8 @@
     resetLandingForGuestHome,
     refreshHomeShell,
     setDashTab,
+    openProfileModal,
+    closeProfileModal,
     renderProfile,
     onPhotoSelected,
     saveProfile,
@@ -1443,6 +1496,7 @@
     resetSubjectMarksForm,
     saveSubjectMarks,
     editSubjectMarks,
+    deleteSubjectMarks,
     renderRecords,
     openRecordsModal,
     closeRecordsModal,

@@ -416,16 +416,43 @@ body.landing-open .app{visibility:hidden;pointer-events:none}
 .dash-welcome .kicker{font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--gold-lt)}
 .dash-welcome h2{font-family:var(--serif);font-size:20px;margin:6px 0 4px;line-height:1.2}
 .dash-welcome p{font-size:12.5px;color:#cdd9e6;margin:0}
-.dash-cgpa{position:relative;z-index:1;flex:none;min-width:88px;text-align:center;background:rgba(255,255,255,.1);border:1px solid rgba(226,197,104,.45);border-radius:14px;padding:10px 12px;backdrop-filter:blur(6px)}
+.dash-welcome-actions{position:relative;z-index:1;display:flex;flex-direction:column;align-items:flex-end;gap:10px;flex:none}
+.dash-cgpa{min-width:88px;text-align:center;background:rgba(255,255,255,.1);border:1px solid rgba(226,197,104,.45);border-radius:14px;padding:10px 12px;backdrop-filter:blur(6px)}
 .dash-cgpa .lbl{display:block;font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--gold-lt);font-weight:700;margin-bottom:4px}
 .dash-cgpa .val{display:block;font-family:var(--serif);font-size:26px;font-weight:700;color:#fff;line-height:1;letter-spacing:.02em}
 .dash-cgpa .hint{display:block;font-size:10px;color:#cdd9e6;margin-top:4px;font-weight:500}
+.dash-profile-btn{display:inline-flex;align-items:center;gap:8px;border:1px solid rgba(226,197,104,.45);background:rgba(255,255,255,.12);color:#fff;border-radius:999px;padding:6px 12px 6px 6px;cursor:pointer;font-family:var(--sans);font-size:12px;font-weight:600}
+.dash-profile-btn:hover{background:rgba(255,255,255,.2)}
+.dash-profile-btn .av{width:28px;height:28px;border-radius:50%;object-fit:cover;background:rgba(255,255,255,.2);display:grid;place-items:center;font-size:11px;font-weight:700;overflow:hidden;flex:none}
+.dash-profile-btn .av img{width:100%;height:100%;object-fit:cover}
 .dash-tabs{display:flex;gap:6px;overflow-x:auto;padding:2px 0 12px;scrollbar-width:none}
 .dash-tabs::-webkit-scrollbar{display:none}
 .dash-tab{flex:none;padding:9px 12px;border-radius:10px;border:1px solid var(--line);background:#fff;font-size:12.5px;font-weight:600;color:var(--navy);cursor:pointer;font-family:var(--sans)}
 .dash-tab.active{background:var(--navy);color:#fff;border-color:var(--navy)}
 .dash-panel{display:none}
 .dash-panel.active{display:block}
+.gpa-overview-card{background:linear-gradient(180deg,#fff,var(--paper-2));border:1px solid var(--line);border-radius:18px;padding:16px;box-shadow:var(--shadow)}
+.gpa-overview-card h3{font-family:var(--serif);font-size:18px;color:var(--navy);margin:0 0 4px}
+.gpa-dual-stats{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:14px 0 16px}
+.gpa-dual-stats .pill-stat{background:#fff;border:1px solid var(--line);border-radius:14px;padding:12px;text-align:center}
+.gpa-dual-stats .pill-stat .n{font-family:var(--serif);font-size:28px;font-weight:700;color:var(--navy);line-height:1}
+.gpa-dual-stats .pill-stat .l{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--slate);font-weight:700;margin-top:6px}
+.gpa-dual-stats .pill-stat.cg .n{color:var(--gold-deep)}
+.gpa-legend{display:flex;gap:14px;flex-wrap:wrap;font-size:11.5px;color:var(--slate);margin:0 0 10px;font-weight:600}
+.gpa-legend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:6px;vertical-align:middle}
+.gpa-legend .lg-gpa{background:linear-gradient(180deg,var(--gold),var(--navy))}
+.gpa-legend .lg-cgpa{background:var(--navy-2)}
+.gpa-bars{display:flex;align-items:flex-end;gap:12px;min-height:200px;padding:14px 10px 8px;background:#fff;border:1px solid var(--line);border-radius:14px;overflow-x:auto}
+.gpa-bar-col{flex:1;min-width:52px;display:flex;flex-direction:column;align-items:center;gap:6px;height:180px}
+.gpa-bar-val{font-size:11px;font-weight:700;color:var(--navy)}
+.gpa-bar-pair{flex:1;width:100%;display:flex;align-items:flex-end;justify-content:center;gap:4px;min-height:0}
+.gpa-bar-track{flex:1;width:100%;max-width:22px;background:#eef2f7;border-radius:8px 8px 4px 4px;display:flex;align-items:flex-end;overflow:hidden;height:100%}
+.gpa-bar-fill{width:100%;background:linear-gradient(180deg,var(--gold),var(--navy));border-radius:8px 8px 0 0;min-height:4px;transition:height .35s ease}
+.gpa-bar-fill.cg{background:linear-gradient(180deg,var(--navy-2),var(--navy-deep))}
+.gpa-bar-lbl{font-size:10px;color:var(--slate);font-weight:600}
+.btn-danger{background:#a3341f;color:#fff}
+.btn-danger:hover{filter:brightness(1.05)}
+.sheet.sheet-profile{max-width:520px}
 .photo-upload{display:flex;gap:14px;align-items:center;margin-bottom:12px}
 .photo-upload img,.photo-ph{width:84px;height:100px;object-fit:cover;border-radius:8px;border:1px solid var(--line);background:#eef2f7;flex:none}
 .photo-ph{display:grid;place-items:center;font-size:11px;color:var(--slate);font-weight:600}
@@ -442,12 +469,6 @@ body.landing-open .app{visibility:hidden;pointer-events:none}
 .sr-saved-item .m{font-size:12px;color:var(--slate)}
 .sr-saved-item .sr-saved-actions{display:flex;flex-wrap:wrap;gap:8px;margin-left:auto}
 .sr-saved-item .sr-saved-actions .btn{width:auto;padding:9px 12px;font-size:12.5px;border-radius:9px}
-.gpa-bars{display:flex;align-items:flex-end;gap:10px;min-height:160px;padding:12px 8px 4px;background:#fff;border:1px solid var(--line);border-radius:14px;overflow-x:auto}
-.gpa-bar-col{flex:1;min-width:44px;display:flex;flex-direction:column;align-items:center;gap:6px;height:148px}
-.gpa-bar-val{font-size:11px;font-weight:700;color:var(--navy)}
-.gpa-bar-track{flex:1;width:100%;max-width:36px;background:#eef2f7;border-radius:8px 8px 4px 4px;display:flex;align-items:flex-end;overflow:hidden}
-.gpa-bar-fill{width:100%;background:linear-gradient(180deg,var(--gold),var(--navy));border-radius:8px 8px 0 0;min-height:4px;transition:height .35s ease}
-.gpa-bar-lbl{font-size:10px;color:var(--slate);font-weight:600}
 .chat-log{background:#fff;border:1px solid var(--line);border-radius:14px;padding:12px;max-height:280px;overflow:auto;display:flex;flex-direction:column;gap:8px;margin-bottom:10px}
 .chat-bubble{max-width:92%;padding:10px 12px;border-radius:12px;font-size:13px;line-height:1.45}
 .chat-bubble.bot{align-self:flex-start;background:#eef2f7;color:var(--ink);border-bottom-left-radius:4px}
@@ -715,57 +736,48 @@ body.landing-open .app{visibility:hidden;pointer-events:none}
             <div class="dash-welcome-copy">
               <div class="kicker">Student dashboard</div>
               <h2 id="dashWelcomeTitle">Welcome</h2>
-              <p id="dashWelcomeSub">Profile, semester records, GPA, and Ask ULC.</p>
+              <p id="dashWelcomeSub">Your GPA &amp; CGPA at a glance.</p>
             </div>
-            <div class="dash-cgpa" id="dashCgpaBox" aria-label="Cumulative GPA">
-              <span class="lbl">CGPA</span>
-              <span class="val" id="dashCgpaVal">—</span>
-              <span class="hint" id="dashCgpaHint">from records</span>
+            <div class="dash-welcome-actions">
+              <div class="dash-cgpa" id="dashCgpaBox" aria-label="Cumulative GPA">
+                <span class="lbl">CGPA</span>
+                <span class="val" id="dashCgpaVal">—</span>
+                <span class="hint" id="dashCgpaHint">from records</span>
+              </div>
+              <button type="button" class="dash-profile-btn" onclick="StudentDash.openProfileModal()" title="Edit profile">
+                <span class="av" id="dashProfileAv">?</span>
+                <span>Edit profile</span>
+              </button>
             </div>
           </div>
 
           <div class="dash-tabs" role="tablist">
-            <button type="button" class="dash-tab active" data-dash="profile" onclick="StudentDash.setDashTab('profile')">Profile</button>
+            <button type="button" class="dash-tab active" data-dash="gpa" onclick="StudentDash.setDashTab('gpa')">Overview</button>
             <button type="button" class="dash-tab" data-dash="marks" onclick="StudentDash.setDashTab('marks')">Add your marks</button>
             <button type="button" class="dash-tab" data-dash="records" onclick="StudentDash.setDashTab('records')">Semester Records</button>
-            <button type="button" class="dash-tab" data-dash="gpa" onclick="StudentDash.setDashTab('gpa')">GPA Analysis</button>
             <button type="button" class="dash-tab" data-dash="chat" onclick="StudentDash.setDashTab('chat')">Ask ULC</button>
           </div>
 
-          <div class="dash-panel active" id="dash-profile">
-            <div class="card">
-              <h3>Student profile</h3>
-              <div class="msg" id="sp-msg"></div>
-              <div class="photo-upload">
-                <img id="sp-photo-preview" alt="Photo preview" style="display:none">
-                <div>
-                  <div class="field" style="margin-bottom:8px"><label>Photo</label><input id="sp-photo" type="file" accept="image/*" onchange="StudentDash.onPhotoSelected(this.files[0])"></div>
-                  <p class="hint">Passport-style photo for your transcript header. Compressed on this device.</p>
+          <div class="dash-panel active" id="dash-gpa">
+            <div class="gpa-overview-card">
+              <h3>GPA &amp; CGPA</h3>
+              <p class="hint" style="margin:0">Semester GPA vs cumulative CGPA from your saved records.</p>
+              <div class="gpa-dual-stats">
+                <div class="pill-stat">
+                  <div class="n" id="dashLatestGpa">—</div>
+                  <div class="l" id="dashLatestGpaLbl">Latest GPA</div>
+                </div>
+                <div class="pill-stat cg">
+                  <div class="n" id="dashOverviewCgpa">—</div>
+                  <div class="l">Overall CGPA</div>
                 </div>
               </div>
-              <div class="row2">
-                <div class="field"><label>Name</label><input id="sp-name" readonly></div>
-                <div class="field"><label>Roll No.</label><input id="sp-roll" readonly></div>
+              <div class="gpa-legend">
+                <span><i class="lg-gpa"></i>Semester GPA</span>
+                <span><i class="lg-cgpa"></i>CGPA to date</span>
               </div>
-              <div class="row2">
-                <div class="field"><label>Father name</label><input id="sp-father" placeholder="As on college records"></div>
-                <div class="field"><label>CNIC</label><input id="sp-cnic" placeholder="XXXXX-XXXXXXX-X"></div>
-              </div>
-              <div class="row2">
-                <div class="field"><label>Date of birth</label><input id="sp-dob" type="date"></div>
-                <div class="field"><label>Registration No.</label><input id="sp-reg" placeholder="N/L if none"></div>
-              </div>
-              <div class="row2">
-                <div class="field"><label>Session</label><input id="sp-session" placeholder="2025–2029"></div>
-                <div class="field"><label>Program</label><input id="sp-program" value="LL.B Five Year"></div>
-              </div>
-              <div class="field"><label>Current semester</label><select id="sp-sem"></select></div>
-              <h3 style="margin:18px 0 8px;font-size:15px">Transcript signatures</h3>
-              <p class="hint" style="margin-top:0;margin-bottom:10px">Typed personal names printed under Prepared By, Coordinator, and Principal on your provisional certificate.</p>
-              <div class="field"><label>Prepared by (name)</label><input id="sp-prepared" placeholder="Full name as on certificate"></div>
-              <div class="field"><label>Coordinator (name)</label><input id="sp-coordinator" placeholder="Full name as on certificate"></div>
-              <div class="field"><label>Principal (name)</label><input id="sp-principal" placeholder="Full name as on certificate"></div>
-              <button class="btn btn-primary" type="button" onclick="StudentDash.saveProfile()">Save profile</button>
+              <div class="gpa-bars" id="gpa-bars"></div>
+              <div id="gpa-analysis-summary" style="margin-top:12px"></div>
             </div>
           </div>
 
@@ -868,16 +880,6 @@ body.landing-open .app{visibility:hidden;pointer-events:none}
               <h3>Saved semesters</h3>
               <div id="sr-saved"></div>
             </div>
-          </div>
-
-          <div class="dash-panel" id="dash-gpa">
-            <div class="card">
-              <h3>GPA over semesters</h3>
-              <p class="hint" style="margin-top:-4px;margin-bottom:10px">From your saved Semester Records (same source as transcripts).</p>
-              <div class="gpa-bars" id="gpa-bars"></div>
-              <div id="gpa-analysis-summary" style="margin-top:12px"></div>
-            </div>
-            <div class="note">Need a manual course-by-course tracker? Open <button type="button" style="background:none;border:none;color:var(--navy);font-weight:700;cursor:pointer;font-family:var(--sans);padding:0;text-decoration:underline" onclick="go('gpa')">GPA Tracker</button> in More tools.</div>
           </div>
 
           <div class="dash-panel" id="dash-chat">
@@ -1448,6 +1450,46 @@ body.landing-open .app{visibility:hidden;pointer-events:none}
 
   <div id="printhost" class="no-print" style="display:none"></div>
   <div id="transcriptHost" style="display:none" aria-hidden="true"></div>
+
+  <div class="overlay" id="profileOverlay">
+    <div class="sheet sheet-wide sheet-profile">
+      <h2>Edit profile</h2>
+      <p class="lead">Photo and details used on your provisional transcript.</p>
+      <div class="msg" id="sp-msg"></div>
+      <div class="photo-upload">
+        <img id="sp-photo-preview" alt="Photo preview" style="display:none">
+        <div>
+          <div class="field" style="margin-bottom:8px"><label>Photo</label><input id="sp-photo" type="file" accept="image/*" onchange="StudentDash.onPhotoSelected(this.files[0])"></div>
+          <p class="hint">Passport-style photo for your transcript header.</p>
+        </div>
+      </div>
+      <div class="row2">
+        <div class="field"><label>Name</label><input id="sp-name" readonly></div>
+        <div class="field"><label>Roll No.</label><input id="sp-roll" readonly></div>
+      </div>
+      <div class="row2">
+        <div class="field"><label>Father name</label><input id="sp-father" placeholder="As on college records"></div>
+        <div class="field"><label>CNIC</label><input id="sp-cnic" placeholder="XXXXX-XXXXXXX-X"></div>
+      </div>
+      <div class="row2">
+        <div class="field"><label>Date of birth</label><input id="sp-dob" type="date"></div>
+        <div class="field"><label>Registration No.</label><input id="sp-reg" placeholder="N/L if none"></div>
+      </div>
+      <div class="row2">
+        <div class="field"><label>Session</label><input id="sp-session" placeholder="2025–2029"></div>
+        <div class="field"><label>Program</label><input id="sp-program" value="LL.B Five Year"></div>
+      </div>
+      <div class="field"><label>Current semester</label><select id="sp-sem"></select></div>
+      <h3 style="margin:14px 0 8px;font-size:15px;font-family:var(--serif);color:var(--navy)">Transcript signatures</h3>
+      <div class="field"><label>Prepared by (name)</label><input id="sp-prepared" placeholder="Full name as on certificate"></div>
+      <div class="field"><label>Coordinator (name)</label><input id="sp-coordinator" placeholder="Full name as on certificate"></div>
+      <div class="field"><label>Principal (name)</label><input id="sp-principal" placeholder="Full name as on certificate"></div>
+      <div class="sheet-actions">
+        <button class="btn btn-primary" type="button" onclick="StudentDash.saveProfile()">Save profile</button>
+        <button class="btn btn-ghost" type="button" onclick="StudentDash.closeProfileModal()">Close</button>
+      </div>
+    </div>
+  </div>
 
   <div class="overlay" id="srOverlay">
     <div class="sheet sheet-wide">
