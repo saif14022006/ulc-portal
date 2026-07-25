@@ -152,11 +152,33 @@
     }
   }
 
-  function openAuthFromLanding(which) {
+  function openAuthFromLanding(which, role) {
     authFlowOpen = true;
     guestBrowsing = false;
     hideLandingGate();
     if (typeof setAuthTab === "function") setAuthTab(which === "signup" ? "signup" : "login");
+    if (which === "signup" && role) {
+      const sel = document.getElementById("su-role");
+      if (sel) {
+        sel.value = role === "teacher" ? "teacher" : "student";
+        if (typeof onSignupRoleChange === "function") onSignupRoleChange();
+      }
+      const title = document.querySelector("#signupCard h3");
+      if (title) {
+        title.textContent =
+          role === "teacher" ? "Create faculty account" : "Create student account";
+      }
+      const btn = document.querySelector("#signupCard .btn-gold");
+      if (btn) {
+        btn.textContent =
+          role === "teacher" ? "Create faculty account" : "Create student account";
+      }
+    } else if (which === "signup") {
+      const title = document.querySelector("#signupCard h3");
+      if (title) title.textContent = "Create account";
+      const btn = document.querySelector("#signupCard .btn-gold");
+      if (btn) btn.textContent = "Create account";
+    }
     if (typeof go === "function") go("account");
   }
 

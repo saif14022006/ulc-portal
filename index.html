@@ -39,7 +39,7 @@
 *{box-sizing:border-box;margin:0;padding:0}
 html{-webkit-text-size-adjust:100%}
 body{font-family:var(--sans);color:var(--ink);background:var(--navy-deep);line-height:1.5;-webkit-font-smoothing:antialiased}
-.app{max-width:480px;margin:0 auto;min-height:100dvh;background:radial-gradient(ellipse 120% 40% at 50% -5%,rgba(198,161,60,.08),transparent 55%),linear-gradient(180deg,var(--paper-2),var(--paper));display:flex;flex-direction:column;box-shadow:0 0 60px rgba(0,0,0,.35)}
+.app{max-width:480px;margin:0 auto;min-height:100dvh;background:radial-gradient(ellipse 120% 40% at 50% -5%,rgba(198,161,60,.08),transparent 55%),linear-gradient(180deg,var(--paper-2),var(--paper));display:flex;flex-direction:column;box-shadow:0 0 60px rgba(0,0,0,.35);padding-bottom:calc(var(--nav-h) + env(safe-area-inset-bottom))}
 .topbar{position:sticky;top:0;z-index:20;background:linear-gradient(180deg,var(--navy),var(--navy-deep));color:var(--paper);padding:calc(env(safe-area-inset-top) + 12px) 14px 12px;display:flex;align-items:center;gap:10px;border-bottom:2px solid var(--gold)}
 .seal-img{width:46px;height:46px;flex:none;object-fit:contain;filter:drop-shadow(0 2px 6px rgba(0,0,0,.35))}
 .brand{flex:1;min-width:0}
@@ -49,7 +49,7 @@ body{font-family:var(--sans);color:var(--ink);background:var(--navy-deep);line-h
 .top-acc span{display:block;max-width:88px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .body-row{display:flex;flex:1;min-height:0}
 .sidebar{display:none}
-main{flex:1;padding:18px 16px calc(var(--nav-h) + 28px);width:100%}
+main{flex:1;padding:18px 16px 36px;width:100%}
 .view{display:none;animation:fade .28s ease}
 .view.active{display:block}
 @keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
@@ -303,7 +303,7 @@ main{flex:1;padding:18px 16px calc(var(--nav-h) + 28px);width:100%}
 .tab svg,.side-item svg{stroke:currentColor;fill:none;stroke-width:1.7}
 .tab svg{width:20px;height:20px}
 .tab.active{color:var(--gold-deep)}
-.site-footer{margin-top:auto;background:linear-gradient(165deg,var(--navy-deep),var(--navy) 55%,#0a2f56);color:#d7e3ef;padding:28px 18px calc(var(--nav-h) + 36px);border-top:3px solid var(--gold);position:relative;overflow:hidden}
+.site-footer{margin-top:auto;flex:none;width:100%;background:linear-gradient(165deg,var(--navy-deep),var(--navy) 55%,#0a2f56);color:#d7e3ef;padding:32px 18px 36px;border-top:3px solid var(--gold);position:relative;overflow:hidden}
 .site-footer:before{content:"";position:absolute;inset:0;background:radial-gradient(220px 140px at 100% 0%,rgba(198,161,60,.18),transparent 55%);pointer-events:none}
 .site-footer .ft-inner{position:relative;z-index:1;display:grid;gap:22px}
 .site-footer .ft-brand{display:flex;gap:14px;align-items:flex-start}
@@ -333,6 +333,7 @@ main{flex:1;padding:18px 16px calc(var(--nav-h) + 28px);width:100%}
   .side-item.active{background:var(--navy);color:#fff}
   .side-item.active svg{stroke:var(--gold-lt)}
   .tabbar{display:none}
+  .app{padding-bottom:0}
   main{padding:28px 34px 44px}
   .tool-grid{grid-template-columns:repeat(3,1fr)}
   .tool-card.featured{grid-column:span 3}
@@ -360,7 +361,7 @@ main{flex:1;padding:18px 16px calc(var(--nav-h) + 28px);width:100%}
 }
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 /* Landing gate — scrollable: hero + features (no login required for tools) */
-.landing-gate{position:fixed;inset:0;z-index:100;display:none;flex-direction:column;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;background:var(--bg)}
+.landing-gate{position:fixed;inset:0;z-index:100;display:none;flex-direction:column;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;background:linear-gradient(180deg,var(--paper-2),var(--paper))}
 .landing-gate.show{display:flex}
 body.landing-open{overflow:hidden}
 body.landing-open .app{visibility:hidden;pointer-events:none}
@@ -373,17 +374,27 @@ body.landing-open .app{visibility:hidden;pointer-events:none}
 .landing-ctas{display:grid;grid-template-columns:1fr 1fr;gap:10px;width:100%;animation:landIn .7s .24s ease both}
 .landing-ctas .btn{box-shadow:0 8px 24px rgba(0,0,0,.25)}
 .landing-ctas .btn-ghost{background:rgba(255,255,255,.12);color:#fff;border-color:rgba(226,197,104,.45)}
+.landing-ctas-stack{display:grid;gap:10px;width:100%;animation:landIn .7s .24s ease both}
+.landing-ctas-stack .landing-role-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.landing-ctas-stack .btn{box-shadow:0 8px 24px rgba(0,0,0,.25)}
+.landing-ctas-stack .btn-ghost{background:rgba(255,255,255,.12);color:#fff;border-color:rgba(226,197,104,.45)}
+.landing-ctas-stack .btn-faculty{background:rgba(255,255,255,.16);color:#fff;border:1px solid rgba(226,197,104,.55)}
 .landing-scroll-hint{display:flex;flex-direction:column;align-items:center;gap:4px;padding:8px 16px calc(18px + env(safe-area-inset-bottom));color:rgba(255,255,255,.85);font-size:12px;font-weight:600;letter-spacing:.04em;animation:landIn .7s .32s ease both}
 .landing-scroll-hint span{opacity:.9}
 .landing-scroll-hint svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;animation:landBounce 1.4s ease-in-out infinite}
 @keyframes landBounce{0%,100%{transform:translateY(0)}50%{transform:translateY(5px)}}
-.landing-features{flex:none;background:var(--bg);color:var(--ink);padding:28px 18px 24px;max-width:720px;margin:0 auto;width:100%;box-sizing:border-box}
+.landing-features{flex:none;background:transparent;color:var(--ink);padding:28px 18px 24px;max-width:720px;margin:0 auto;width:100%;box-sizing:border-box}
 .landing-features .lf-head{margin-bottom:16px}
 .landing-features .lf-head h2{font-family:var(--serif);font-size:22px;color:var(--navy);margin:0 0 6px}
 .landing-features .lf-head p{font-size:13px;color:var(--slate);margin:0;line-height:1.45}
 .landing-features .tool-grid{margin-top:4px}
 .landing-features .lf-note{margin-top:18px;padding:14px 16px;border-radius:14px;background:linear-gradient(120deg,#fff 55%,#f7efd8);border:1px solid var(--line);font-size:13px;color:var(--slate);line-height:1.45}
 .landing-features .lf-note strong{color:var(--navy)}
+.landing-gate .site-footer{margin-top:auto;flex:none;width:100%;max-width:none;padding:36px 20px calc(40px + env(safe-area-inset-bottom));box-sizing:border-box;border-top:3px solid var(--gold)}
+.landing-gate .site-footer .ft-inner{max-width:960px;margin:0 auto;width:100%}
+.landing-gate .site-footer .ft-col button{cursor:pointer}
+.landing-gate .site-footer .ft-cols{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.landing-gate .site-footer .ft-col:last-child{grid-column:1/-1}
 @keyframes landIn{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
 @media (min-width:900px){
   .landing-inner{max-width:560px;padding-bottom:24px}
@@ -391,6 +402,12 @@ body.landing-open .app{visibility:hidden;pointer-events:none}
   .landing-features{padding:36px 28px 28px;max-width:900px}
   .landing-features .tool-grid{grid-template-columns:repeat(3,1fr)}
   .landing-features .tool-card.featured{grid-column:span 3}
+  .landing-gate .site-footer{padding:44px 40px 48px}
+  .landing-gate .site-footer .ft-inner{grid-template-columns:1.4fr repeat(3,1fr);gap:28px 32px;align-items:start}
+  .landing-gate .site-footer .ft-brand{grid-column:1;grid-row:1}
+  .landing-gate .site-footer .ft-cols{display:contents}
+  .landing-gate .site-footer .ft-col:last-child{grid-column:auto}
+  .landing-gate .site-footer .ft-bottom{grid-column:1/-1;display:flex;justify-content:space-between;align-items:flex-end;gap:16px}
 }
 /* Student dashboard */
 .dash-welcome{background:linear-gradient(155deg,var(--navy-deep),var(--navy) 50%,var(--navy-2));color:var(--paper);border-radius:18px;padding:18px 18px 16px;margin-bottom:14px;box-shadow:var(--shadow);position:relative;overflow:hidden;display:flex;align-items:center;justify-content:space-between;gap:14px}
@@ -469,9 +486,6 @@ body.landing-open .app{visibility:hidden;pointer-events:none}
 .tx-footer{margin-top:10px;border:1px solid #0a2a5c;padding:7px 10px;font-size:10px;line-height:1.45;color:#1a2a40;text-align:center}
 .sheet.sheet-wide{max-width:560px}
 .sheet .sheet-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
-.landing-gate .site-footer{margin-top:0;padding:28px 18px calc(36px + env(safe-area-inset-bottom));width:100%;box-sizing:border-box}
-.landing-gate .site-footer .ft-inner{max-width:900px;margin:0 auto}
-.landing-gate .site-footer .ft-col button{cursor:pointer}
 @media (min-width:720px){
   .sheet.sheet-wide{max-width:640px}
 }
@@ -485,8 +499,11 @@ body.landing-open .app{visibility:hidden;pointer-events:none}
       <div class="landing-kicker">University Law College · Quetta</div>
       <h1>Welcome to ULC Toolkit</h1>
       <p class="lead">Your campus companion for covers, semester records, transcripts, and study tools.</p>
-      <div class="landing-ctas">
-        <button type="button" class="btn btn-gold" onclick="StudentDash.openAuthFromLanding('signup')">Create account</button>
+      <div class="landing-ctas-stack">
+        <div class="landing-role-row">
+          <button type="button" class="btn btn-gold" onclick="StudentDash.openAuthFromLanding('signup','student')">Create student account</button>
+          <button type="button" class="btn btn-faculty" onclick="StudentDash.openAuthFromLanding('signup','teacher')">Create faculty account</button>
+        </div>
         <button type="button" class="btn btn-ghost" onclick="StudentDash.openAuthFromLanding('login')">Login</button>
       </div>
     </div>
@@ -566,7 +583,9 @@ body.landing-open .app{visibility:hidden;pointer-events:none}
         <div class="ft-col">
           <h4>About this toolkit</h4>
           <p class="ft-meta">Built for students and teachers of University Law College, Quetta — assignment covers, results, and study tools in one place.</p>
-          <button type="button" onclick="StudentDash.openAuthFromLanding('login')" style="margin-top:10px">Student / Teacher account</button>
+          <button type="button" onclick="StudentDash.openAuthFromLanding('signup','student')" style="margin-top:10px">Create student account</button>
+          <button type="button" onclick="StudentDash.openAuthFromLanding('signup','teacher')">Create faculty account</button>
+          <button type="button" onclick="StudentDash.openAuthFromLanding('login')">Login</button>
         </div>
       </div>
       <div class="ft-bottom">
@@ -611,12 +630,13 @@ body.landing-open .app{visibility:hidden;pointer-events:none}
             <img class="hero-seal" src="icons/ulc-logo.png" alt="">
           </div>
           <div class="auth-banner show" style="margin-top:14px">
-            <strong>Sign in for your student dashboard.</strong>
-            <p style="font-size:13px;color:var(--slate);margin:6px 0 12px">Create an account or log in to save profile, semester records, and transcripts. Tools below work without login.</p>
-            <div class="btn-row">
-              <button class="btn btn-gold" type="button" onclick="StudentDash.openAuthFromLanding('signup')">Create account</button>
-              <button class="btn btn-primary" type="button" onclick="StudentDash.openAuthFromLanding('login')">Login</button>
+            <strong>Create an account or log in</strong>
+            <p style="font-size:13px;color:var(--slate);margin:6px 0 12px">Students get a dashboard for records and transcripts. Faculty get Teacher desk for classes and award lists. Tools below also work without login.</p>
+            <div class="btn-row" style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+              <button class="btn btn-gold" type="button" onclick="StudentDash.openAuthFromLanding('signup','student')">Create student account</button>
+              <button class="btn btn-primary" type="button" onclick="StudentDash.openAuthFromLanding('signup','teacher')">Create faculty account</button>
             </div>
+            <button class="btn btn-ghost" type="button" style="margin-top:8px" onclick="StudentDash.openAuthFromLanding('login')">Login</button>
           </div>
           <div class="section-head"><h3>Features</h3><span>No login needed</span></div>
           <div class="tool-grid">
@@ -1108,7 +1128,7 @@ body.landing-open .app{visibility:hidden;pointer-events:none}
             <div class="field"><label>I am a</label>
               <select id="su-role" onchange="onSignupRoleChange()">
                 <option value="student">Student</option>
-                <option value="teacher">Teacher / Instructor</option>
+                <option value="teacher">Faculty / Teacher</option>
               </select>
             </div>
             <div class="field"><label>Full official name</label><input id="su-name" placeholder="As on college records"></div>
@@ -1323,7 +1343,9 @@ body.landing-open .app{visibility:hidden;pointer-events:none}
         <div class="ft-col">
           <h4>About this toolkit</h4>
           <p class="ft-meta">Built for students and teachers of University Law College, Quetta — assignment covers, results, and study tools in one place.</p>
-          <button type="button" onclick="go('account')" style="margin-top:10px">Student / Teacher account</button>
+          <button type="button" onclick="StudentDash.openAuthFromLanding('signup','student')" style="margin-top:10px">Create student account</button>
+          <button type="button" onclick="StudentDash.openAuthFromLanding('signup','teacher')">Create faculty account</button>
+          <button type="button" onclick="go('account')">Login / Account</button>
           <button type="button" onclick="go('teacher')">Teacher desk</button>
         </div>
       </div>
@@ -1546,6 +1568,10 @@ function onSignupRoleChange(){
   document.getElementById('su-roll').required=!isTeacher;
   const hint=document.getElementById('su-id-hint');
   if(hint) hint.style.display=isTeacher?'block':'none';
+  const title=document.querySelector('#signupCard h3');
+  if(title) title.textContent=isTeacher?'Create faculty account':'Create student account';
+  const btn=document.querySelector('#signupCard .btn-gold');
+  if(btn) btn.textContent=isTeacher?'Create faculty account':'Create student account';
 }
 function afterAuthLanding(){
   const u=currentUser();
