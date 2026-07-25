@@ -7,7 +7,7 @@ create table if not exists public.profiles (
   id uuid primary key references auth.users(id) on delete cascade,
   roll_no text unique not null,
   full_name text not null,
-  contact text not null,
+  contact text not null, -- stores account email address
   role text not null default 'student' check (role in ('student', 'teacher')),
   current_semester int,
   session text,

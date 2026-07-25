@@ -50,4 +50,36 @@ create policy "Own teacher workspace delete" on public.teacher_workspaces
 
 -- After running:
 -- Authentication → Providers → Email → turn OFF "Confirm email"
--- (stops rate-limit / confirmation emails for roll@students.ulc.local signups)
+-- (instant login with real email; avoids confirmation email rate limits)
+
+-- Ensure award list RLS covers delete/update (safe to re-run)
+drop policy if exists "Own awards delete" on public.award_lists;
+create policy "Own awards delete" on public.award_lists
+  for delete using (auth.uid() = user_id);
+drop policy if exists "Own awards update" on public.award_lists;
+create policy "Own awards update" on public.award_lists
+  for update using (auth.uid() = user_id);
+drop policy if exists "Own awards insert" on public.award_lists;
+create policy "Own awards insert" on public.award_lists
+  for insert with check (auth.uid() = user_id);
+drop policy if exists "Own awards read" on public.award_lists;
+create policy "Own awards read" on public.award_lists
+  for select using (auth.uid() = user_id);
+
+-- Indexes for heavy award / profile reads
+create index if not exists award_lists_user_idx on public.award_lists(user_id);
+create index if not exists award_lists_user_updated_idx on public.award_lists(user_id, updated_at desc);
+create index if not exists profiles_roll_idx on public.profiles(roll_no);
+create index if not exists profiles_role_idx on public.profiles(role);
+
+-- Profiles RLS (metal-strong ownership)
+alter table public.profiles enable row level security;
+drop policy if exists "Own profile read" on public.profiles;
+create policy "Own profile read" on public.profiles
+  for select using (auth.uid() = id);
+drop policy if exists "Own profile upsert" on public.profiles;
+create policy "Own profile upsert" on public.profiles
+  for insert with check (auth.uid() = id);
+drop policy if exists "Own profile update" on public.profiles;
+create policy "Own profile update" on public.profiles
+  for update using (auth.uid() = id);

@@ -20,6 +20,8 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="logo.js"></script>
 <script src="js/config.js"></script>
+<script src="js/award-math.js"></script>
+<script src="js/ulc-cloud.js"></script>
 <script src="js/teacher.js"></script>
 <style>
 :root{
@@ -302,7 +304,7 @@ main{flex:1;padding:18px 16px calc(var(--nav-h) + 28px);width:100%}
 .tab.active{color:var(--gold-deep)}
 @media (min-width:900px){
   body{background:#e9edf2}
-  .app{max-width:1140px}
+  .app{max-width:1600px}
   .topbar{padding:16px 26px}
   .sidebar{display:flex;flex-direction:column;gap:4px;width:230px;flex:none;border-right:1px solid var(--line);padding:22px 14px;background:var(--paper-2)}
   .side-lbl{font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--slate);padding:6px 14px 8px;font-weight:700}
@@ -415,7 +417,7 @@ main{flex:1;padding:18px 16px calc(var(--nav-h) + 28px);width:100%}
             <p>Build your weekly class schedule in one place.</p>
           </button>
         </div>
-        <div class="note">Create an account with your <b>roll number</b> to save award lists. Supabase can be connected later for cloud sync — see <code>js/config.js</code>.</div>
+        <div class="note">Create an account with your <b>email</b> to save award lists. Cloud sync uses Supabase when configured in <code>js/config.js</code>.</div>
       </section>
 
       <!-- COVER -->
@@ -475,7 +477,7 @@ main{flex:1;padding:18px 16px calc(var(--nav-h) + 28px);width:100%}
 
         <div class="auth-banner" id="awardGate">
           <strong>Login required.</strong>
-          <p style="font-size:13px;color:var(--slate);margin:6px 0 12px">Create an account with roll number, name, contact &amp; password to save and check your award lists.</p>
+          <p style="font-size:13px;color:var(--slate);margin:6px 0 12px">Create an account with name, roll number, email &amp; password to save and check your award lists.</p>
           <button class="btn btn-gold" onclick="go('account')">Go to Account</button>
         </div>
 
@@ -683,7 +685,7 @@ main{flex:1;padding:18px 16px calc(var(--nav-h) + 28px);width:100%}
         <div class="max-narrow">
         <div class="eyebrow">Account</div>
         <h2 class="view-title">Sign in</h2>
-        <p class="view-sub">Students need a roll number. Teachers sign up with name &amp; contact — staff ID is optional. No email required.</p>
+        <p class="view-sub">Sign up with your name and email. Login needs only email and password.</p>
 
         <div id="accountLoggedOut">
           <div class="tabs-mini">
@@ -694,10 +696,9 @@ main{flex:1;padding:18px 16px calc(var(--nav-h) + 28px);width:100%}
 
           <div class="card" id="loginCard">
             <h3>Login</h3>
-            <div class="field"><label id="login-id-label">Roll number / Staff ID / Contact</label><input id="login-roll" autocomplete="username" placeholder="Student roll, staff ID, or teacher contact"></div>
+            <div class="field"><label>Email</label><input id="login-email" type="email" autocomplete="username" placeholder="you@example.com"></div>
             <div class="field"><label>Password</label><input id="login-pass" type="password" autocomplete="current-password" placeholder="Password"></div>
             <button class="btn btn-primary" onclick="doLogin()">Login</button>
-            <p class="hint">Teachers without a staff ID can log in with their contact number.</p>
           </div>
 
           <div class="card" id="signupCard" style="display:none">
@@ -714,11 +715,11 @@ main{flex:1;padding:18px 16px calc(var(--nav-h) + 28px);width:100%}
               <input id="su-roll" placeholder="Unique roll number">
               <p class="hint" id="su-id-hint" style="display:none">Optional for teachers — leave blank if you don’t have one.</p>
             </div>
-            <div class="field"><label>Contact number</label><input id="su-contact" type="tel" placeholder="03xx-xxxxxxx"></div>
+            <div class="field"><label>Email address</label><input id="su-email" type="email" autocomplete="email" placeholder="you@example.com"></div>
             <div class="field"><label>Password</label><input id="su-pass" type="password" autocomplete="new-password" placeholder="Min. 6 characters"></div>
             <div class="field"><label>Confirm password</label><input id="su-pass2" type="password" autocomplete="new-password"></div>
             <button class="btn btn-gold" onclick="doSignup()">Create account</button>
-            <p class="hint">No email address is needed. Teachers keep class results on their account only.</p>
+            <p class="hint">Teachers keep class results on their account only (not shared to student award lists).</p>
           </div>
         </div>
 
@@ -992,22 +993,28 @@ function fmtDate(v){ if(!v) return '—'; const d=new Date(v+'T00:00'); return d
 function loadJSON(k, fb){ try{ return JSON.parse(localStorage.getItem(k)) ?? fb; }catch{ return fb; } }
 function saveJSON(k,v){ localStorage.setItem(k, JSON.stringify(v)); }
 
-/* -------- Auth: localStorage now, Supabase when js/config.js is filled -------- */
+/* -------- Auth: email + password (Supabase when configured, else this device) -------- */
 let _sb=null;
-let _sbUser=null; // { id, roll, name, contact, role }
+let _sbUser=null; // { id, roll, name, email, role }
 
 function supabaseReady(){
-  const c=window.ULC_CONFIG||{};
-  return !!(c.supabaseUrl && c.supabaseAnonKey && window.supabase);
+  return !!(window.ULC_CLOUD && ULC_CLOUD.ready ? ULC_CLOUD.ready() : (window.ULC_CONFIG?.supabaseUrl && window.ULC_CONFIG?.supabaseAnonKey && window.supabase));
 }
 function getSb(){
+  if(window.ULC_CLOUD?.getClient) return ULC_CLOUD.getClient();
   if(!supabaseReady()) return null;
   if(!_sb) _sb=window.supabase.createClient(window.ULC_CONFIG.supabaseUrl, window.ULC_CONFIG.supabaseAnonKey);
   return _sb;
 }
-function rollEmail(roll, role){
-  const id=String(roll).trim().toLowerCase();
-  return role==='teacher' ? id+'@staff.ulc.local' : id+'@students.ulc.local';
+function normalizeEmail(e){ return String(e||'').trim().toLowerCase(); }
+function isValidEmail(e){ return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalizeEmail(e)); }
+function accountKeyFromEmail(email){
+  return 'E-'+normalizeEmail(email).replace(/[^a-z0-9]/g,'').toUpperCase().slice(0,40);
+}
+function teacherAccountKey(staffId, email){
+  const id=String(staffId||'').trim().toUpperCase();
+  if(id) return id;
+  return accountKeyFromEmail(email);
 }
 
 async function hashPass(pass){
@@ -1020,19 +1027,31 @@ function setUsers(u){ saveJSON(LS_USERS, u); }
 function getSession(){ return loadJSON(LS_SESSION, null); }
 function setSession(s){ if(s) saveJSON(LS_SESSION,s); else localStorage.removeItem(LS_SESSION); }
 
+function findLocalUserByEmail(email){
+  const em=normalizeEmail(email);
+  if(!em) return null;
+  const users=getUsers();
+  // Preferred: keyed by email
+  if(users[em]) return { key:em, user:users[em] };
+  const hit=Object.entries(users).find(([,u])=>normalizeEmail(u.email||u.contact)===em);
+  if(hit) return { key:hit[0], user:hit[1] };
+  return null;
+}
 function currentUser(){
   if(_sbUser) return {
-    roll:_sbUser.roll, name:_sbUser.name, contact:_sbUser.contact, id:_sbUser.id, cloud:true,
-    role:_sbUser.role||'student',
+    roll:_sbUser.roll, name:_sbUser.name, email:_sbUser.email, contact:_sbUser.email,
+    id:_sbUser.id, cloud:true, role:_sbUser.role||'student',
     currentSemester:_sbUser.currentSemester, prevGpa:_sbUser.prevGpa, cgpa:_sbUser.cgpa,
     session:_sbUser.session, notes:_sbUser.notes, profileComplete:_sbUser.profileComplete
   };
   const s=getSession(); if(!s) return null;
-  const u=getUsers()[s.roll];
-  if(!u) return null;
+  const key=s.email || s.roll;
+  const found=s.email ? findLocalUserByEmail(s.email) : (getUsers()[key] ? { key, user:getUsers()[key] } : null);
+  if(!found) return null;
+  const u=found.user;
   return {
-    roll:s.roll, name:u.name, contact:u.contact, cloud:false,
-    role:u.role||'student',
+    roll:u.roll || found.key, name:u.name, email:u.email||u.contact||'', contact:u.email||u.contact||'',
+    cloud:false, role:u.role||'student',
     currentSemester:u.currentSemester, prevGpa:u.prevGpa, cgpa:u.cgpa,
     session:u.session, notes:u.notes, profileComplete:!!u.profileComplete
   };
@@ -1060,26 +1079,6 @@ function onSignupRoleChange(){
   const hint=document.getElementById('su-id-hint');
   if(hint) hint.style.display=isTeacher?'block':'none';
 }
-function normalizeContact(c){ return String(c||'').replace(/\D/g,''); }
-function teacherAccountKey(staffId, contact){
-  const id=String(staffId||'').trim().toUpperCase();
-  if(id) return id;
-  const digits=normalizeContact(contact);
-  return digits ? ('T-'+digits) : ('T-'+Date.now().toString(36).toUpperCase());
-}
-function findLocalUserByLogin(id){
-  const users=getUsers();
-  const key=String(id||'').trim().toUpperCase();
-  if(users[key]) return { roll:key, user:users[key] };
-  const digits=normalizeContact(id);
-  if(digits){
-    const byContactKey='T-'+digits;
-    if(users[byContactKey]) return { roll:byContactKey, user:users[byContactKey] };
-    const hit=Object.entries(users).find(([,u])=>u.role==='teacher' && normalizeContact(u.contact)===digits);
-    if(hit) return { roll:hit[0], user:hit[1] };
-  }
-  return null;
-}
 function afterAuthLanding(){
   const u=currentUser();
   if(!u) return;
@@ -1095,22 +1094,22 @@ function isAuthRateLimit(err){
   const m=String(err?.message||err||'').toLowerCase();
   return m.includes('rate limit') || m.includes('email rate') || m.includes('over_email_send_rate_limit');
 }
-async function signupLocal({ name, roll, contact, pass, role, rawId }){
+async function signupLocal({ name, roll, email, pass, role }){
+  const em=normalizeEmail(email);
   const users=getUsers();
-  if(users[roll]){ showAuthMsg('This account already exists. Login instead.'); return false; }
-  if(role==='teacher'){
-    const digits=normalizeContact(contact);
-    const clash=Object.values(users).some(u=>u.role==='teacher' && normalizeContact(u.contact)===digits);
-    if(clash){ showAuthMsg('A teacher account with this contact number already exists. Login instead.'); return false; }
-  }
-  users[roll]={name, contact, role, passHash: await hashPass(pass), createdAt: Date.now(), profileComplete: role==='teacher'};
+  if(findLocalUserByEmail(em)){ showAuthMsg('An account with this email already exists. Login instead.'); return false; }
+  users[em]={
+    name, email:em, roll, role,
+    passHash: await hashPass(pass),
+    createdAt: Date.now(),
+    profileComplete: role==='teacher'
+  };
   setUsers(users);
   _sbUser=null;
-  setSession({roll});
+  setSession({ email:em, roll });
   showAuthMsg(role==='teacher'
-    ? (rawId ? 'Teacher account created. You can open Teacher desk now.'
-             : 'Teacher account created. Next time log in with your contact number + password.')
-    : 'Account created on this device.', true);
+    ? 'Teacher account created. Login anytime with your email and password.'
+    : 'Account created. Login anytime with your email and password.', true);
   refreshAccountView(); refreshTopAcc();
   afterAuthLanding();
   return true;
@@ -1118,34 +1117,30 @@ async function signupLocal({ name, roll, contact, pass, role, rawId }){
 async function doSignup(){
   const name=document.getElementById('su-name').value.trim();
   const rawId=document.getElementById('su-roll').value.trim().toUpperCase();
-  const contact=document.getElementById('su-contact').value.trim();
+  const email=normalizeEmail(document.getElementById('su-email').value);
   const pass=document.getElementById('su-pass').value;
   const pass2=document.getElementById('su-pass2').value;
   const role=document.getElementById('su-role').value==='teacher'?'teacher':'student';
 
-  if(!name||!contact||!pass){ showAuthMsg('Enter name, contact number, and password.'); return; }
+  if(!name||!email||!pass){ showAuthMsg('Enter name, email, and password.'); return; }
+  if(!isValidEmail(email)){ showAuthMsg('Enter a valid email address.'); return; }
   if(role==='student' && !rawId){ showAuthMsg('Students must enter a roll number.'); return; }
   if(pass.length<6){ showAuthMsg('Password must be at least 6 characters.'); return; }
   if(pass!==pass2){ showAuthMsg('Passwords do not match.'); return; }
 
-  const roll=role==='teacher' ? teacherAccountKey(rawId, contact) : rawId;
-  const payload={ name, roll, contact, pass, role, rawId };
-
-  // Teachers never use Supabase Auth email — avoids rate limits and email requirement
-  if(role==='teacher'){
-    showAuthMsg('Creating teacher account…', true);
-    await signupLocal(payload);
-    return;
-  }
+  const roll=role==='teacher' ? teacherAccountKey(rawId, email) : rawId;
+  const payload={ name, roll, email, pass, role };
 
   const sb=getSb();
   if(sb){
     showAuthMsg('Creating account…', true);
-    const email=rollEmail(roll, role);
-    const {data, error}=await sb.auth.signUp({ email, password: pass, options:{ data:{ roll_no:roll, full_name:name, contact, role } } });
+    const {data, error}=await sb.auth.signUp({
+      email, password: pass,
+      options:{ data:{ roll_no:roll, full_name:name, email, role } }
+    });
     if(error){
       if(isAuthRateLimit(error)){
-        showAuthMsg('Cloud signup is temporarily limited — saving account on this device instead…', true);
+        showAuthMsg('Cloud signup is temporarily limited — saving on this device instead…', true);
         await signupLocal(payload);
         return;
       }
@@ -1153,15 +1148,26 @@ async function doSignup(){
     }
     const uid=data.user?.id;
     if(!uid){
-      showAuthMsg('Cloud needs email confirm off — creating account on this device instead…', true);
+      showAuthMsg('Check your inbox if confirmation is required, or turn off Confirm email in Supabase. Saving on this device for now…', true);
       await signupLocal(payload);
       return;
     }
-    const {error: pErr}=await sb.from('profiles').upsert({ id:uid, roll_no:roll, full_name:name, contact, role });
-    if(pErr){ showAuthMsg(pErr.message); return; }
-    _sbUser={ id:uid, roll, name, contact, role, profileComplete:false };
-    setSession({roll, cloud:true});
-    showAuthMsg('Account created.', true);
+    // profiles.contact stores the email (legacy column name)
+    try{
+      if(window.ULC_CLOUD?.upsertProfile){
+        await ULC_CLOUD.upsertProfile({ id:uid, roll_no:roll, full_name:name, contact:email, role });
+      }else{
+        const {error: pErr}=await sb.from('profiles').upsert({
+          id:uid, roll_no:roll, full_name:name, contact:email, role
+        });
+        if(pErr){ showAuthMsg(pErr.message); return; }
+      }
+    }catch(err){
+      showAuthMsg(err.message||String(err)); return;
+    }
+    _sbUser={ id:uid, roll, name, email, role, profileComplete: role==='teacher' };
+    setSession({ email, roll, cloud:true });
+    showAuthMsg('Account created. Use your email and password to log in.', true);
     refreshAccountView(); refreshTopAcc();
     afterAuthLanding();
     return;
@@ -1170,16 +1176,16 @@ async function doSignup(){
   await signupLocal(payload);
 }
 async function doLogin(){
-  const raw=document.getElementById('login-roll').value.trim();
+  const email=normalizeEmail(document.getElementById('login-email').value);
   const pass=document.getElementById('login-pass').value;
-  if(!raw||!pass){ showAuthMsg('Enter your ID/contact and password.'); return; }
+  if(!email||!pass){ showAuthMsg('Enter email and password.'); return; }
+  if(!isValidEmail(email)){ showAuthMsg('Enter a valid email address.'); return; }
 
-  // Prefer local accounts first (teachers are always local)
-  const found=findLocalUserByLogin(raw);
+  const found=findLocalUserByEmail(email);
   if(found){
     if(found.user.passHash !== await hashPass(pass)){ showAuthMsg('Incorrect password.'); return; }
     _sbUser=null;
-    setSession({roll: found.roll});
+    setSession({ email, roll: found.user.roll || found.key });
     refreshAccountView(); refreshTopAcc();
     afterAuthLanding();
     return;
@@ -1188,35 +1194,27 @@ async function doLogin(){
   const sb=getSb();
   if(sb){
     showAuthMsg('Signing in…', true);
-    const candidates=[
-      rollEmail(raw.toUpperCase(), 'student'),
-      rollEmail(raw.toUpperCase(), 'teacher'),
-      rollEmail('T-'+normalizeContact(raw), 'teacher'),
-    ].filter((v,i,a)=>v && a.indexOf(v)===i);
-    let data=null, error=null;
-    for(const email of candidates){
-      ({data, error}=await sb.auth.signInWithPassword({ email, password: pass }));
-      if(!error) break;
-    }
-    if(error){ showAuthMsg('Incorrect ID/contact or password.'); return; }
+    const {data, error}=await sb.auth.signInWithPassword({ email, password: pass });
+    if(error){ showAuthMsg('Incorrect email or password.'); return; }
     const uid=data.user.id;
     const {data: prof, error: pErr}=await sb.from('profiles').select('*').eq('id', uid).maybeSingle();
     if(pErr){ showAuthMsg(pErr.message); return; }
-    const name=prof?.full_name || data.user.user_metadata?.full_name || raw;
-    const contact=prof?.contact || data.user.user_metadata?.contact || '';
+    const name=prof?.full_name || data.user.user_metadata?.full_name || email;
     const role=prof?.role || data.user.user_metadata?.role || 'student';
+    const roll=prof?.roll_no || data.user.user_metadata?.roll_no || email;
+    const em=normalizeEmail(prof?.contact || data.user.email || email);
     _sbUser={
-      id:uid, roll: prof?.roll_no || raw.toUpperCase(), name, contact, role,
+      id:uid, roll, name, email:em, role,
       currentSemester:prof?.current_semester, prevGpa:prof?.prev_gpa, cgpa:prof?.cgpa,
       session:prof?.session, notes:prof?.notes, profileComplete: role==='teacher' ? true : !!prof?.profile_complete
     };
-    setSession({roll: _sbUser.roll, cloud:true});
+    setSession({ email:em, roll, cloud:true });
     refreshAccountView(); refreshTopAcc();
     afterAuthLanding();
     return;
   }
 
-  showAuthMsg('No account found for this ID/contact.');
+  showAuthMsg('No account found for this email.');
 }
 async function doLogout(){
   const sb=getSb();
@@ -1234,12 +1232,13 @@ async function restoreCloudSession(){
   const {data: prof}=await sb.from('profiles').select('*').eq('id', uid).maybeSingle();
   if(!prof){ _sbUser=null; return; }
   const role=prof.role||'student';
+  const email=normalizeEmail(prof.contact || sess.user.email || '');
   _sbUser={
-    id:uid, roll:prof.roll_no, name:prof.full_name, contact:prof.contact, role,
+    id:uid, roll:prof.roll_no, name:prof.full_name, email, role,
     currentSemester:prof.current_semester, prevGpa:prof.prev_gpa, cgpa:prof.cgpa,
     session:prof.session, notes:prof.notes, profileComplete: role==='teacher' ? true : !!prof.profile_complete
   };
-  setSession({roll:prof.roll_no, cloud:true});
+  setSession({ email, roll:prof.roll_no, cloud:true });
 }
 function openOnboarding(forceEdit){
   const u=currentUser(); if(!u) return;
@@ -1301,9 +1300,9 @@ function refreshHeroWelcome(){
   if(u){
     title.textContent='Welcome '+u.name;
     if(u.role==='teacher'){
-      sub.textContent='Staff '+u.roll+' · Teacher desk for classes, attendance & award lists — private to your account.';
+      sub.textContent=(u.email||'Teacher')+' · Teacher desk for classes, attendance & award lists — private to your account.';
     } else {
-      sub.textContent='Roll '+u.roll+' · Your law-study toolkit for University Law College, Quetta.';
+      sub.textContent=(u.email||('Roll '+u.roll))+' · Your law-study toolkit for University Law College, Quetta.';
     }
   }else{
     title.textContent='Student toolkit';
@@ -1327,8 +1326,8 @@ function refreshAccountView(){
     document.getElementById('accAv').textContent=(u.name||'U').charAt(0).toUpperCase();
     document.getElementById('accName').textContent=u.name;
     document.getElementById('accMeta').textContent=teacher
-      ? `${u.roll && !String(u.roll).startsWith('T-') ? 'Staff '+u.roll+' · ' : ''}${u.contact||'No contact'}`
-      : `Roll ${u.roll} · ${u.contact}`;
+      ? `${u.email||''}${u.roll && String(u.roll).indexOf('E-')!==0 ? ' · Staff '+u.roll : ''}`
+      : `${u.email||''}${u.roll ? ' · Roll '+u.roll : ''}`;
     document.getElementById('accAcadStats').style.display=teacher?'none':'grid';
     document.getElementById('accStudentCard').style.display=teacher?'none':'block';
     document.getElementById('accTeacherCard').style.display=teacher?'block':'none';
@@ -1340,9 +1339,17 @@ function refreshAccountView(){
         ? `Semester ${u.currentSemester}${u.session?' · '+u.session:''}`
         : 'Current semester not set — tap Edit profile info';
     }
-    document.getElementById('backendNote').innerHTML=supabaseReady()
-      ? '<span class="pill ok">Supabase connected</span> Accounts sync to your cloud project. Teacher class data stays private to the teacher account.'
-      : 'Accounts are stored on this device for now. Teacher marks stay on the teacher account only (not shared to students).';
+    const note=document.getElementById('backendNote');
+    if(supabaseReady()){
+      note.innerHTML='<span class="pill ok">Supabase connected</span> Checking cloud link…';
+      (window.ULC_CLOUD?.pingHealth ? ULC_CLOUD.pingHealth() : Promise.resolve({ok:true})).then(h=>{
+        note.innerHTML = h.ok
+          ? '<span class="pill ok">Supabase metal link OK</span> Auth + profiles + award lists sync to your cloud project. Teacher desk data stays private to the teacher account.'
+          : '<span class="pill">Supabase unreachable</span> '+String(h.detail||'check network')+' — local accounts still work.';
+      });
+    } else {
+      note.innerHTML='Accounts are stored on this device for now. Teacher marks stay on the teacher account only (not shared to students).';
+    }
   }
 }
 function prefillCoverFromAccount(){
@@ -1379,6 +1386,7 @@ function letterFromRounded(m){
   return 'F';
 }
 function calcAwardFrom(data){
+  if(window.ULC_MATH?.calcAwardFrom) return ULC_MATH.calcAwardFrom(data);
   const qs=[data.q1,data.q2,data.q3,data.q4,data.q5].map(n=>+n||0);
   const quiz=best3Avg(qs);
   const assn=((+data.a1||0)+(+data.a2||0))/2;
@@ -1526,10 +1534,19 @@ async function editAward(id){
 async function delAward(id){
   const u=currentUser(); if(!u) return;
   if(!confirm('Delete this award list?')) return;
+  if(u.cloud && u.id && window.ULC_CLOUD?.deleteAward){
+    try{
+      const { data }=await ULC_CLOUD.deleteAward(u.id, id);
+      if(!data || !data.length){ alert('Could not delete (cloud policy). Re-run supabase/migrate-fix.sql'); return; }
+      await renderAwardList();
+      return;
+    }catch(err){ alert(err.message||String(err)); return; }
+  }
   const sb=getSb();
   if(sb && u.cloud && u.id){
-    const {error}=await sb.from('award_lists').delete().eq('id', id).eq('user_id', u.id);
+    const {data, error}=await sb.from('award_lists').delete().eq('id', id).eq('user_id', u.id).select('id');
     if(error){ alert(error.message); return; }
+    if(!data || !data.length){ alert('Could not delete (cloud policy). Re-run supabase/migrate-fix.sql'); return; }
     await renderAwardList();
     return;
   }
@@ -1550,11 +1567,20 @@ function resetAwardForm(){
   liveAward();
 }
 async function fetchCloudAwards(){
-  const u=currentUser(); const sb=getSb();
-  if(!sb||!u?.id) return [];
-  const {data, error}=await sb.from('award_lists').select('*').eq('user_id', u.id).order('updated_at',{ascending:false});
+  const u=currentUser();
+  if(!u?.id) return [];
+  if(window.ULC_CLOUD?.listAwards){
+    try{ return await ULC_CLOUD.listAwards(u.id); }
+    catch(err){ console.warn(err); return []; }
+  }
+  const sb=getSb();
+  if(!sb) return [];
+  // Sort client-side: .order('updated_at') was returning 0 rows on this project
+  const {data, error}=await sb.from('award_lists').select('*').eq('user_id', u.id);
   if(error){ console.warn(error); return []; }
-  return (data||[]).map(r=>({...r, updatedAt: new Date(r.updated_at||Date.now()).getTime()}));
+  return (data||[])
+    .map(r=>({...r, updatedAt: new Date(r.updated_at||Date.now()).getTime()}))
+    .sort((a,b)=>b.updatedAt-a.updatedAt);
 }
 async function renderAwardList(){
   const u=currentUser(); if(!u) return;

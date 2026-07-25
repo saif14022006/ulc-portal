@@ -12,7 +12,8 @@ Mobile-first PWA for **University Law College, Quetta**.
 
 ## Accounts
 
-Signup fields: **full name**, **roll number**, **contact**, **password**.
+Signup: **full name**, **roll number** (optional for teachers), **email**, **password**.  
+Login: **email** + **password** only.
 
 Until Supabase is connected, accounts and award lists are stored in the browser (password hashed with SHA-256).
 

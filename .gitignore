@@ -20,3 +20,9 @@ node_modules/
 .cache/
 dist/
 .vercel/
+
+# Load-test artifacts
+scripts/.load-progress.json
+scripts/.load-progress.json.tmp
+scripts/.load-report.json
+scripts/.covers-batch/
