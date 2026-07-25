@@ -12,6 +12,7 @@
   let pendingOcr = [];
   let editingStudentRoll = null;
   let pendingRosterFile = null;
+  let analyzeAfterPick = false;
 
   function loadJSON(k, fb) {
     try { return JSON.parse(localStorage.getItem(k)) ?? fb; } catch { return fb; }
@@ -481,7 +482,6 @@
     if (!words.length) return { name: "", father: "" };
     if (words.length === 1) return { name: words[0], father: "" };
     if (words.length === 2) return { name: words.join(" "), father: "" };
-    /* Prefer shorter given name: first 1–2 words as student name */
     const fatherStarts = /^(MUHAMMAD|MOHAMMAD|ABDUL|GHULAM|SYED|HAJI|MALIK|SARDAR|SHEIKH|MIRZA|CHAUDHARY|KHAN)$/;
     if (words.length >= 3 && fatherStarts.test(words[1])) {
       return { name: words[0], father: words.slice(1).join(" ") };
@@ -492,7 +492,95 @@
     return { name: words[0], father: words.slice(1).join(" ") };
   }
 
-  /** Admission list (ULC 2025–29): Roll · Name · Father · CNIC · … */
+  function splitRowCols(line) {
+    let cols = String(line || "").split(/\t+/).map((c) => c.trim()).filter(Boolean);
+    if (cols.length >= 2) return cols;
+    cols = String(line || "").split(/\s{2,}/).map((c) => c.trim()).filter(Boolean);
+    if (cols.length >= 2) return cols;
+    return String(line || "").split(/\s+/).filter(Boolean);
+  }
+
+  function normHeader(tok) {
+    return String(tok || "").toUpperCase().replace(/[^A-Z0-9]/g, "");
+  }
+
+  /** Find Roll + Name column indexes from a header row (ignore Father, CNIC, etc.). */
+  function findRollNameIndexes(cols) {
+    let rollIdx = -1;
+    let nameIdx = -1;
+    cols.forEach((c, i) => {
+      const h = normHeader(c);
+      if (!h) return;
+      if (rollIdx < 0 && (h.includes("ROLL") || h === "SNO" || h === "SRNO" || h === "NO" || h === "SR")) {
+        rollIdx = i;
+      }
+      if (
+        nameIdx < 0 &&
+        (h === "NAME" || h === "STUDENTNAME" || h === "STUDENT" || (h.includes("NAME") && !h.includes("FATHER") && !h.includes("PARENT")))
+      ) {
+        nameIdx = i;
+      }
+    });
+    /* Typical ULC sheet: [Roll] [Name] [Father] [CNIC] … */
+    if (rollIdx < 0 && nameIdx < 0 && cols.length >= 2) {
+      if (looksLikeRoll(cols[0]) || /ROLL|SNO|NO/i.test(cols[0])) rollIdx = 0;
+      if (/NAME/i.test(cols[1]) && !/FATHER/i.test(cols[1])) nameIdx = 1;
+    }
+    if (rollIdx >= 0 && nameIdx < 0) {
+      for (let i = rollIdx + 1; i < cols.length; i++) {
+        const h = normHeader(cols[i]);
+        if (h.includes("FATHER") || h.includes("CNIC") || h.includes("CONTACT") || h.includes("DATE") || h.includes("PHONE")) continue;
+        if (h.includes("NAME") || h === "STUDENT") {
+          nameIdx = i;
+          break;
+        }
+      }
+      if (nameIdx < 0 && rollIdx + 1 < cols.length) nameIdx = rollIdx + 1;
+    }
+    return { rollIdx, nameIdx };
+  }
+
+  function parseByHeaderColumns(text) {
+    const lines = String(text || "").split(/\r?\n/).map((l) => l.trim()).filter(Boolean);
+    let rollIdx = -1;
+    let nameIdx = -1;
+    let headerAt = -1;
+    for (let i = 0; i < Math.min(lines.length, 12); i++) {
+      const cols = splitRowCols(lines[i]);
+      const hit = findRollNameIndexes(cols);
+      const joined = cols.join(" ").toUpperCase();
+      if ((hit.rollIdx >= 0 && hit.nameIdx >= 0) || (/ROLL/.test(joined) && /NAME/.test(joined) && !/FATHER\s*NAME.*ROLL/i.test(joined))) {
+        rollIdx = hit.rollIdx >= 0 ? hit.rollIdx : 0;
+        nameIdx = hit.nameIdx >= 0 ? hit.nameIdx : Math.min(1, cols.length - 1);
+        headerAt = i;
+        break;
+      }
+    }
+    if (headerAt < 0 || rollIdx < 0 || nameIdx < 0) return [];
+
+    const out = [];
+    const seen = new Set();
+    for (let i = headerAt + 1; i < lines.length; i++) {
+      const cols = splitRowCols(lines[i]);
+      if (cols.length <= Math.max(rollIdx, nameIdx)) {
+        /* OCR may glue columns — fall back to roll-at-start parse on this line */
+        continue;
+      }
+      const rollRaw = cols[rollIdx];
+      const nameRaw = cols[nameIdx];
+      if (!looksLikeRoll(rollRaw)) continue;
+      const roll = String(rollRaw).replace(/\s/g, "").toUpperCase();
+      let name = cleanName(nameRaw);
+      if (!name || name.length < 2 || seen.has(roll)) continue;
+      if (isHeaderNoise(name) || /FATHER|CNIC|CONTACT/.test(name)) continue;
+      name = name.split(" ").slice(0, 5).join(" ");
+      seen.add(roll);
+      out.push({ roll, name });
+    }
+    return out;
+  }
+
+  /** Admission / multi-col rows: grab Roll, then Name only (stop before Father/CNIC/phone). */
   function parseAdmissionList(text) {
     const out = [];
     const seen = new Set();
@@ -509,8 +597,11 @@
     return out;
   }
 
-  /** Roll + Name sheets (attendance / OCR) */
+  /** Extract ONLY roll number + student name from multi-column sheets. */
   function parseRosterText(text) {
+    const byHeader = parseByHeaderColumns(text);
+    if (byHeader.length >= 3) return byHeader;
+
     const admission = parseAdmissionList(text);
     if (admission.length >= 3) return admission;
 
@@ -521,7 +612,6 @@
       const up = line.toUpperCase();
       if (isHeaderNoise(up) && !/\d{3,4}/.test(line)) continue;
 
-      /* Compact admission row without relying on CNIC spacing */
       const adm = line.match(/^(\d{3,4})\s+(.+?)\s+(\d{5}-\d{7}-\d)/i);
       if (adm) {
         const roll = adm[1].toUpperCase();
@@ -533,9 +623,7 @@
         }
       }
 
-      let cols = line.split(/\t+|\s{2,}/).map((c) => c.trim()).filter(Boolean);
-      if (cols.length < 2) cols = line.split(/\s+/).filter(Boolean);
-
+      const cols = splitRowCols(line);
       let roll = "";
       let name = "";
 
@@ -544,21 +632,25 @@
         if (/^\d{1,2}$/.test(cols[0]) && looksLikeRoll(cols[1])) i = 1;
         if (looksLikeRoll(cols[i])) {
           roll = cols[i].replace(/\s/g, "").toUpperCase();
-          /* Stop at CNIC / phone if present in remaining tokens */
-          const rest = [];
-          for (const tok of cols.slice(i + 1)) {
-            if (/^\d{5}-?\d{7}-?\d$/.test(tok.replace(/\s/g, ""))) break;
-            if (/^03\d{2}-?\d{7}$/.test(tok.replace(/\s/g, ""))) break;
-            if (/^(january|february|march|april|may|june|july|august|september|october|november|december)/i.test(tok)) break;
-            rest.push(tok);
+          /* Name is the next column only — do not pull Father / CNIC / contact */
+          const nameCol = cols[i + 1] || "";
+          if (nameCol && !/^\d{5}-?\d{7}-?\d$/.test(nameCol.replace(/\s/g, "")) && !/^03\d{2}/.test(nameCol)) {
+            name = cleanName(nameCol);
+          } else {
+            const rest = [];
+            for (const tok of cols.slice(i + 1)) {
+              if (/^\d{5}-?\d{7}-?\d$/.test(tok.replace(/\s/g, ""))) break;
+              if (/^03\d{2}-?\d{7}$/.test(tok.replace(/\s/g, ""))) break;
+              if (/^(january|february|march|april|may|june|july|august|september|october|november|december)/i.test(tok)) break;
+              rest.push(tok);
+            }
+            name = splitStudentName(rest.join(" ")).name;
           }
-          const split = splitStudentName(rest.join(" "));
-          name = split.name || cleanName(rest.slice(0, 3).join(" "));
         }
       }
 
       if (!roll || !name) {
-        const m = line.match(/\b(\d{3,6}[A-Za-z]?)\b\s+([A-Za-z][A-Za-z .']{2,})/);
+        const m = line.match(/\b(\d{3,6}[A-Za-z]?)\b\s+([A-Za-z][A-Za-z .']{2,}?)(?=\s+\d{5}-|\s+03\d|$)/);
         if (m) {
           roll = m[1].toUpperCase();
           name = splitStudentName(m[2]).name || cleanName(m[2].split(/\s+/).slice(0, 3).join(" "));
@@ -571,20 +663,21 @@
       seen.add(roll);
       out.push({ roll, name });
     }
-    return out.length ? out : admission;
+    if (byHeader.length > out.length) return byHeader;
+    return out.length ? out : admission.length ? admission : byHeader;
   }
 
   function applyParsedRoster(list, statusMsg) {
     const status = document.getElementById("tr-ocr-status");
     if (!list.length) {
-      if (status) status.textContent = "Could not detect roll numbers and names. Try a clearer photo or PDF, or add manually.";
+      if (status) status.textContent = "Could not find a Roll column with names. Use a clearer list, or add manually.";
       return;
     }
     pendingOcr = list;
     if (status) {
       status.textContent =
         statusMsg ||
-        `Found ${list.length} student(s): roll number + name. Untick any mistakes, then tap Add selected students.`;
+        `Extracted ${list.length} row(s) from Roll + Name columns only. Untick mistakes, then Add selected students.`;
     }
     renderOcrPreview(list);
   }
@@ -592,32 +685,37 @@
   function onRosterFileChosen(file) {
     pendingRosterFile = file || null;
     const nameEl = document.getElementById("tr-file-name");
-    const btn = document.getElementById("tr-analyze-btn");
     const status = document.getElementById("tr-ocr-status");
     clearOcrPreview();
     if (!file) {
       if (nameEl) nameEl.textContent = "No file selected yet.";
-      if (btn) btn.disabled = true;
       if (status) status.textContent = "";
       return;
     }
     const kb = Math.max(1, Math.round(file.size / 1024));
-    if (nameEl) nameEl.textContent = `Selected: ${file.name} (${kb} KB) — tap Analyze file.`;
-    if (btn) btn.disabled = false;
-    if (status) status.textContent = "File ready. Tap Analyze file to extract roll numbers and names.";
+    if (nameEl) nameEl.textContent = `Selected: ${file.name} (${kb} KB)`;
+    if (status) status.textContent = "File ready — analyzing Roll + Name columns…";
+    const shouldRun = analyzeAfterPick;
+    analyzeAfterPick = false;
+    /* Always analyze after a file is chosen so the button never feels “stuck off”. */
+    setTimeout(() => analyzeRosterFile(), shouldRun ? 0 : 30);
   }
 
   async function analyzeRosterFile() {
     const input = document.getElementById("tr-photo");
-    const file = pendingRosterFile || (input && input.files && input.files[0]) || null;
+    let file = pendingRosterFile || (input && input.files && input.files[0]) || null;
     if (!file) {
-      alert("Choose a PDF or image of the student list first.");
+      analyzeAfterPick = true;
+      if (input) {
+        input.value = "";
+        input.click();
+      } else {
+        alert("File picker not found. Hard-refresh the page (Ctrl+F5).");
+      }
       return;
     }
-    if (!activeClass()) {
-      alert("Create / select a class first, then analyze the list.");
-      return;
-    }
+    if (analyzeRosterFile._busy) return;
+    analyzeRosterFile._busy = true;
     const btn = document.getElementById("tr-analyze-btn");
     const label = "Analyze file — extract roll & names";
     if (btn) {
@@ -626,9 +724,14 @@
     }
     try {
       await uploadRosterFile(file);
+    } catch (e) {
+      console.error(e);
+      const status = document.getElementById("tr-ocr-status");
+      if (status) status.textContent = "Analyze failed. Try another PDF/image or add manually.";
     } finally {
+      analyzeRosterFile._busy = false;
       if (btn) {
-        btn.disabled = !pendingRosterFile;
+        btn.disabled = false;
         btn.textContent = label;
       }
     }

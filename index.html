@@ -149,7 +149,7 @@ main{flex:1;padding:18px 16px 36px;width:100%}
   border:1.5px dashed rgba(198,161,60,.55);border-radius:14px;padding:14px;background:rgba(255,255,255,.65);
 }
 #v-teacher #tr-analyze-btn{width:100%;margin-top:4px;font-weight:700}
-#v-teacher #tr-analyze-btn:disabled{opacity:.55;cursor:not-allowed}
+#v-teacher #tr-analyze-btn:disabled{opacity:.7;cursor:wait}
 @keyframes tHeroIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
 @media (max-width:420px){
   #v-teacher .teacher-modes{grid-template-columns:repeat(3,minmax(0,1fr))}
@@ -552,8 +552,6 @@ body.landing-open .app{visibility:hidden;pointer-events:none}
 .tx-outer{border:3px solid #0a2a5c;padding:6px;position:relative;z-index:1}
 .tx-watermark{position:absolute;inset:0;z-index:5;pointer-events:none;overflow:hidden}
 .tx-watermark span{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%) rotate(-34deg);font-family:Arial Black,Arial,Helvetica,sans-serif;font-size:108px;font-weight:900;letter-spacing:.22em;text-transform:uppercase;color:rgba(10,42,92,.2);white-space:nowrap;user-select:none;line-height:1;-webkit-text-stroke:1px rgba(10,42,92,.08)}
-.tx-watermark span.wm-b{top:28%;font-size:72px;opacity:.85;letter-spacing:.16em}
-.tx-watermark span.wm-c{top:72%;font-size:72px;opacity:.85;letter-spacing:.16em}
 .tx-inner{border:1.5px solid #0a2a5c;padding:14px 16px 12px}
 .tx-head{display:grid;grid-template-columns:120px 1fr 120px;gap:14px;align-items:center;text-align:center;margin-bottom:12px}
 .tx-logo{width:112px;height:112px;object-fit:contain;justify-self:center}
@@ -1403,14 +1401,14 @@ body.landing-open .app{visibility:hidden;pointer-events:none}
         <div class="t-panel" id="tp-roster">
           <div class="card">
             <h3>Import students</h3>
-            <p class="hint">Choose a <b>PDF</b> or <b>image</b> of the student list, then tap <b>Analyze file</b>. The app reads the <b>roll number</b> column and the <b>name</b> next to each roll. Review the list, then add.</p>
+            <p class="hint">Tap <b>Analyze file</b> (or choose a file first). Multi-column lists are supported — only the <b>Roll</b> column and <b>Name</b> column are read; father, CNIC, contact, etc. are ignored.</p>
             <div class="roster-drop">
               <div class="field">
                 <label>PDF or photo of student list</label>
                 <input id="tr-photo" type="file" accept="application/pdf,image/*,.pdf" capture="environment" onchange="TeacherApp.onRosterFileChosen(this.files[0])">
               </div>
               <p class="hint" id="tr-file-name" style="margin:6px 0 10px">No file selected yet.</p>
-              <button class="btn btn-gold" type="button" id="tr-analyze-btn" onclick="TeacherApp.analyzeRosterFile()" disabled>Analyze file — extract roll &amp; names</button>
+              <button class="btn btn-gold" type="button" id="tr-analyze-btn" onclick="TeacherApp.analyzeRosterFile()">Analyze file — extract roll &amp; names</button>
             </div>
             <p class="hint" id="tr-ocr-status" style="margin-top:10px"></p>
             <div id="tr-ocr-preview"></div>

@@ -1182,9 +1182,7 @@
       .join("");
     return `<div class="tx-cert">
       <div class="tx-watermark" aria-hidden="true">
-        <span class="wm-b">DUPLICATE</span>
         <span>DUPLICATE</span>
-        <span class="wm-c">DUPLICATE</span>
       </div>
       <div class="tx-outer">
         <div class="tx-inner">
