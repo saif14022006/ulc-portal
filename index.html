@@ -279,10 +279,10 @@ main{flex:1;padding:18px 16px 36px;width:100%}
 .gp-box{background:var(--navy);color:#fff;border-radius:12px;padding:12px;text-align:center}
 .gp-box .n{font-family:var(--serif);font-size:22px;color:var(--gold-lt)}
 .gp-box .l{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:#a9c1da;margin-top:4px}
-.overlay{position:fixed;inset:0;z-index:80;background:rgba(8,39,68,.55);display:none;align-items:flex-end;justify-content:center;padding:16px;padding-bottom:calc(16px + env(safe-area-inset-bottom))}
-.overlay.show{display:flex}
-#profileOverlay{z-index:220}
-#profileOverlay .sheet{max-height:90dvh}
+.overlay{position:fixed;inset:0;z-index:200;background:rgba(8,39,68,.55);display:none;align-items:flex-end;justify-content:center;padding:16px;padding-bottom:calc(16px + env(safe-area-inset-bottom))}
+.overlay.show{display:flex!important}
+#profileOverlay,#srOverlay,#onboardOverlay,#teacherSetupOverlay{z-index:9999}
+#profileOverlay .sheet{max-height:90dvh;overflow:auto}
 .sheet{background:var(--paper-2);border-radius:18px 18px 14px 14px;padding:20px 18px;width:100%;max-width:480px;max-height:88dvh;overflow:auto;box-shadow:0 -8px 40px rgba(0,0,0,.25)}
 .sheet h2{font-family:var(--serif);font-size:20px;color:var(--navy);margin-bottom:4px}
 .sheet .lead{font-size:13px;color:var(--slate);margin-bottom:14px}
@@ -469,8 +469,9 @@ body.landing-open .app{visibility:hidden;pointer-events:none}
 .sr-saved-item{width:100%;display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:12px;background:#fff;border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin-bottom:8px;font-family:var(--sans);text-align:left}
 .sr-saved-item .t{font-size:13.5px;font-weight:600;color:var(--navy)}
 .sr-saved-item .m{font-size:12px;color:var(--slate)}
-.sr-saved-item .sr-saved-actions{display:flex;flex-wrap:wrap;gap:8px;margin-left:auto}
+.sr-saved-item .sr-saved-actions{display:flex;flex-wrap:wrap;gap:8px;margin-left:auto;justify-content:flex-end}
 .sr-saved-item .sr-saved-actions .btn{width:auto;padding:9px 12px;font-size:12.5px;border-radius:9px}
+.sr-saved-item .sr-saved-actions .btn-danger{min-width:7.5rem}
 .chat-log{background:#fff;border:1px solid var(--line);border-radius:14px;padding:12px;max-height:280px;overflow:auto;display:flex;flex-direction:column;gap:8px;margin-bottom:10px}
 .chat-bubble{max-width:92%;padding:10px 12px;border-radius:12px;font-size:13px;line-height:1.45}
 .chat-bubble.bot{align-self:flex-start;background:#eef2f7;color:var(--ink);border-bottom-left-radius:4px}
@@ -748,7 +749,7 @@ body.landing-open .app{visibility:hidden;pointer-events:none}
                 <span class="val" id="dashCgpaVal">—</span>
                 <span class="hint" id="dashCgpaHint">from records</span>
               </div>
-              <button type="button" class="dash-profile-btn" id="dashProfileBtn" title="Edit profile">
+              <button type="button" class="dash-profile-btn" id="dashProfileBtn" title="Edit profile" onclick="StudentDash.openProfileModal();return false;">
                 <span class="av" id="dashProfileAv">?</span>
                 <span>Edit profile</span>
               </button>
@@ -1461,97 +1462,6 @@ body.landing-open .app{visibility:hidden;pointer-events:none}
   <div id="printhost" class="no-print" style="display:none"></div>
   <div id="transcriptHost" style="display:none" aria-hidden="true"></div>
 
-  <div class="overlay" id="profileOverlay" onclick="if(event.target===this)StudentDash.closeProfileModal()">
-    <div class="sheet sheet-wide sheet-profile">
-      <h2>Edit profile</h2>
-      <p class="lead">Photo and details used on your provisional transcript.</p>
-      <div class="msg" id="sp-msg"></div>
-      <div class="photo-upload">
-        <img id="sp-photo-preview" alt="Photo preview" style="display:none">
-        <div>
-          <div class="field" style="margin-bottom:8px"><label>Photo</label><input id="sp-photo" type="file" accept="image/*" onchange="StudentDash.onPhotoSelected(this.files[0])"></div>
-          <p class="hint">Passport-style photo for your transcript header.</p>
-        </div>
-      </div>
-      <div class="row2">
-        <div class="field"><label>Name</label><input id="sp-name" readonly></div>
-        <div class="field"><label>Roll No.</label><input id="sp-roll" readonly></div>
-      </div>
-      <div class="row2">
-        <div class="field"><label>Father name</label><input id="sp-father" placeholder="As on college records"></div>
-        <div class="field"><label>CNIC</label><input id="sp-cnic" placeholder="XXXXX-XXXXXXX-X"></div>
-      </div>
-      <div class="row2">
-        <div class="field"><label>Date of birth</label><input id="sp-dob" type="date"></div>
-        <div class="field"><label>Registration No.</label><input id="sp-reg" placeholder="N/L if none"></div>
-      </div>
-      <div class="row2">
-        <div class="field"><label>Session</label><input id="sp-session" placeholder="2025–2029"></div>
-        <div class="field"><label>Program</label><input id="sp-program" value="LL.B Five Year"></div>
-      </div>
-      <div class="field"><label>Current semester</label><select id="sp-sem"></select></div>
-      <h3 style="margin:14px 0 8px;font-size:15px;font-family:var(--serif);color:var(--navy)">Transcript signatures</h3>
-      <div class="field"><label>Prepared by (name)</label><input id="sp-prepared" placeholder="Full name as on certificate"></div>
-      <div class="field"><label>Coordinator (name)</label><input id="sp-coordinator" placeholder="Full name as on certificate"></div>
-      <div class="field"><label>Principal (name)</label><input id="sp-principal" placeholder="Full name as on certificate"></div>
-      <div class="sheet-actions">
-        <button class="btn btn-primary" type="button" onclick="StudentDash.saveProfile()">Save profile</button>
-        <button class="btn btn-ghost" type="button" onclick="StudentDash.closeProfileModal()">Close</button>
-      </div>
-    </div>
-  </div>
-
-  <div class="overlay" id="srOverlay">
-    <div class="sheet sheet-wide">
-      <h2 id="srModalTitle">Add semester record</h2>
-      <p class="lead">Pick a semester — subjects load from the syllabus. Enter marks /100; GP and grade use the official ULC table.</p>
-      <div class="msg" id="sr-modal-msg"></div>
-      <div class="field"><label>Semester</label><select id="sr-sem" onchange="StudentDash.onRecordsSemChange()"></select></div>
-      <div id="sr-courses"></div>
-      <p class="hint" id="sr-live" style="margin:8px 0 4px">Enter marks to see semester GPA.</p>
-      <div class="sheet-actions">
-        <button class="btn btn-primary" type="button" onclick="StudentDash.saveSemester()">Save semester</button>
-        <button class="btn btn-ghost" type="button" onclick="StudentDash.closeRecordsModal()">Cancel</button>
-      </div>
-    </div>
-  </div>
-
-  <div class="overlay" id="onboardOverlay">
-    <div class="sheet">
-      <h2>Complete your profile</h2>
-      <p class="lead">Tell us your current semester and previous GPA / CGPA so we can keep your academic record.</p>
-      <div class="field"><label>Current semester</label><select id="ob-sem"></select></div>
-      <div class="field"><label>Session (optional)</label><input id="ob-session" placeholder="e.g. 2025–2029"></div>
-      <div class="row2">
-        <div class="field"><label>Previous semester GPA</label><input id="ob-gpa" type="number" min="0" max="4" step="0.01" placeholder="e.g. 3.40"></div>
-        <div class="field"><label>CGPA so far</label><input id="ob-cgpa" type="number" min="0" max="4" step="0.01" placeholder="e.g. 3.25"></div>
-      </div>
-      <div class="field"><label>Notes (optional)</label><input id="ob-notes" placeholder="Batch / section / anything else"></div>
-      <button class="btn btn-primary" type="button" onclick="saveOnboarding()">Save &amp; continue</button>
-      <button class="btn btn-ghost" type="button" style="margin-top:8px" onclick="closeOnboarding()">Skip for now</button>
-    </div>
-  </div>
-
-  <div class="overlay" id="teacherSetupOverlay">
-    <div class="sheet">
-      <h2>Set up your class</h2>
-      <p class="lead">Enter your official instructor name and the subject you teach. Most teachers have one class — you can add more later. Results stay on your teacher account only.</p>
-      <div class="field"><label>Official instructor name</label><input id="ob-t-name" placeholder="As on award list"></div>
-      <div class="field"><label>Semester</label><select id="ob-t-sem" onchange="TeacherApp.fillTeacherSubjList()"></select></div>
-      <div class="field"><label>Subject</label>
-        <input id="ob-t-subj" list="ob-t-subj-list" placeholder="Select or type subject name">
-        <datalist id="ob-t-subj-list"></datalist>
-      </div>
-      <div class="row2">
-        <div class="field"><label>Subject code</label><input id="ob-t-code" placeholder="e.g. LLB 211"></div>
-        <div class="field"><label>Credit hours</label><input id="ob-t-ch" type="number" min="1" max="6" step="1" value="3"></div>
-      </div>
-      <div class="field"><label>Session</label><input id="ob-t-session" placeholder="2025-2029"></div>
-      <button class="btn btn-primary" type="button" onclick="TeacherApp.saveTeacherSetup()">Save class</button>
-      <button class="btn btn-ghost" type="button" style="margin-top:8px" onclick="TeacherApp.closeTeacherSetup()">Cancel</button>
-    </div>
-  </div>
-
   <div id="teacherPdfHost" aria-hidden="true"></div>
 
   <nav class="tabbar">
@@ -1562,6 +1472,97 @@ body.landing-open .app{visibility:hidden;pointer-events:none}
     <button class="tab" data-t="syllabus" onclick="go('syllabus')"><svg viewBox="0 0 24 24"><path d="M4 5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2z"/><path d="M4 19a2 2 0 0 1 2-2h13"/></svg>Syllabus</button>
     <button class="tab" data-t="account" onclick="go('account')"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c1.5-3.5 4-5 8-5s6.5 1.5 8 5"/></svg>Account</button>
   </nav>
+</div>
+
+<div class="overlay" id="profileOverlay" aria-hidden="true" onclick="if(event.target===this)StudentDash.closeProfileModal()">
+  <div class="sheet sheet-wide sheet-profile" role="dialog" aria-labelledby="profileModalTitle">
+    <h2 id="profileModalTitle">Edit profile</h2>
+    <p class="lead">Photo and details used on your provisional transcript.</p>
+    <div class="msg" id="sp-msg"></div>
+    <div class="photo-upload">
+      <img id="sp-photo-preview" alt="Photo preview" style="display:none">
+      <div>
+        <div class="field" style="margin-bottom:8px"><label>Photo</label><input id="sp-photo" type="file" accept="image/*" onchange="StudentDash.onPhotoSelected(this.files[0])"></div>
+        <p class="hint">Passport-style photo for your transcript header.</p>
+      </div>
+    </div>
+    <div class="row2">
+      <div class="field"><label>Name</label><input id="sp-name" readonly></div>
+      <div class="field"><label>Roll No.</label><input id="sp-roll" readonly></div>
+    </div>
+    <div class="row2">
+      <div class="field"><label>Father name</label><input id="sp-father" placeholder="As on college records"></div>
+      <div class="field"><label>CNIC</label><input id="sp-cnic" placeholder="XXXXX-XXXXXXX-X"></div>
+    </div>
+    <div class="row2">
+      <div class="field"><label>Date of birth</label><input id="sp-dob" type="date"></div>
+      <div class="field"><label>Registration No.</label><input id="sp-reg" placeholder="N/L if none"></div>
+    </div>
+    <div class="row2">
+      <div class="field"><label>Session</label><input id="sp-session" placeholder="2025–2029"></div>
+      <div class="field"><label>Program</label><input id="sp-program" value="LL.B Five Year"></div>
+    </div>
+    <div class="field"><label>Current semester</label><select id="sp-sem"></select></div>
+    <h3 style="margin:14px 0 8px;font-size:15px;font-family:var(--serif);color:var(--navy)">Transcript signatures</h3>
+    <div class="field"><label>Prepared by (name)</label><input id="sp-prepared" placeholder="Full name as on certificate"></div>
+    <div class="field"><label>Coordinator (name)</label><input id="sp-coordinator" placeholder="Full name as on certificate"></div>
+    <div class="field"><label>Principal (name)</label><input id="sp-principal" placeholder="Full name as on certificate"></div>
+    <div class="sheet-actions">
+      <button class="btn btn-primary" type="button" onclick="StudentDash.saveProfile()">Save profile</button>
+      <button class="btn btn-ghost" type="button" onclick="StudentDash.closeProfileModal()">Close</button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="srOverlay" aria-hidden="true">
+  <div class="sheet sheet-wide">
+    <h2 id="srModalTitle">Add semester record</h2>
+    <p class="lead">Pick a semester — subjects load from the syllabus. Enter marks /100; GP and grade use the official ULC table.</p>
+    <div class="msg" id="sr-modal-msg"></div>
+    <div class="field"><label>Semester</label><select id="sr-sem" onchange="StudentDash.onRecordsSemChange()"></select></div>
+    <div id="sr-courses"></div>
+    <p class="hint" id="sr-live" style="margin:8px 0 4px">Enter marks to see semester GPA.</p>
+    <div class="sheet-actions">
+      <button class="btn btn-primary" type="button" onclick="StudentDash.saveSemester()">Save semester</button>
+      <button class="btn btn-ghost" type="button" onclick="StudentDash.closeRecordsModal()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="onboardOverlay" aria-hidden="true">
+  <div class="sheet">
+    <h2>Complete your profile</h2>
+    <p class="lead">Tell us your current semester and previous GPA / CGPA so we can keep your academic record.</p>
+    <div class="field"><label>Current semester</label><select id="ob-sem"></select></div>
+    <div class="field"><label>Session (optional)</label><input id="ob-session" placeholder="e.g. 2025–2029"></div>
+    <div class="row2">
+      <div class="field"><label>Previous semester GPA</label><input id="ob-gpa" type="number" min="0" max="4" step="0.01" placeholder="e.g. 3.40"></div>
+      <div class="field"><label>CGPA so far</label><input id="ob-cgpa" type="number" min="0" max="4" step="0.01" placeholder="e.g. 3.25"></div>
+    </div>
+    <div class="field"><label>Notes (optional)</label><input id="ob-notes" placeholder="Batch / section / anything else"></div>
+    <button class="btn btn-primary" type="button" onclick="saveOnboarding()">Save &amp; continue</button>
+    <button class="btn btn-ghost" type="button" style="margin-top:8px" onclick="closeOnboarding()">Skip for now</button>
+  </div>
+</div>
+
+<div class="overlay" id="teacherSetupOverlay" aria-hidden="true">
+  <div class="sheet">
+    <h2>Set up your class</h2>
+    <p class="lead">Enter your official instructor name and the subject you teach. Most teachers have one class — you can add more later. Results stay on your teacher account only.</p>
+    <div class="field"><label>Official instructor name</label><input id="ob-t-name" placeholder="As on award list"></div>
+    <div class="field"><label>Semester</label><select id="ob-t-sem" onchange="TeacherApp.fillTeacherSubjList()"></select></div>
+    <div class="field"><label>Subject</label>
+      <input id="ob-t-subj" list="ob-t-subj-list" placeholder="Select or type subject name">
+      <datalist id="ob-t-subj-list"></datalist>
+    </div>
+    <div class="row2">
+      <div class="field"><label>Subject code</label><input id="ob-t-code" placeholder="e.g. LLB 211"></div>
+      <div class="field"><label>Credit hours</label><input id="ob-t-ch" type="number" min="1" max="6" step="1" value="3"></div>
+    </div>
+    <div class="field"><label>Session</label><input id="ob-t-session" placeholder="2025-2029"></div>
+    <button class="btn btn-primary" type="button" onclick="TeacherApp.saveTeacherSetup()">Save class</button>
+    <button class="btn btn-ghost" type="button" style="margin-top:8px" onclick="TeacherApp.closeTeacherSetup()">Cancel</button>
+  </div>
 </div>
 
 <script>

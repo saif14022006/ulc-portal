@@ -304,15 +304,6 @@
         av.textContent = (name.charAt(0) || "?").toUpperCase();
       }
     }
-    const profileBtn = document.getElementById("dashProfileBtn");
-    if (profileBtn && !profileBtn.dataset.bound) {
-      profileBtn.dataset.bound = "1";
-      profileBtn.addEventListener("click", (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        openProfileModal();
-      });
-    }
     if (opts && opts.overview) activeDashTab = "gpa";
     if (!activeDashTab || activeDashTab === "profile") activeDashTab = "gpa";
     setDashTab(activeDashTab, true);
@@ -360,14 +351,20 @@
       alert("Login as a student to edit your profile.");
       return;
     }
-    renderProfile();
     const ov = document.getElementById("profileOverlay");
     if (!ov) {
-      alert("Profile popup is missing. Hard-refresh the page (cache v28+).");
+      alert("Profile popup is missing. Hard-refresh the page (Ctrl+F5), cache v30+.");
       return;
     }
+    /* Show sheet first so a fill error cannot block the popup. */
     ov.classList.add("show");
     ov.setAttribute("aria-hidden", "false");
+    document.body.style.overflow = "hidden";
+    try {
+      renderProfile();
+    } catch (err) {
+      console.error("renderProfile failed", err);
+    }
   }
   function closeProfileModal() {
     const ov = document.getElementById("profileOverlay");
@@ -375,6 +372,7 @@
       ov.classList.remove("show");
       ov.setAttribute("aria-hidden", "true");
     }
+    document.body.style.overflow = "";
   }
 
   /* -------- Profile -------- */
@@ -1068,9 +1066,9 @@
             <div class="m">GPA ${Number(r.gpa).toFixed(2)} · ${Number(r.pct).toFixed(1)}% · ${r.obtained} marks</div>
           </div>
           <div class="sr-saved-actions">
-            <button type="button" class="btn btn-ghost btn-sm" onclick="StudentDash.editSemester(${n})">Edit results</button>
+            <button type="button" class="btn btn-ghost btn-sm" onclick="StudentDash.editSemester(${n})">Edit</button>
             <button type="button" class="btn btn-gold btn-sm" onclick="StudentDash.generateTranscript(${n})">Generate transcript</button>
-            <button type="button" class="btn btn-danger btn-sm" onclick="StudentDash.deleteSemester(${n})">Delete</button>
+            <button type="button" class="btn btn-danger btn-sm" onclick="StudentDash.deleteSemester(${n})">Delete record</button>
           </div>
         </div>`;
       })
@@ -1579,4 +1577,20 @@
   };
 
   global.StudentDash = StudentDash;
+
+  /* Direct binding so Edit profile works even if shell refresh never ran. */
+  function bindProfileButton() {
+    const btn = document.getElementById("dashProfileBtn");
+    if (!btn || btn.dataset.bound === "1") return;
+    btn.dataset.bound = "1";
+    btn.addEventListener("click", (e) => {
+      e.preventDefault();
+      openProfileModal();
+    });
+  }
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", bindProfileButton);
+  } else {
+    bindProfileButton();
+  }
 })(typeof window !== "undefined" ? window : globalThis);

@@ -1,5 +1,5 @@
 /* ULC Portal service worker — offline app shell */
-const CACHE = "ulc-portal-v29";
+const CACHE = "ulc-portal-v30";
 const ASSETS = [
   "./",
   "./index.html",
