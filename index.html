@@ -16,6 +16,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Cormorant+Garamond:wght@600;700&family=Source+Sans+3:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="logo.js"></script>
@@ -100,6 +101,59 @@ main{flex:1;padding:18px 16px 36px;width:100%}
 .tr-student-row .sr-saved-actions{margin-left:auto}
 .home-teacher-overview{display:grid;gap:10px;margin-bottom:14px}
 .home-teacher-overview .t-ov-stat{background:rgba(255,255,255,.92)}
+/* Teacher desk — creative shell */
+#v-teacher .teacher-hero{
+  position:relative;overflow:hidden;border-radius:18px;padding:18px 16px 16px;margin-bottom:14px;
+  background:linear-gradient(135deg,#082744 0%,#0b3a6b 48%,#12508f 100%);
+  color:#fff;box-shadow:0 16px 40px rgba(8,39,68,.28);border:1px solid rgba(226,197,104,.35);
+  animation:tHeroIn .55s ease both;
+}
+#v-teacher .teacher-hero:before{
+  content:"";position:absolute;inset:auto -20% -40% auto;width:180px;height:180px;border-radius:50%;
+  background:radial-gradient(circle,rgba(198,161,60,.35),transparent 68%);pointer-events:none;
+}
+#v-teacher .teacher-hero .eyebrow{color:var(--gold-lt);margin:0 0 6px}
+#v-teacher .teacher-hero .view-title{color:#fff;margin:0 0 6px;font-family:var(--display);font-size:28px;letter-spacing:.01em}
+#v-teacher .teacher-hero .view-sub{color:rgba(245,242,234,.82);margin:0;max-width:36ch}
+#v-teacher .teacher-hero-actions{position:relative;z-index:1;display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+#v-teacher .teacher-hero-actions .btn-ghost{background:rgba(255,255,255,.1);color:#fff;border-color:rgba(226,197,104,.4)}
+#v-teacher .teacher-modes{
+  display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px;margin:0 0 14px;padding:6px;
+  background:rgba(255,255,255,.72);border:1px solid var(--line);border-radius:16px;backdrop-filter:blur(8px);
+}
+#v-teacher .teacher-modes .t-mode-btn{
+  flex:none;min-width:0;width:100%;padding:10px 6px;font-size:11px;font-weight:700;border-radius:12px;
+  border:1px solid transparent;background:transparent;color:var(--slate);line-height:1.2;
+}
+#v-teacher .teacher-modes .t-mode-btn .ico{display:block;font-size:15px;margin-bottom:4px;opacity:.9}
+#v-teacher .teacher-modes .t-mode-btn.active{
+  background:linear-gradient(180deg,var(--navy),var(--navy-deep));color:#fff;border-color:var(--gold);
+  box-shadow:0 8px 18px rgba(11,58,107,.22);
+}
+#v-teacher .t-ov-stat{
+  background:linear-gradient(160deg,#fff, #fbf9f3);border:1px solid var(--line);
+  box-shadow:0 6px 18px rgba(11,58,107,.06);transition:transform .2s ease,box-shadow .2s ease;
+}
+#v-teacher .t-ov-stat:hover{transform:translateY(-2px);box-shadow:0 10px 24px rgba(11,58,107,.1)}
+#v-teacher .t-ov-stat .val{font-family:var(--display);font-size:20px;font-weight:700}
+#v-teacher .tr-student-row{
+  border-left:3px solid var(--gold);box-shadow:0 4px 14px rgba(11,58,107,.05);
+  transition:border-color .15s ease, box-shadow .15s ease;
+}
+#v-teacher .tr-student-row:hover{border-left-color:var(--navy);box-shadow:0 8px 20px rgba(11,58,107,.1)}
+#v-teacher .tr-student-row .roll-chip{
+  display:inline-block;background:rgba(11,58,107,.08);color:var(--navy);border-radius:8px;
+  padding:2px 8px;font-size:12px;font-weight:700;letter-spacing:.03em;margin-bottom:4px;
+}
+#v-teacher .roster-drop{
+  border:1.5px dashed rgba(198,161,60,.55);border-radius:14px;padding:14px;background:rgba(255,255,255,.65);
+}
+@keyframes tHeroIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+@media (max-width:420px){
+  #v-teacher .teacher-modes{grid-template-columns:repeat(3,minmax(0,1fr))}
+  #v-teacher .teacher-modes .t-mode-btn[data-panel="marks"],
+  #v-teacher .teacher-modes .t-mode-btn[data-panel="pdf"]{grid-column:span 1}
+}
 .t-mode-btn.active{background:var(--navy)!important;color:#fff!important;border-color:var(--navy)!important}
 .pdf-cols{display:flex;flex-wrap:wrap;gap:8px}
 .pdf-cols .chk{display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:600;color:var(--navy);background:#fff;border:1px solid var(--line);border-radius:9px;padding:8px 10px;cursor:pointer}
@@ -722,8 +776,8 @@ body.landing-open .app{visibility:hidden;pointer-events:none}
 
         <!-- Teacher home -->
         <div id="homeTeacher" style="display:none">
-          <div class="dash-welcome">
-            <div class="kicker">Teacher</div>
+          <div class="dash-welcome" style="background:linear-gradient(135deg,#082744,#0b3a6b 55%,#12508f)">
+            <div class="kicker">Teacher desk</div>
             <h2 id="homeTeacherTitle">Welcome</h2>
             <p id="homeTeacherSub">Your class overview and desk tools.</p>
           </div>
@@ -1301,9 +1355,15 @@ body.landing-open .app{visibility:hidden;pointer-events:none}
       <!-- TEACHER -->
       <section class="view" id="v-teacher">
         <div class="max-narrow" style="max-width:100%">
-        <div class="eyebrow">Instructor</div>
-        <h2 class="view-title" id="t-welcome">Teacher desk</h2>
-        <p class="view-sub" id="t-class-meta">Your classes stay on your account only.</p>
+        <div class="teacher-hero">
+          <div class="eyebrow">Instructor desk</div>
+          <h2 class="view-title" id="t-welcome">Teacher desk</h2>
+          <p class="view-sub" id="t-class-meta">Your classes, roster, attendance, and award lists — in one place.</p>
+          <div class="teacher-hero-actions">
+            <button class="btn btn-gold" type="button" onclick="TeacherApp.showTeacherPanel('roster')">Students</button>
+            <button class="btn btn-ghost" type="button" onclick="TeacherApp.addAnotherClass()">+ Class</button>
+          </div>
+        </div>
 
         <div class="card">
           <div class="row2">
@@ -1319,11 +1379,11 @@ body.landing-open .app{visibility:hidden;pointer-events:none}
         </div>
 
         <div class="teacher-modes" role="tablist">
-          <button type="button" class="btn btn-ghost t-mode-btn active" data-panel="overview" onclick="TeacherApp.showTeacherPanel('overview')">Overview</button>
-          <button type="button" class="btn btn-ghost t-mode-btn" data-panel="roster" onclick="TeacherApp.showTeacherPanel('roster')">Students</button>
-          <button type="button" class="btn btn-ghost t-mode-btn" data-panel="attendance" onclick="TeacherApp.showTeacherPanel('attendance')">Attendance</button>
-          <button type="button" class="btn btn-ghost t-mode-btn" data-panel="marks" onclick="TeacherApp.showTeacherPanel('marks')">Upload marks</button>
-          <button type="button" class="btn btn-ghost t-mode-btn" data-panel="pdf" onclick="TeacherApp.showTeacherPanel('pdf')">Award list</button>
+          <button type="button" class="btn btn-ghost t-mode-btn active" data-panel="overview" onclick="TeacherApp.showTeacherPanel('overview')"><span class="ico">◆</span>Overview</button>
+          <button type="button" class="btn btn-ghost t-mode-btn" data-panel="roster" onclick="TeacherApp.showTeacherPanel('roster')"><span class="ico">☰</span>Students</button>
+          <button type="button" class="btn btn-ghost t-mode-btn" data-panel="attendance" onclick="TeacherApp.showTeacherPanel('attendance')"><span class="ico">✓</span>Attendance</button>
+          <button type="button" class="btn btn-ghost t-mode-btn" data-panel="marks" onclick="TeacherApp.showTeacherPanel('marks')"><span class="ico">✎</span>Marks</button>
+          <button type="button" class="btn btn-ghost t-mode-btn" data-panel="pdf" onclick="TeacherApp.showTeacherPanel('pdf')"><span class="ico">▤</span>Awards</button>
         </div>
 
         <div class="t-panel active" id="tp-overview">
@@ -1340,10 +1400,15 @@ body.landing-open .app{visibility:hidden;pointer-events:none}
 
         <div class="t-panel" id="tp-roster">
           <div class="card">
-            <h3>Add students from attendance list</h3>
-            <p class="hint">Upload a photo of the sheet. Only the first two columns are read: <b>Roll #</b> and <b>Name</b>. Review before saving. New students are shared with other teachers of the same semester.</p>
-            <div class="field"><label>Upload photo</label><input id="tr-photo" type="file" accept="image/*" capture="environment" onchange="TeacherApp.ocrAttendancePhoto(this.files[0])"></div>
-            <p class="hint" id="tr-ocr-status"></p>
+            <h3>Import students</h3>
+            <p class="hint">Upload a <b>PDF</b> or <b>photo</b> of the official list (Session 2025–2029 style: Roll, Name, Father Name…). Review before saving. Shared with other teachers of the same semester.</p>
+            <div class="roster-drop">
+              <div class="field" style="margin-bottom:0">
+                <label>PDF or photo of student list</label>
+                <input id="tr-photo" type="file" accept="application/pdf,image/*,.pdf" capture="environment" onchange="TeacherApp.uploadRosterFile(this.files[0])">
+              </div>
+            </div>
+            <p class="hint" id="tr-ocr-status" style="margin-top:10px"></p>
             <div id="tr-ocr-preview"></div>
           </div>
           <div class="card">
@@ -1360,7 +1425,7 @@ body.landing-open .app{visibility:hidden;pointer-events:none}
           </div>
           <div class="card">
             <h3>Students</h3>
-            <p class="hint" style="margin-top:-6px">Roll number and name · Edit or Delete on each row. Shared across teachers of this semester (marks stay private).</p>
+            <p class="hint" style="margin-top:-6px">Each row: roll, name, <b>Edit</b> and <b>Delete</b>.</p>
             <div id="tr-roster"></div>
           </div>
         </div>

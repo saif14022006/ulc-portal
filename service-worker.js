@@ -1,5 +1,5 @@
 /* ULC Portal service worker — offline app shell */
-const CACHE = "ulc-portal-v31";
+const CACHE = "ulc-portal-v32";
 const ASSETS = [
   "./",
   "./index.html",
@@ -12,6 +12,7 @@ const ASSETS = [
   "./js/teacher.js",
   "./js/student-dashboard.js",
   "./assets/campus-hero.jpg",
+  "./assets/batch-2025-29-section-a.png",
   "./icons/ulc-logo.png",
   "./icons/uob-logo.png",
   "./icons/icon-192.png",

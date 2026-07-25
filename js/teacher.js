@@ -463,7 +463,7 @@
   }
 
   function isHeaderNoise(s) {
-    return /WEEK|ATTENDANCE|ROLL|NAME|SERIAL|TOTAL|UNIVERSITY|COLLEGE|SEMESTER|SUBJECT|FATHER|S\/O|D\/O|SIGNATURE|PRESENT|ABSENT|CLASS|CHR/.test(s);
+    return /WEEK|ATTENDANCE|SERIAL|TOTAL|UNIVERSITY|COLLEGE|SEMESTER|SUBJECT|SIGNATURE|PRESENT|ABSENT|SESSION|SECTION|PRINCIPAL|FATHER\s*NAME|CONTACT\s*NO|DATE\s*OF|ADMISSION|CNIC/.test(s);
   }
   function looksLikeRoll(tok) {
     return /^(\d{3,6})([A-Za-z])?$/.test(String(tok || "").replace(/\s/g, ""));
@@ -475,15 +475,63 @@
       .trim()
       .toUpperCase();
   }
-  /** Read only first two data columns: Roll # + Name */
+  function splitStudentName(between) {
+    const words = cleanName(between).split(" ").filter(Boolean);
+    if (!words.length) return { name: "", father: "" };
+    if (words.length === 1) return { name: words[0], father: "" };
+    if (words.length === 2) return { name: words.join(" "), father: "" };
+    /* Prefer shorter given name: first 1–2 words as student name */
+    const fatherStarts = /^(MUHAMMAD|MOHAMMAD|ABDUL|GHULAM|SYED|HAJI|MALIK|SARDAR|SHEIKH|MIRZA|CHAUDHARY|KHAN)$/;
+    if (words.length >= 3 && fatherStarts.test(words[1])) {
+      return { name: words[0], father: words.slice(1).join(" ") };
+    }
+    if (words.length >= 4) {
+      return { name: words.slice(0, 2).join(" "), father: words.slice(2).join(" ") };
+    }
+    return { name: words[0], father: words.slice(1).join(" ") };
+  }
+
+  /** Admission list (ULC 2025–29): Roll · Name · Father · CNIC · … */
+  function parseAdmissionList(text) {
+    const out = [];
+    const seen = new Set();
+    const re = /(?:^|\n)\s*(\d{3,4})\s+([A-Za-z][A-Za-z .']{1,60}?)\s+(\d{5}[-\s]?\d{7}[-\s]?\d)/gim;
+    let m;
+    while ((m = re.exec(String(text || ""))) !== null) {
+      const roll = String(m[1]).toUpperCase();
+      const { name } = splitStudentName(m[2]);
+      if (!name || name.length < 2 || seen.has(roll)) continue;
+      if (isHeaderNoise(name)) continue;
+      seen.add(roll);
+      out.push({ roll, name });
+    }
+    return out;
+  }
+
+  /** Roll + Name sheets (attendance / OCR) */
   function parseRosterText(text) {
+    const admission = parseAdmissionList(text);
+    if (admission.length >= 3) return admission;
+
     const lines = String(text || "").split(/\r?\n/).map((l) => l.trim()).filter(Boolean);
     const out = [];
     const seen = new Set();
     for (const line of lines) {
-      if (isHeaderNoise(line.toUpperCase())) continue;
+      const up = line.toUpperCase();
+      if (isHeaderNoise(up) && !/\d{3,4}/.test(line)) continue;
 
-      // Prefer tab / multi-space columns (sheet layout)
+      /* Compact admission row without relying on CNIC spacing */
+      const adm = line.match(/^(\d{3,4})\s+(.+?)\s+(\d{5}-\d{7}-\d)/i);
+      if (adm) {
+        const roll = adm[1].toUpperCase();
+        const { name } = splitStudentName(adm[2]);
+        if (name && !seen.has(roll)) {
+          seen.add(roll);
+          out.push({ roll, name });
+          continue;
+        }
+      }
+
       let cols = line.split(/\t+|\s{2,}/).map((c) => c.trim()).filter(Boolean);
       if (cols.length < 2) cols = line.split(/\s+/).filter(Boolean);
 
@@ -491,12 +539,20 @@
       let name = "";
 
       if (cols.length >= 2) {
-        // Skip leading serial (1, 2, 01…) when next token is the roll
         let i = 0;
         if (/^\d{1,2}$/.test(cols[0]) && looksLikeRoll(cols[1])) i = 1;
         if (looksLikeRoll(cols[i])) {
           roll = cols[i].replace(/\s/g, "").toUpperCase();
-          name = cleanName(cols.slice(i + 1).join(" "));
+          /* Stop at CNIC / phone if present in remaining tokens */
+          const rest = [];
+          for (const tok of cols.slice(i + 1)) {
+            if (/^\d{5}-?\d{7}-?\d$/.test(tok.replace(/\s/g, ""))) break;
+            if (/^03\d{2}-?\d{7}$/.test(tok.replace(/\s/g, ""))) break;
+            if (/^(january|february|march|april|may|june|july|august|september|october|november|december)/i.test(tok)) break;
+            rest.push(tok);
+          }
+          const split = splitStudentName(rest.join(" "));
+          name = split.name || cleanName(rest.slice(0, 3).join(" "));
         }
       }
 
@@ -504,18 +560,102 @@
         const m = line.match(/\b(\d{3,6}[A-Za-z]?)\b\s+([A-Za-z][A-Za-z .']{2,})/);
         if (m) {
           roll = m[1].toUpperCase();
-          name = cleanName(m[2]);
+          name = splitStudentName(m[2]).name || cleanName(m[2].split(/\s+/).slice(0, 3).join(" "));
         }
       }
 
-      if (!roll || !name || name.length < 3 || seen.has(roll)) continue;
+      if (!roll || !name || name.length < 2 || seen.has(roll)) continue;
       if (isHeaderNoise(name)) continue;
-      // Keep name to first ~5 words (ignore trailing marks columns OCR noise)
       name = name.split(" ").slice(0, 5).join(" ");
       seen.add(roll);
       out.push({ roll, name });
     }
-    return out;
+    return out.length ? out : admission;
+  }
+
+  function applyParsedRoster(list, statusMsg) {
+    const status = document.getElementById("tr-ocr-status");
+    if (!list.length) {
+      if (status) status.textContent = "Could not detect roll/name. Try a clearer photo or PDF, or add manually.";
+      return;
+    }
+    pendingOcr = list;
+    if (status) status.textContent = statusMsg || `Detected ${list.length} student(s). Untick mistakes, then add.`;
+    renderOcrPreview(list);
+  }
+
+  async function uploadRosterFile(file) {
+    if (!file) return;
+    const isPdf = file.type === "application/pdf" || /\.pdf$/i.test(file.name);
+    if (isPdf) return extractRosterFromPdf(file);
+    return ocrAttendancePhoto(file);
+  }
+
+  async function extractTextFromPdf(file) {
+    const pdfjs = global.pdfjsLib || global["pdfjs-dist/build/pdf"] || null;
+    if (!pdfjs) throw new Error("PDF.js not loaded");
+    if (pdfjs.GlobalWorkerOptions) {
+      pdfjs.GlobalWorkerOptions.workerSrc =
+        "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+    }
+    const data = new Uint8Array(await file.arrayBuffer());
+    const doc = await pdfjs.getDocument({ data }).promise;
+    let text = "";
+    for (let p = 1; p <= doc.numPages; p++) {
+      const page = await doc.getPage(p);
+      const content = await page.getTextContent();
+      const lineMap = new Map();
+      content.items.forEach((item) => {
+        const str = item.str || "";
+        if (!str.trim()) return;
+        const y = item.transform ? Math.round(item.transform[5]) : 0;
+        const x = item.transform ? item.transform[4] : 0;
+        if (!lineMap.has(y)) lineMap.set(y, []);
+        lineMap.get(y).push({ x, str });
+      });
+      const lines = [...lineMap.entries()]
+        .sort((a, b) => b[0] - a[0])
+        .map(([, parts]) => parts.sort((a, b) => a.x - b.x).map((p) => p.str).join(" "));
+      text += lines.join("\n") + "\n";
+    }
+    return { text, doc };
+  }
+
+  async function ocrPdfPages(doc, status) {
+    if (typeof Tesseract === "undefined") return "";
+    let text = "";
+    const maxPages = Math.min(doc.numPages, 3);
+    for (let p = 1; p <= maxPages; p++) {
+      if (status) status.textContent = `OCR PDF page ${p}/${maxPages}…`;
+      const page = await doc.getPage(p);
+      const viewport = page.getViewport({ scale: 2 });
+      const canvas = document.createElement("canvas");
+      canvas.width = viewport.width;
+      canvas.height = viewport.height;
+      await page.render({ canvasContext: canvas.getContext("2d"), viewport }).promise;
+      const result = await Tesseract.recognize(canvas, "eng");
+      text += (result.data.text || "") + "\n";
+    }
+    return text;
+  }
+
+  async function extractRosterFromPdf(file) {
+    const status = document.getElementById("tr-ocr-status");
+    clearOcrPreview();
+    if (status) status.textContent = "Reading PDF…";
+    try {
+      const { text, doc } = await extractTextFromPdf(file);
+      let parsed = parseRosterText(text);
+      if (parsed.length < 3) {
+        if (status) status.textContent = "Little text in PDF — running OCR on pages…";
+        const ocrText = await ocrPdfPages(doc, status);
+        parsed = parseRosterText(text + "\n" + ocrText);
+      }
+      applyParsedRoster(parsed, `Detected ${parsed.length} student(s) from PDF. Untick mistakes, then add.`);
+    } catch (e) {
+      console.error(e);
+      if (status) status.textContent = "PDF read failed. Try exporting as image, or add students manually.";
+    }
   }
 
   function renderOcrPreview(list) {
@@ -560,15 +700,15 @@
     const status = document.getElementById("tr-ocr-status");
     if (!file) return;
     if (typeof Tesseract === "undefined") {
-      status.textContent = "OCR library not loaded. Check your internet connection.";
+      if (status) status.textContent = "OCR library not loaded. Check your internet connection.";
       return;
     }
-    status.textContent = "Reading attendance photo (roll + name columns)…";
+    if (status) status.textContent = "Reading list (roll + name)…";
     clearOcrPreview();
     try {
       const result = await Tesseract.recognize(file, "eng", {
         logger: (m) => {
-          if (m.status === "recognizing text" && m.progress != null) {
+          if (m.status === "recognizing text" && m.progress != null && status) {
             status.textContent = "Reading… " + Math.round(m.progress * 100) + "%";
           }
         },
@@ -576,16 +716,14 @@
       const raw = result.data.text || "";
       const parsed = parseRosterText(raw);
       if (!parsed.length) {
-        status.textContent = "Could not detect roll/name in the first two columns. Try a clearer photo, or add manually.";
+        if (status) status.textContent = "Could not detect roll/name. Try a clearer photo/PDF, or add manually.";
         console.log("OCR raw text:", raw);
         return;
       }
-      pendingOcr = parsed;
-      status.textContent = `Detected ${parsed.length} student(s) from columns 1–2. Untick any mistakes, then add.`;
-      renderOcrPreview(parsed);
+      applyParsedRoster(parsed);
     } catch (e) {
       console.error(e);
-      status.textContent = "OCR failed. Please add students manually.";
+      if (status) status.textContent = "OCR failed. Please add students manually.";
     }
   }
 
@@ -594,7 +732,7 @@
     const el = document.getElementById("tr-roster");
     if (!el) return;
     if (!c || !c.students.length) {
-      el.innerHTML = '<div class="empty">No students yet. Upload a list photo or add manually — they will appear for other teachers of this semester too.</div>';
+      el.innerHTML = '<div class="empty">No students yet. Upload a PDF or photo of the official list, or add manually.</div>';
       return;
     }
     sortStudentsByRoll(c.students);
@@ -602,8 +740,8 @@
       const rollJs = JSON.stringify(s.roll);
       return `<div class="tr-student-row">
         <div class="tr-student-meta">
-          <div class="t">${esc(s.roll)}</div>
-          <div class="m">${esc(s.name)}</div>
+          <div class="roll-chip">${esc(s.roll)}</div>
+          <div class="t">${esc(s.name)}</div>
         </div>
         <div class="sr-saved-actions">
           <button type="button" class="btn btn-ghost btn-sm" onclick='TeacherApp.editStudent(${rollJs})'>Edit</button>
@@ -973,11 +1111,6 @@
       alert("Add students before downloading attendance.");
       return;
     }
-    const sheetHtml = buildAttendanceHtml();
-    const host = document.getElementById("teacherPdfHost");
-    host.innerHTML = `<style>${awardPdfCss(true)}</style>` + sheetHtml;
-    host.style.cssText = "position:fixed;left:-99999px;top:0;width:900px;background:#fff;";
-    const sheet = document.getElementById("attendancePdfSheet");
     const btn = document.getElementById("tr-att-pdf-btn");
     const label = btn ? btn.textContent : "Download attendance PDF";
     if (btn) {
@@ -985,59 +1118,89 @@
       btn.textContent = "Generating PDF…";
     }
     try {
-      if (typeof html2canvas === "undefined" || !window.jspdf) throw new Error("libs");
-      const canvas = await html2canvas(sheet, {
-        scale: 2,
-        backgroundColor: "#ffffff",
-        logging: false,
-        width: 900,
-        windowWidth: 900,
-      });
-      const { jsPDF } = window.jspdf;
+      const jspdfNS = global.jspdf || window.jspdf;
+      if (!jspdfNS || !jspdfNS.jsPDF) throw new Error("jsPDF missing");
+      const { jsPDF } = jspdfNS;
+      const st = getStore();
+      ensureClassMeta(c);
+      sortStudentsByRoll(c.students);
+      const total = c.totalClasses || DEFAULT_CLASSES;
       const pdf = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
-      const pageW = pdf.internal.pageSize.getWidth();
-      const pageH = pdf.internal.pageSize.getHeight();
-      const imgW = pageW - 14;
-      const imgH = (canvas.height * imgW) / canvas.width;
-      if (imgH <= pageH - 14) {
-        pdf.addImage(canvas.toDataURL("image/jpeg", 0.92), "JPEG", 7, 7, imgW, imgH);
-      } else {
-        let srcY = 0;
-        const pageImgH = pageH - 14;
-        const canvasPageH = (pageImgH / imgW) * canvas.width;
-        let first = true;
-        while (srcY < canvas.height - 1) {
-          const sliceH = Math.min(canvas.height - srcY, canvasPageH);
-          const sliceCanvas = document.createElement("canvas");
-          sliceCanvas.width = canvas.width;
-          sliceCanvas.height = Math.max(1, Math.floor(sliceH));
-          sliceCanvas.getContext("2d").drawImage(
-            canvas,
-            0, srcY, canvas.width, sliceH,
-            0, 0, canvas.width, sliceH
-          );
-          const hMm = (sliceCanvas.height * imgW) / canvas.width;
-          if (!first) pdf.addPage();
-          first = false;
-          pdf.addImage(sliceCanvas.toDataURL("image/jpeg", 0.92), "JPEG", 7, 7, imgW, hMm);
-          srcY += sliceH;
+      const left = 14;
+      const right = 196;
+      let y = 16;
+
+      pdf.setFont("times", "bold");
+      pdf.setFontSize(14);
+      pdf.text("UNIVERSITY LAW COLLEGE, QUETTA", 105, y, { align: "center" });
+      y += 7;
+      pdf.setFontSize(12);
+      pdf.text("ATTENDANCE SHEET", 105, y, { align: "center" });
+      y += 8;
+
+      pdf.setDrawColor(11, 58, 107);
+      pdf.setLineWidth(0.4);
+      pdf.line(left, y, right, y);
+      y += 6;
+
+      pdf.setFont("times", "normal");
+      pdf.setFontSize(9);
+      const metaLines = [
+        "Teacher: " + (st.officialName || ""),
+        "Subject: " + (c.subject || "") + (c.subjectCode ? " (" + c.subjectCode + ")" : ""),
+        "Semester: " + c.semester + "   Session: " + (c.session || "") + "   CHR: " + total,
+        "Mode: " + (c.attMode === "weekly" ? "Weekly" : "Daily") + "   Students: " + c.students.length,
+      ];
+      metaLines.forEach((line) => {
+        pdf.text(line, left, y);
+        y += 5;
+      });
+      y += 3;
+
+      const drawHeader = () => {
+        pdf.setFont("times", "bold");
+        pdf.setFontSize(9);
+        pdf.text("#", left, y);
+        pdf.text("Roll", left + 10, y);
+        pdf.text("Name of Student", left + 28, y);
+        pdf.text("Present", left + 118, y);
+        pdf.text("Total", left + 140, y);
+        pdf.text("%", left + 162, y);
+        y += 2;
+        pdf.line(left, y, right, y);
+        y += 5;
+        pdf.setFont("times", "normal");
+      };
+      drawHeader();
+
+      c.students.forEach((s, i) => {
+        if (y > 285) {
+          pdf.addPage();
+          y = 16;
+          drawHeader();
         }
-      }
-      const slug = `ULC_${c.subject}_Sem${c.semester}_Attendance`.replace(/\s+/g, "_");
+        const present = effectivePresent(c.attendance[s.roll], total, c.attMode);
+        const pct = total ? ((present / total) * 100).toFixed(1) : "0.0";
+        const name = String(s.name || "").slice(0, 44);
+        pdf.text(String(i + 1), left, y);
+        pdf.text(String(s.roll || ""), left + 10, y);
+        pdf.text(name, left + 28, y);
+        pdf.text(String(present), left + 118, y);
+        pdf.text(String(total), left + 140, y);
+        pdf.text(pct + "%", left + 162, y);
+        y += 6;
+      });
+
+      const slug = ("ULC_" + (c.subject || "Class") + "_Sem" + c.semester + "_Attendance").replace(/\s+/g, "_");
       pdf.save(slug + ".pdf");
     } catch (e) {
       console.error(e);
-      const w = window.open("", "_blank");
-      w.document.write(`<html><head><title>Attendance</title><style>${awardPdfCss(true)}</style></head><body>${sheetHtml}</body></html>`);
-      w.document.close();
-      w.focus();
-      w.print();
+      alert("Could not download attendance PDF. Please hard-refresh (Ctrl+F5) and try again.");
     } finally {
       if (btn) {
         btn.disabled = false;
         btn.textContent = label;
       }
-      host.innerHTML = "";
     }
   }
 
@@ -1256,6 +1419,7 @@
     cancelEditStudent,
     removeStudent,
     ocrAttendancePhoto,
+    uploadRosterFile,
     confirmOcrStudents,
     clearOcrPreview,
     setAttMode,
