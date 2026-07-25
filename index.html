@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0b3a6b">
+<title>ULC Portal · University Law College, Quetta</title>
+<meta name="description" content="Student toolkit for University Law College, Quetta — assignment cover generator, admission aggregate calculator, and LLB 5-year syllabus.">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="favicon.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Cormorant+Garamond:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="logo.js"></script>
+<style>
+:root{
+  --navy:#0b3a6b; --navy-2:#12508f; --navy-deep:#082744;
+  --gold:#c6a13c; --gold-lt:#e2c568; --gold-deep:#7d5f18;
+  --paper:#f5f2ea; --paper-2:#fbf9f3; --ink:#1a1d23; --slate:#5a6472;
+  --line:#e6ddc8; --white:#fff; --black:#0c0d0f;
+  --serif:"Libre Baskerville", Georgia, serif;
+  --display:"Cormorant Garamond", Georgia, serif;
+  --sans:"Inter", system-ui, -apple-system, sans-serif;
+  --shadow:0 6px 24px rgba(11,58,107,.12); --nav-h:64px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:100%}
+body{font-family:var(--sans);color:var(--ink);background:var(--navy-deep);line-height:1.5;-webkit-font-smoothing:antialiased}
+.app{max-width:480px;margin:0 auto;min-height:100dvh;background:var(--paper);position:relative;
+  display:flex;flex-direction:column;box-shadow:0 0 60px rgba(0,0,0,.35)}
+.topbar{position:sticky;top:0;z-index:20;background:var(--navy);color:var(--paper);
+  padding:calc(env(safe-area-inset-top) + 12px) 18px 12px;display:flex;align-items:center;gap:12px;border-bottom:2px solid var(--gold)}
+.seal-img{width:44px;height:44px;flex:none;border-radius:50%;border:1.5px solid var(--gold);object-fit:cover;background:var(--navy-deep)}
+.brand h1{font-family:var(--serif);font-size:16px;font-weight:700;line-height:1.15}
+.brand p{font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:#a9c1da;margin-top:2px}
+.body-row{display:flex;flex:1}
+.sidebar{display:none}
+main{flex:1;padding:20px 18px calc(var(--nav-h) + 28px);width:100%}
+.view{display:none;animation:fade .28s ease}
+.view.active{display:block}
+@keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.eyebrow{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--gold-deep);font-weight:700}
+.view-title{font-family:var(--serif);font-size:23px;color:var(--navy);margin:4px 0 3px}
+.view-sub{font-size:13px;color:var(--slate);margin-bottom:18px}
+.hero{background:linear-gradient(160deg,var(--navy),var(--navy-2));color:var(--paper);border-radius:16px;padding:22px 20px;position:relative;overflow:hidden;box-shadow:var(--shadow)}
+.hero:before{content:"";position:absolute;inset:0;background:radial-gradient(140px 140px at 90% -12%,rgba(198,161,60,.30),transparent 70%)}
+.hero .kicker{font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--gold-lt)}
+.hero h2{font-family:var(--serif);font-size:25px;line-height:1.2;margin:8px 0 8px}
+.hero p{font-size:13px;color:#cdd9e6;max-width:44ch}
+.tool-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:16px}
+.tool-card{background:var(--white);border:1px solid var(--line);border-radius:14px;padding:15px 14px;text-align:left;cursor:pointer;transition:transform .12s;font-family:var(--sans);display:flex;flex-direction:column;gap:8px;min-height:118px}
+.tool-card:active{transform:scale(.97)}
+.tool-card .ic{width:34px;height:34px;border-radius:9px;display:grid;place-items:center;background:var(--paper);border:1px solid var(--line);font-size:17px}
+.tool-card h3{font-family:var(--serif);font-size:14.5px;color:var(--navy);line-height:1.2}
+.tool-card span{font-size:11.5px;color:var(--slate);line-height:1.35}
+.wide{grid-column:1 / -1;flex-direction:row;align-items:center;min-height:auto}
+.wide .txt h3{margin-bottom:2px}
+.note{background:#fff;border:1px solid var(--line);border-left:3px solid var(--gold);border-radius:10px;padding:12px 14px;font-size:12px;color:var(--slate);margin-top:16px;line-height:1.55}
+.field{margin-bottom:14px}
+.field label{display:block;font-size:12px;font-weight:600;color:var(--navy);margin-bottom:6px}
+.field input,.field select{width:100%;font-family:var(--sans);font-size:14px;color:var(--ink);background:var(--white);border:1px solid var(--line);border-radius:10px;padding:11px 12px;transition:.15s}
+.field input:focus,.field select:focus{outline:none;border-color:var(--navy);box-shadow:0 0 0 3px rgba(11,58,107,.12)}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.btn{width:100%;font-family:var(--sans);font-weight:600;font-size:14px;border:none;border-radius:11px;padding:13px;cursor:pointer;transition:filter .15s,transform .1s}
+.btn:active{transform:scale(.98)}
+.btn-primary{background:var(--navy);color:#fff}
+.btn-primary:hover{filter:brightness(1.08)}
+.btn-primary:disabled{opacity:.6;cursor:default}
+.btn-ghost{background:transparent;color:var(--navy);border:1px solid var(--line)}
+.btn-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}
+/* template picker */
+.tpl-picker{display:flex;gap:10px;overflow-x:auto;padding:2px 0 16px;scrollbar-width:none}
+.tpl-picker::-webkit-scrollbar{display:none}
+.tpl-btn{flex:none;width:98px;cursor:pointer;border:2px solid var(--line);border-radius:12px;overflow:hidden;background:#fff;padding:0}
+.tpl-btn.active{border-color:var(--navy);box-shadow:0 4px 14px rgba(11,58,107,.18)}
+.tpl-thumb{height:78px;position:relative;overflow:hidden;background:#fff}
+.tpl-name{font-size:11px;font-weight:600;color:var(--navy);padding:6px 4px;text-align:center;font-family:var(--sans)}
+/* thumb art */
+.th{position:absolute}
+.thc1 .a{inset:6px;border:2px solid var(--navy);position:absolute}
+.thc1 .b{left:-14px;top:8px;width:44px;height:9px;background:var(--navy);transform:rotate(-45deg);position:absolute}
+.thc1 .c{left:0;right:0;bottom:0;height:22px;background:var(--navy);position:absolute}
+.thc2{background:#fff}
+.thc2 .a{left:-10px;top:-10px;width:34px;height:34px;background:var(--navy);transform:rotate(45deg);position:absolute}
+.thc2 .b{left:10px;top:10px;width:20px;height:20px;border:2px solid var(--gold);transform:rotate(45deg);position:absolute}
+.thc2 .c{left:14px;bottom:14px;right:14px;height:9px;background:var(--navy);position:absolute}
+.thc3 .a{right:0;top:0;bottom:0;width:44%;background:var(--navy);position:absolute}
+.thc3 .b{right:14px;top:26px;width:30px;height:30px;border-radius:50%;border:3px solid var(--gold);background:#fff;position:absolute}
+.thc3 .c{left:8px;top:16px;width:34px;height:5px;background:var(--gold);position:absolute}
+.thc3 .d{left:8px;top:26px;width:26px;height:5px;background:var(--navy);position:absolute}
+.thc4 .a{left:50%;top:10px;width:16px;height:16px;border-radius:50%;background:var(--navy);transform:translateX(-50%);position:absolute}
+.thc4 .b{left:20%;top:38px;right:20%;height:5px;background:var(--navy);position:absolute}
+.thc4 .c{left:30%;top:48px;right:30%;height:4px;background:var(--gold);position:absolute}
+.thc4 .d{left:30%;bottom:10px;right:30%;height:12px;border:1.5px solid var(--navy);position:absolute}
+/* cover base + container queries */
+.preview-label{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--slate);margin-bottom:8px;text-align:center}
+.cover{position:relative;width:100%;aspect-ratio:1/1.414;background:#fff;overflow:hidden;border:1px solid var(--line);box-shadow:var(--shadow);container-type:inline-size;font-family:var(--serif);color:var(--navy)}
+/* T1 classic */
+.tpl-classic .fr{position:absolute;inset:4cqw;border:.5cqw solid var(--navy)}
+.tpl-classic .fr:after{content:"";position:absolute;inset:1.2cqw;border:.25cqw solid var(--gold)}
+.tpl-classic .ban{position:absolute;top:7cqw;left:-15cqw;transform:rotate(-45deg);background:var(--navy);color:#fff;font-family:var(--sans);font-weight:700;font-size:2.5cqw;letter-spacing:.12em;padding:1.3cqw 16cqw;box-shadow:0 .8cqw 1.6cqw rgba(0,0,0,.2)}
+.tpl-classic .top{position:absolute;top:8cqw;right:9cqw;display:flex;align-items:center;gap:2cqw;text-align:right}
+.tpl-classic .top img{width:11cqw;height:11cqw;border-radius:50%;border:.4cqw solid var(--gold)}
+.tpl-classic .uni{font-family:var(--sans);font-size:2.3cqw;color:var(--slate);line-height:1.3}
+.tpl-classic .uni b{color:var(--navy);display:block;font-size:2.7cqw}
+.tpl-classic .mid{position:absolute;top:38cqw;left:12cqw;right:12cqw;text-align:center}
+.tpl-classic .doc{width:15cqw;height:15cqw;margin:0 auto 3cqw;display:block;opacity:.9}
+.tpl-classic .kick{font-family:var(--sans);color:var(--navy-2);font-weight:600;font-size:4cqw}
+.tpl-classic .ttl{font-size:8.5cqw;line-height:1.08;margin:1cqw 0;color:var(--ink)}
+.tpl-classic .pill{display:inline-block;background:var(--navy);color:var(--gold-lt);font-family:var(--sans);font-size:2.5cqw;font-weight:600;padding:1cqw 3cqw;border-radius:1cqw;margin-top:1cqw}
+.tpl-classic .sub{font-family:var(--sans);font-style:italic;color:var(--slate);font-size:3cqw;margin-top:2cqw}
+.tpl-classic .foot{position:absolute;left:0;right:0;bottom:0;background:var(--navy);color:#eaf1f8;padding:6cqw 9cqw 7cqw;font-family:var(--sans);border-top:.7cqw solid var(--gold)}
+.tpl-classic .foot .r{display:flex;justify-content:space-between;font-size:2.5cqw;padding:.7cqw 0;border-bottom:.15cqw dotted rgba(255,255,255,.25)}
+.tpl-classic .foot .r b{color:#fff;font-weight:600}.tpl-classic .foot .r span{color:#cdd9e6;text-align:right;max-width:62%}
+/* T2 geometric */
+.tpl-geometric{background:#fff}
+.tpl-geometric .d1{position:absolute;top:-9cqw;left:-9cqw;width:30cqw;height:30cqw;background:var(--navy);transform:rotate(45deg)}
+.tpl-geometric .d2{position:absolute;top:6cqw;left:16cqw;width:16cqw;height:16cqw;border:.7cqw solid var(--gold);transform:rotate(45deg)}
+.tpl-geometric .chev{position:absolute;top:9cqw;right:8cqw;color:var(--navy-2);font-size:9cqw;font-family:var(--sans);letter-spacing:-1.5cqw}
+.tpl-geometric .logo{position:absolute;top:26cqw;left:14cqw;width:24cqw;height:24cqw;border-radius:50%;border:.7cqw solid var(--navy);background:#fff;object-fit:cover;box-shadow:0 1cqw 3cqw rgba(0,0,0,.12)}
+.tpl-geometric .date{position:absolute;top:60cqw;right:10cqw;font-family:var(--sans);font-size:3cqw;color:var(--navy);font-weight:600}
+.tpl-geometric .ribbon{position:absolute;top:66cqw;left:0;right:14cqw;background:var(--navy);color:#fff;padding:2.6cqw 8cqw;font-family:var(--sans);font-weight:700;font-size:4.4cqw;letter-spacing:.04em;border-right:2cqw solid var(--gold)}
+.tpl-geometric .ribbon small{display:block;font-weight:500;font-size:2.4cqw;color:var(--gold-lt);letter-spacing:.14em;margin-bottom:.4cqw}
+.tpl-geometric .meta{position:absolute;left:8cqw;right:8cqw;bottom:9cqw;font-family:var(--sans)}
+.tpl-geometric .meta .r{display:flex;justify-content:space-between;font-size:2.6cqw;padding:1cqw 0;border-bottom:.15cqw solid var(--line)}
+.tpl-geometric .meta .r b{color:var(--navy);font-weight:600}.tpl-geometric .meta .r span{color:var(--slate);text-align:right;max-width:62%}
+.tpl-geometric .bar{position:absolute;left:0;right:0;bottom:0;height:2.5cqw;background:linear-gradient(90deg,var(--navy),var(--navy-2) 70%,var(--gold))}
+/* T3 elegant */
+.tpl-elegant{background:#fbf7ef;font-family:var(--display)}
+.tpl-elegant .pane{position:absolute;top:0;right:0;width:46%;height:100%;background:var(--navy)}
+.tpl-elegant .pane:after{content:"";position:absolute;left:0;top:0;bottom:0;width:1cqw;background:var(--gold)}
+.tpl-elegant .circle{position:absolute;top:40cqw;right:9cqw;width:48cqw;height:48cqw;border-radius:50%;border:1cqw solid var(--gold);overflow:hidden;background:#fff;display:grid;place-items:center;z-index:2}
+.tpl-elegant .circle img{width:78%}
+.tpl-elegant .bk{position:absolute;top:16cqw;left:9cqw;font-family:var(--sans);font-size:2.4cqw;letter-spacing:.34em;text-transform:uppercase;color:var(--gold-deep)}
+.tpl-elegant .brand{position:absolute;top:20cqw;left:9cqw;right:48%;font-size:11cqw;line-height:1;color:var(--navy);font-weight:700}
+.tpl-elegant .brand span{color:var(--gold-deep)}
+.tpl-elegant .contact{position:absolute;top:9cqw;right:6cqw;text-align:right;color:#dfe8f2;font-family:var(--sans);font-size:2.2cqw;line-height:1.5;z-index:3}
+.tpl-elegant .ttl{position:absolute;top:56cqw;left:9cqw;right:50%;font-size:5.4cqw;line-height:1.15;color:var(--ink)}
+.tpl-elegant .ttl small{display:block;font-family:var(--sans);font-size:2.4cqw;letter-spacing:.2em;text-transform:uppercase;color:var(--gold-deep);margin-bottom:1.4cqw}
+.tpl-elegant .prep{position:absolute;left:9cqw;bottom:9cqw;right:50%;font-family:var(--sans);font-size:2.7cqw;color:var(--slate);line-height:1.7}
+.tpl-elegant .prep b{display:block;font-family:var(--display);font-size:4.6cqw;color:var(--navy);font-weight:600}
+/* T4 minimal */
+.tpl-minimal{background:#fff;text-align:center;font-family:var(--serif)}
+.tpl-minimal .wm{position:absolute;top:50%;left:50%;width:70cqw;transform:translate(-50%,-50%);opacity:.05}
+.tpl-minimal .top{position:absolute;top:12cqw;left:0;right:0}
+.tpl-minimal .top img{width:16cqw;height:16cqw;border-radius:50%;border:.5cqw solid var(--gold);margin-bottom:2cqw}
+.tpl-minimal .cn{font-family:var(--serif);font-weight:700;font-size:4.4cqw;color:var(--navy)}
+.tpl-minimal .cn small{display:block;font-family:var(--sans);font-size:2.4cqw;letter-spacing:.2em;text-transform:uppercase;color:var(--slate);margin-top:.6cqw}
+.tpl-minimal .mid{position:absolute;top:52cqw;left:8cqw;right:8cqw}
+.tpl-minimal .subj{font-size:8cqw;line-height:1.1;color:var(--ink);text-transform:uppercase;letter-spacing:.02em}
+.tpl-minimal .hr{width:30cqw;height:.4cqw;background:var(--gold);margin:3cqw auto}
+.tpl-minimal .tt{font-family:var(--sans);font-size:3.2cqw;color:var(--slate);font-style:italic}
+.tpl-minimal .pill{display:inline-block;background:var(--navy);color:#fff;font-family:var(--sans);font-size:2.6cqw;font-weight:600;letter-spacing:.14em;padding:1.2cqw 4cqw;margin-top:3cqw;text-transform:uppercase}
+.tpl-minimal .meta{position:absolute;left:10cqw;right:10cqw;bottom:20cqw;font-family:var(--sans);font-size:2.5cqw;color:var(--slate);line-height:1.9}
+.tpl-minimal .meta b{color:var(--navy)}
+.tpl-minimal .box{position:absolute;left:50%;bottom:8cqw;transform:translateX(-50%);border:.4cqw solid var(--navy);padding:1.6cqw 6cqw;font-family:var(--sans);font-size:2.8cqw;font-weight:600;color:var(--navy);letter-spacing:.06em}
+/* aggregate */
+.calc-card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:14px}
+.calc-card h3{font-family:var(--serif);font-size:15px;color:var(--navy);margin-bottom:12px}
+.mini{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.wt-row{display:grid;grid-template-columns:1fr 68px;gap:10px;align-items:center;margin-bottom:9px}
+.wt-row span{font-size:13px;color:var(--navy);font-weight:500}
+.wt-row input{width:100%;font-family:var(--sans);font-size:14px;text-align:center;border:1px solid var(--line);border-radius:10px;padding:10px 8px}
+.wt-row input:focus{outline:none;border-color:var(--navy)}
+.result{background:linear-gradient(160deg,var(--navy),var(--navy-2));color:#fff;border-radius:14px;padding:18px;text-align:center;box-shadow:var(--shadow)}
+.result .big{font-family:var(--serif);font-size:44px;line-height:1;color:#fff}
+.result .big small{font-size:20px;color:var(--gold-lt)}
+.result .cap{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:#a9c1da;margin-top:6px}
+.result .brk{font-size:12px;color:#cdd9e6;margin-top:12px;padding-top:12px;border-top:1px solid rgba(255,255,255,.15);line-height:1.7}
+.warn{font-size:12px;color:#a3341f;font-weight:600;margin-top:8px;display:none}
+.warn.show{display:block}
+/* syllabus */
+.sem-scroll{display:flex;gap:8px;overflow-x:auto;padding:4px 0 12px;scrollbar-width:none}
+.sem-scroll::-webkit-scrollbar{display:none}
+.chip{flex:none;font-family:var(--sans);font-size:13px;font-weight:600;border:1px solid var(--line);background:#fff;color:var(--navy);border-radius:999px;padding:8px 15px;cursor:pointer;transition:.15s;position:relative}
+.chip.active{background:var(--navy);color:#fff;border-color:var(--navy)}
+.chip.you:after{content:"";position:absolute;top:5px;right:8px;width:6px;height:6px;border-radius:50%;background:var(--gold)}
+.sem-head{display:flex;justify-content:space-between;align-items:baseline;margin:6px 0 10px}
+.sem-head .yr{font-family:var(--serif);font-size:18px;color:var(--navy)}
+.sem-head .cr{font-size:12px;color:var(--gold-deep);font-weight:700}
+.badges{margin-bottom:14px;display:flex;gap:8px;flex-wrap:wrap}
+.tag{font-size:11px;display:inline-block;padding:3px 10px;border-radius:999px;font-weight:600}
+.tag-hec{background:#eef2f7;color:var(--navy)}.tag-you{background:#f6edd6;color:var(--gold-deep)}
+.subj{background:#fff;border:1px solid var(--line);border-radius:12px;padding:13px 14px;margin-bottom:10px;display:flex;align-items:center;gap:12px}
+.subj .code{font-family:var(--serif);font-size:11px;font-weight:700;color:var(--gold-lt);background:var(--navy);border-radius:7px;padding:6px 8px;min-width:60px;text-align:center;flex:none}
+.subj .nm{flex:1;font-size:13.5px;color:var(--navy);font-weight:500;line-height:1.3}
+.subj .ch{font-size:12px;color:var(--slate);flex:none}
+.intern{background:#fff7e8;border:1px dashed var(--gold);border-radius:12px;padding:13px 14px;margin:4px 0 10px;font-size:12.5px;color:var(--gold-deep);line-height:1.5}
+.intern b{color:var(--navy)}
+details.elec{background:#fff;border:1px solid var(--line);border-radius:12px;margin-top:4px;overflow:hidden}
+details.elec summary{padding:13px 14px;font-size:13px;font-weight:600;color:var(--navy);cursor:pointer;list-style:none}
+details.elec summary::-webkit-details-marker{display:none}
+details.elec summary:after{content:"+";float:right;color:var(--gold-deep);font-weight:700}
+details.elec[open] summary:after{content:"\2212"}
+.elec-list{padding:0 14px 12px;columns:2;column-gap:14px;font-size:11.5px;color:var(--slate);line-height:1.7}
+.elec-list div{break-inside:avoid}
+/* bottom nav (mobile) */
+.tabbar{position:fixed;bottom:0;left:0;right:0;z-index:30;max-width:480px;margin:0 auto;height:calc(var(--nav-h) + env(safe-area-inset-bottom));background:rgba(255,255,255,.94);backdrop-filter:saturate(1.4) blur(12px);border-top:1px solid var(--line);display:flex;padding-bottom:env(safe-area-inset-bottom)}
+.tab{flex:1;background:none;border:none;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;color:var(--slate);font-family:var(--sans);font-size:10.5px;font-weight:600;transition:.15s}
+.tab svg,.side-item svg{stroke:currentColor;fill:none;stroke-width:1.7}
+.tab svg{width:22px;height:22px}
+.tab.active{color:var(--gold-deep)}.tab.active svg{stroke:var(--gold-deep)}
+/* ===== DESKTOP ===== */
+@media (min-width:900px){
+  body{background:#e9edf2}
+  .app{max-width:1140px;box-shadow:0 10px 40px rgba(8,39,68,.18);border-radius:0}
+  .topbar{padding:16px 26px}
+  .seal-img{width:48px;height:48px}
+  .brand h1{font-size:18px}
+  .sidebar{display:flex;flex-direction:column;gap:4px;width:220px;flex:none;border-right:1px solid var(--line);padding:22px 14px;background:var(--paper-2)}
+  .side-lbl{font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--slate);padding:6px 14px 8px;font-weight:700}
+  .side-item{display:flex;align-items:center;gap:12px;padding:11px 14px;border-radius:10px;font-size:14px;font-weight:600;color:var(--slate);cursor:pointer;background:none;border:none;font-family:var(--sans);text-align:left;width:100%}
+  .side-item svg{width:20px;height:20px}
+  .side-item:hover{background:#eef1f5;color:var(--navy)}
+  .side-item.active{background:var(--navy);color:#fff}
+  .side-item.active svg{stroke:var(--gold-lt)}
+  .tabbar{display:none}
+  main{padding:28px 34px 44px}
+  .view-title{font-size:27px}
+  .tool-grid{grid-template-columns:repeat(3,1fr)}
+  .hero{padding:30px 30px}
+  .hero h2{font-size:30px}
+  .cover-layout{display:grid;grid-template-columns:1fr .82fr;gap:28px;align-items:start}
+  .cover-form .btn-row{margin-top:6px}
+  .cover-preview-col{position:sticky;top:96px}
+  .tpl-btn{width:120px}.tpl-thumb{height:94px}
+  .max-narrow{max-width:640px}
+}
+@media print{
+  @page{size:A4;margin:0}
+  body,.app{background:#fff}
+  .topbar,.tabbar,.sidebar,main>.view:not(#printhost),.no-print{display:none!important}
+  #printhost{display:block!important;padding:0}
+  #printhost>*:not(.print-cover){display:none!important}
+  .print-cover{display:block!important;width:100%;min-height:100vh;aspect-ratio:auto;border:none;box-shadow:none}
+}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="topbar">
+    <img class="seal-img" src="icons/ulc-logo.png" alt="ULC crest">
+    <div class="brand"><h1>University Law College</h1><p>Quetta · Student Portal</p></div>
+  </header>
+
+  <div class="body-row">
+    <aside class="sidebar">
+      <div class="side-lbl">Menu</div>
+      <button class="side-item active" data-t="home" onclick="go('home')"><svg viewBox="0 0 24 24"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/></svg>Home</button>
+      <button class="side-item" data-t="cover" onclick="go('cover')"><svg viewBox="0 0 24 24"><path d="M6 2h9l3 3v17H6z"/><path d="M15 2v4h4"/></svg>Cover Page</button>
+      <button class="side-item" data-t="aggregate" onclick="go('aggregate')"><svg viewBox="0 0 24 24"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 7h8M8 11h8M8 15h4"/></svg>Aggregate</button>
+      <button class="side-item" data-t="syllabus" onclick="go('syllabus')"><svg viewBox="0 0 24 24"><path d="M4 5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2z"/><path d="M4 19a2 2 0 0 1 2-2h13"/></svg>Syllabus</button>
+    </aside>
+
+    <main>
+      <!-- HOME -->
+      <section class="view active" id="v-home">
+        <div class="hero">
+          <div class="kicker">Affiliated · University of Balochistan</div>
+          <h2>Your law-study toolkit, in one place.</h2>
+          <p>Generate assignment covers in four ULC templates, work out your admission aggregate, and browse the full LLB (5-Year) scheme of studies.</p>
+        </div>
+        <div class="tool-grid">
+          <button class="tool-card" onclick="go('cover')"><div class="ic">📄</div><h3>Cover Page</h3><span>Four ULC templates · export to PDF</span></button>
+          <button class="tool-card" onclick="go('aggregate')"><div class="ic">🧮</div><h3>Aggregate</h3><span>ULC admission merit calculator</span></button>
+          <button class="tool-card wide" onclick="go('syllabus')"><div class="ic">⚖️</div><div class="txt"><h3>Semester Syllabus</h3><span>All 10 semesters of the LLB (5-Year) scheme with codes and credit hours.</span></div></button>
+        </div>
+        <div class="note">More tools coming next — GPA/CGPA tracker, timetable, and a study assistant. Runs fully in your browser and installs to your home screen.</div>
+      </section>
+
+      <!-- COVER -->
+      <section class="view" id="v-cover">
+        <div class="eyebrow">Tool 01</div>
+        <h2 class="view-title">Assignment Cover Page</h2>
+        <p class="view-sub">Pick a template, fill in once, export a print-ready PDF.</p>
+        <div class="tpl-picker" id="tplPicker">
+          <button class="tpl-btn active" data-tpl="classic" onclick="setTpl('classic')"><div class="tpl-thumb thc1"><span class="a"></span><span class="b"></span><span class="c"></span></div><div class="tpl-name">Classic</div></button>
+          <button class="tpl-btn" data-tpl="geometric" onclick="setTpl('geometric')"><div class="tpl-thumb thc2"><span class="a"></span><span class="b"></span><span class="c"></span></div><div class="tpl-name">Geometric</div></button>
+          <button class="tpl-btn" data-tpl="elegant" onclick="setTpl('elegant')"><div class="tpl-thumb thc3"><span class="a"></span><span class="b"></span><span class="c"></span><span class="d"></span></div><div class="tpl-name">Elegant</div></button>
+          <button class="tpl-btn" data-tpl="minimal" onclick="setTpl('minimal')"><div class="tpl-thumb thc4"><span class="a"></span><span class="b"></span><span class="c"></span><span class="d"></span></div><div class="tpl-name">Minimal</div></button>
+        </div>
+        <div class="cover-layout">
+          <div class="cover-form">
+            <div class="row2">
+              <div class="field"><label>Assignment No.</label><input id="f-assignmentno" placeholder="e.g. 01" oninput="drawCover()"></div>
+              <div class="field"><label>Semester</label><select id="f-sem" onchange="onSemChange()"></select></div>
+            </div>
+            <div class="field"><label>Assignment / Topic title</label><input id="f-topic" placeholder="e.g. Forms of Non-Inferential Passages" oninput="drawCover()"></div>
+            <div class="field"><label>Subject</label><input id="f-subject" list="subj-list" placeholder="Choose or type a subject" oninput="drawCover()"><datalist id="subj-list"></datalist></div>
+            <div class="row2">
+              <div class="field"><label>Submitted by</label><input id="f-name" placeholder="Student name" oninput="drawCover()"></div>
+              <div class="field"><label>Roll No.</label><input id="f-roll" placeholder="e.g. 1027" oninput="drawCover()"></div>
+            </div>
+            <div class="row2">
+              <div class="field"><label>Submitted to</label><input id="f-teacher" placeholder="Instructor's name" oninput="drawCover()"></div>
+              <div class="field"><label>Session</label><input id="f-session" placeholder="e.g. 2024–2029" oninput="drawCover()"></div>
+            </div>
+            <div class="field"><label>Submission date</label><input id="f-date" type="date" oninput="drawCover()"></div>
+            <div class="btn-row">
+              <button class="btn btn-ghost" onclick="printCover()">Print</button>
+              <button class="btn btn-primary" id="pdfBtn" onclick="downloadPDF()">Download PDF</button>
+            </div>
+          </div>
+          <div class="cover-preview-col">
+            <div class="preview-label">Live preview · A4</div>
+            <div class="cover tpl-classic" id="coverPreview"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- AGGREGATE -->
+      <section class="view" id="v-aggregate">
+        <div class="max-narrow">
+        <div class="eyebrow">Tool 02</div>
+        <h2 class="view-title">Admission Aggregate</h2>
+        <p class="view-sub">ULC merit formula: Matric 20% · Intermediate 50% · LAT 30%.</p>
+        <div class="calc-card"><h3>Marks obtained</h3>
+          <div class="field"><label>Matriculation</label><div class="mini"><input id="m-obt" type="number" placeholder="Obtained" oninput="calcAgg()"><input id="m-tot" type="number" placeholder="Total" value="1100" oninput="calcAgg()"></div></div>
+          <div class="field"><label>Intermediate (FA / FSc)</label><div class="mini"><input id="i-obt" type="number" placeholder="Obtained" oninput="calcAgg()"><input id="i-tot" type="number" placeholder="Total" value="1100" oninput="calcAgg()"></div></div>
+          <div class="field" style="margin-bottom:0"><label>LAT (Law Admission Test)</label><div class="mini"><input id="e-obt" type="number" placeholder="Obtained" oninput="calcAgg()"><input id="e-tot" type="number" placeholder="Total" value="100" oninput="calcAgg()"></div></div>
+        </div>
+        <div class="calc-card"><h3>Weightage (%)</h3>
+          <div class="wt-row"><span>Matriculation</span><input id="w-m" type="number" value="20" oninput="calcAgg()"></div>
+          <div class="wt-row"><span>Intermediate</span><input id="w-i" type="number" value="50" oninput="calcAgg()"></div>
+          <div class="wt-row"><span>LAT</span><input id="w-e" type="number" value="30" oninput="calcAgg()"></div>
+          <div class="warn" id="w-warn">Weights should add up to 100%.</div>
+        </div>
+        <div class="result"><div class="big" id="agg-val">0.00<small>%</small></div><div class="cap">Aggregate merit</div><div class="brk" id="agg-brk">Enter your marks to see the breakdown.</div></div>
+        <div class="note">Uses ULC's stated formula (Matriculation 20% + Intermediate 50% + LAT 30%). Weightings can change by session — confirm against the official UoB / ULC prospectus.</div>
+        </div>
+      </section>
+
+      <!-- SYLLABUS -->
+      <section class="view" id="v-syllabus">
+        <div class="max-narrow">
+        <div class="eyebrow">Tool 03</div>
+        <h2 class="view-title">LLB (5-Year) Syllabus</h2>
+        <p class="view-sub">HEC scheme of studies (Revised 2015) · 166 credit hours. Tap a semester.</p>
+        <div class="sem-scroll" id="semChips"></div>
+        <div id="semBody"></div>
+        <div class="note">Subjects, codes and credit hours follow the HEC national LLB (5-Year) curriculum, Revised 2015. A 10–12 week internship (3 CH) is compulsory after Semester 8. In Semesters 9 &amp; 10, choose any four elective courses.</div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <div id="printhost" class="no-print" style="display:none"></div>
+
+  <nav class="tabbar">
+    <button class="tab active" data-t="home" onclick="go('home')"><svg viewBox="0 0 24 24"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/></svg>Home</button>
+    <button class="tab" data-t="cover" onclick="go('cover')"><svg viewBox="0 0 24 24"><path d="M6 2h9l3 3v17H6z"/><path d="M15 2v4h4"/></svg>Cover</button>
+    <button class="tab" data-t="aggregate" onclick="go('aggregate')"><svg viewBox="0 0 24 24"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 7h8M8 11h8M8 15h4"/></svg>Aggregate</button>
+    <button class="tab" data-t="syllabus" onclick="go('syllabus')"><svg viewBox="0 0 24 24"><path d="M4 5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2z"/><path d="M4 19a2 2 0 0 1 2-2h13"/></svg>Syllabus</button>
+  </nav>
+</div>
+
+<script>
+const SYLLABUS={
+ 1:[["LLB 111","English – I",3],["LLB 112","Pakistan Studies",2],["LLB 113","Introduction to Sociology",3],["LLB 114","Fundamentals of Economics",3],["LLB 115","Introduction to Law",3],["LLB 116","Skills Development",3]],
+ 2:[["LLB 121","English – II",3],["LLB 122","Islamic Studies / Ethics",2],["LLB 123","Principles of Political Science",3],["LLB 124","Legal System of Pakistan",3],["LLB 125","History (South Asia)",3],["LLB 126","Law of Torts – I",3]],
+ 3:[["LLB 211","English – III",3],["LLB 212","Introduction to Logic & Reasoning",3],["LLB 213","Islamic Jurisprudence – I",3],["LLB 214","Law of Torts – II",3],["LLB 215","Law of Contract – I",3],["LLB 216","Constitutional Law – I (UK)",3]],
+ 4:[["LLB 221","Human Rights Law",3],["LLB 222","Constitutional Law – II (US)",3],["LLB 223","Law of Contract – II",3],["LLB 224","Islamic Jurisprudence – II",3],["LLB 225","Introduction to Psychology",3]],
+ 5:[["LLB 311","Jurisprudence – I",3],["LLB 312","Constitutional Law – III (Pakistan)",3],["LLB 313","Islamic Personal Law – I",3],["LLB 314","Criminal Law – I",3],["LLB 315","Law of Property",3]],
+ 6:[["LLB 321","Jurisprudence – II",3],["LLB 322","Law of Business Organizations",3],["LLB 323","Islamic Personal Law – II",3],["LLB 324","Criminal Law – II",3],["LLB 325","Land Laws",3]],
+ 7:[["LLB 411","Public International Law – I",3],["LLB 412","Constitutional Developments in Pakistan",3],["LLB 413","Civil Procedure – I",3],["LLB 414","Criminal Procedure – I",3],["LLB 415","Law of Evidence – I",3],["LLB 416","Legal Drafting – I",3]],
+ 8:[["LLB 421","Public International Law – II",3],["LLB 422","Equity & Specific Relief",3],["LLB 423","Civil Procedure – II",3],["LLB 424","Criminal Procedure – II",3],["LLB 425","Law of Evidence – II",3],["LLB 426","Legal Drafting – II",3]],
+ 9:[["LLB 511","Research Methods",3],["LLB 512","Minor Acts",3],["Elective","Elective – I",3],["Elective","Elective – II",3],["LLB 515","Moot Cases & Professional Ethics",3]],
+ 10:[["LLB 521","Administrative Law",3],["LLB 522","Interpretation of Statutes & Legislative Drafting",3],["LLB 523","Research Project / Dissertation",3],["Elective","Elective – III",3],["Elective","Elective – IV",3]]
+};
+const ELECTIVES=["Alternate Dispute Resolution","Banking Laws","Conflict of Laws","Consumer Protection Laws","Custom & Tariff Laws","e-Commerce Law","Election Laws","Environmental Laws","Gender and Law","Insurance Laws","Intellectual Property Laws","International Economic Law","International Humanitarian Law","International Institutions","International Trade Law","Islamic Commercial Laws","Labour Laws","Law and Development","Law and Energy","Law and Society in Pakistan","Local & Special Laws","Media Laws","Medical & Forensic Law","Mergers & Acquisitions","Islamic Legal Maxims","Public Interest Litigation","Securities Regulation","Shipping & Admiralty Laws","Taxation Laws","Telecommunication Laws"];
+const ORD=["","First","Second","Third","Fourth","Fifth","Sixth","Seventh","Eighth","Ninth","Tenth"];
+const YOUR_SEM=3;
+const LOGO=window.LOGO||"icons/ulc-logo.png";
+
+function go(t){
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  document.getElementById('v-'+t).classList.add('active');
+  document.querySelectorAll('.tab,.side-item').forEach(b=>b.classList.toggle('active',b.dataset.t===t));
+  window.scrollTo({top:0,behavior:'instant'});
+}
+function esc(s){return (s||'').replace(/[<>&]/g,c=>({'<':'&lt;','>':'&gt;','&':'&amp;'}[c]));}
+function val(id){return esc(document.getElementById(id).value);}
+function fmtDate(v){ if(!v) return '—'; const d=new Date(v+'T00:00'); return d.toLocaleDateString('en-GB',{day:'2-digit',month:'long',year:'numeric'}); }
+
+/* -------- Cover -------- */
+let currentTpl='classic';
+function fillSemDropdown(){ document.getElementById('f-sem').innerHTML='<option value="">Select</option>'+Object.keys(SYLLABUS).map(n=>`<option value="${n}">${ORD[n]} Semester</option>`).join(''); }
+function onSemChange(){ const n=document.getElementById('f-sem').value; document.getElementById('subj-list').innerHTML=n?SYLLABUS[n].map(x=>`<option value="${x[1]}">`).join(''):''; drawCover(); }
+function setTpl(t){ currentTpl=t; document.querySelectorAll('.tpl-btn').forEach(b=>b.classList.toggle('active',b.dataset.tpl===t)); drawCover(); }
+function V(){ return {no:val('f-assignmentno'),topic:val('f-topic')||'Assignment Title',subject:val('f-subject')||'Subject',name:val('f-name')||'—',roll:val('f-roll')||'—',teacher:val('f-teacher')||'—',session:val('f-session')||'—',date:fmtDate(document.getElementById('f-date').value)}; }
+function metaPairs(v){ const p=[]; if(v.no)p.push(["Assignment No.",v.no]); p.push(["Submitted by",v.name],["Roll No.",v.roll],["Submitted to",v.teacher],["Subject",v.subject],["Session",v.session],["Date",v.date]); return p; }
+
+function tplClassic(v){
+  return `<div class="fr"></div><div class="ban">UNIVERSITY LAW COLLEGE</div>
+  <div class="top"><div class="uni"><b>University Law College</b>University of Balochistan, Quetta</div><img src="${LOGO}"></div>
+  <div class="mid">
+    <svg class="doc" viewBox="0 0 48 48" fill="none" stroke="#12508f" stroke-width="2"><path d="M14 6h14l8 8v28H14z"/><path d="M28 6v8h8"/><path d="M19 24h12M19 30h12M19 36h8"/></svg>
+    <div class="kick">Assignment${v.no?' No. '+v.no:''}</div>
+    <div class="ttl">${v.topic}</div>
+    <div class="pill">${v.session}</div>
+    <div class="sub">${v.subject}</div>
+  </div>
+  <div class="foot">
+    <div class="r"><b>Submitted by</b><span>${v.name}</span></div>
+    <div class="r"><b>Roll No.</b><span>${v.roll}</span></div>
+    <div class="r"><b>Submitted to</b><span>${v.teacher}</span></div>
+    <div class="r"><b>Subject</b><span>${v.subject}</span></div>
+    <div class="r"><b>Date</b><span>${v.date}</span></div>
+  </div>`;
+}
+function tplGeometric(v){
+  return `<div class="d1"></div><div class="d2"></div><div class="chev">›››</div>
+  <img class="logo" src="${LOGO}">
+  <div class="date">${v.date}</div>
+  <div class="ribbon"><small>ASSIGNMENT${v.no?' NO. '+v.no:''}</small>${v.topic}</div>
+  <div class="meta">
+    <div class="r"><b>Subject</b><span>${v.subject}</span></div>
+    <div class="r"><b>Submitted by</b><span>${v.name}</span></div>
+    <div class="r"><b>Roll No.</b><span>${v.roll}</span></div>
+    <div class="r"><b>Submitted to</b><span>${v.teacher}</span></div>
+    <div class="r"><b>Session</b><span>${v.session}</span></div>
+  </div><div class="bar"></div>`;
+}
+function tplElegant(v){
+  return `<div class="pane"></div>
+  <div class="contact">University of Balochistan<br>Quetta<br>Faculty of Law</div>
+  <div class="circle"><img src="${LOGO}"></div>
+  <div class="bk">University</div>
+  <div class="brand">Law <span>College</span></div>
+  <div class="ttl"><small>Assignment${v.no?' No. '+v.no:''} · ${v.subject}</small>${v.topic}</div>
+  <div class="prep">Submitted by<b>${v.name}</b>Roll No. ${v.roll} · ${v.session}<br>Submitted to: ${v.teacher}<br>${v.date}</div>`;
+}
+function tplMinimal(v){
+  return `<img class="wm" src="${LOGO}">
+  <div class="top"><img src="${LOGO}"><div class="cn">University Law College<small>Quetta</small></div></div>
+  <div class="mid">
+    <div class="subj">${v.subject}</div>
+    <div class="hr"></div>
+    <div class="tt">${v.topic}</div>
+    <div class="pill">Assignment${v.no?' No. '+v.no:''}</div>
+  </div>
+  <div class="meta"><b>${v.name}</b> · Roll ${v.roll}<br>Submitted to ${v.teacher}<br>${v.session} · ${v.date}</div>
+  <div class="box">University Law College</div>`;
+}
+const TPL={classic:tplClassic,geometric:tplGeometric,elegant:tplElegant,minimal:tplMinimal};
+function drawCover(){ const el=document.getElementById('coverPreview'); el.className='cover tpl-'+currentTpl; el.innerHTML=TPL[currentTpl](V()); }
+
+function printCover(){ document.getElementById('printhost').innerHTML=`<div class="cover tpl-${currentTpl} print-cover" style="width:794px">${TPL[currentTpl](V())}</div>`; window.print(); }
+
+async function downloadPDF(){
+  const btn=document.getElementById('pdfBtn'), label=btn.textContent;
+  if(typeof html2canvas==='undefined' || !window.jspdf){ printCover(); return; }
+  btn.disabled=true; btn.textContent='Generating…';
+  const holder=document.createElement('div');
+  holder.style.cssText='position:fixed;left:-99999px;top:0;width:794px;background:#fff';
+  const clone=document.getElementById('coverPreview').cloneNode(true);
+  clone.style.width='794px'; clone.style.boxShadow='none'; clone.style.border='none';
+  holder.appendChild(clone); document.body.appendChild(holder);
+  try{
+    const canvas=await html2canvas(clone,{scale:2,useCORS:true,backgroundColor:'#ffffff',logging:false,width:794,windowWidth:794});
+    const {jsPDF}=window.jspdf; const pdf=new jsPDF('p','mm','a4');
+    pdf.addImage(canvas.toDataURL('image/jpeg',0.95),'JPEG',0,0,210,297);
+    const fn=((val('f-name')||'ULC')+'_'+currentTpl+'_cover.pdf').replace(/\s+/g,'_');
+    pdf.save(fn);
+  }catch(e){ printCover(); }
+  finally{ holder.remove(); btn.disabled=false; btn.textContent=label; }
+}
+
+/* -------- Aggregate -------- */
+function pct(o,t){o=parseFloat(o);t=parseFloat(t);return (t>0&&o>=0)?(o/t*100):0;}
+function calcAgg(){
+  const mm=pct(m_obt.value,m_tot.value), ii=pct(i_obt.value,i_tot.value), ee=pct(e_obt.value,e_tot.value);
+  const wm=+w_m.value||0, wi=+w_i.value||0, we=+w_e.value||0;
+  document.getElementById('w-warn').classList.toggle('show', Math.round(wm+wi+we)!==100);
+  const agg=(mm*wm+ii*wi+ee*we)/100;
+  document.getElementById('agg-val').innerHTML=agg.toFixed(2)+'<small>%</small>';
+  document.getElementById('agg-brk').innerHTML=`Matric ${mm.toFixed(1)}% × ${wm}% &nbsp;•&nbsp; Inter ${ii.toFixed(1)}% × ${wi}% &nbsp;•&nbsp; LAT ${ee.toFixed(1)}% × ${we}%`;
+}
+
+/* -------- Syllabus -------- */
+let curSem=YOUR_SEM;
+function fillChips(){ document.getElementById('semChips').innerHTML=Object.keys(SYLLABUS).map(n=>`<button class="chip ${n==curSem?'active':''} ${n==YOUR_SEM?'you':''}" onclick="showSem(${n})">Sem ${n}</button>`).join(''); }
+function showSem(n){
+  curSem=n; fillChips();
+  const subs=SYLLABUS[n], cr=subs.reduce((a,x)=>a+x[2],0);
+  let html=`<div class="sem-head"><div class="yr">${ORD[n]} Semester</div><div class="cr">${cr} credit hrs</div></div><div class="badges"><span class="tag tag-hec">HEC · Revised 2015</span>${n==YOUR_SEM?'<span class="tag tag-you">Your current semester</span>':''}</div>`+subs.map(x=>`<div class="subj"><div class="code">${x[0]}</div><div class="nm">${x[1]}</div><div class="ch">${x[2]} CH</div></div>`).join('');
+  if(n==8) html+=`<div class="intern"><b>Internship (3 CH)</b> — compulsory 10–12 weeks after Semester 8, before Semester 10 (summer vacations).</div>`;
+  if(n==9||n==10) html+=`<details class="elec"><summary>Elective courses — choose any four (Sem 9 &amp; 10)</summary><div class="elec-list">${ELECTIVES.map(e=>`<div>• ${e}</div>`).join('')}</div></details>`;
+  document.getElementById('semBody').innerHTML=html;
+}
+
+/* init */
+fillSemDropdown(); onSemChange(); drawCover(); calcAgg(); showSem(YOUR_SEM);
+if('serviceWorker' in navigator && location.protocol.startsWith('http')){ window.addEventListener('load',()=>navigator.serviceWorker.register('service-worker.js').catch(()=>{})); }
+</script>
+</body>
+</html>
