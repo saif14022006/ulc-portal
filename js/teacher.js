@@ -465,149 +465,95 @@
   }
 
   function isHeaderNoise(s) {
-    return /WEEK|ATTENDANCE|SERIAL|TOTAL|UNIVERSITY|COLLEGE|SEMESTER|SUBJECT|SIGNATURE|PRESENT|ABSENT|SESSION|SECTION|PRINCIPAL|FATHER\s*NAME|CONTACT\s*NO|DATE\s*OF|ADMISSION|CNIC/.test(s);
+    return /WEEK|ATTENDANCE|SERIAL|TOTAL|UNIVERSITY|COLLEGE|SEMESTER|SUBJECT|SIGNATURE|PRESENT|ABSENT|SESSION|SECTION|PRINCIPAL|FATHER\s*NAME|CONTACT\s*NO|DATE\s*OF|ADMISSION|CNIC/.test(
+      String(s || "").toUpperCase()
+    );
   }
   function looksLikeRoll(tok) {
     return /^(\d{3,6})([A-Za-z])?$/.test(String(tok || "").replace(/\s/g, ""));
   }
-  function isCnicOrPhone(tok) {
-    const t = String(tok || "").replace(/\s/g, "");
-    return /^\d{5}-?\d{7}-?\d$/.test(t) || /^03\d{2}-?\d{7}$/.test(t) || /^0\d{10,12}$/.test(t);
-  }
-  function cleanName(s) {
-    return String(s || "")
-      .replace(/[^A-Za-z .']/g, " ")
-      .replace(/\s+/g, " ")
-      .trim()
-      .toUpperCase();
-  }
-  /** Full Name-column text — keep every word in that cell. */
-  function fullNameColumn(raw) {
-    const name = cleanName(raw);
-    if (!name || name.length < 2) return "";
-    if (isHeaderNoise(name) || /^(FATHER|CNIC|CONTACT|PHONE|DATE)/.test(name)) return "";
-    return name;
-  }
-  function splitRowCols(line) {
-    const str = String(line || "").trim();
-    if (!str) return [];
-    let cols = str.split(/\t+/).map((c) => c.trim()).filter(Boolean);
-    if (cols.length >= 2) return cols;
-    cols = str.split(/\s{2,}/).map((c) => c.trim()).filter(Boolean);
-    if (cols.length >= 2) return cols;
-    cols = str.split(/\s*[|│]\s*/).map((c) => c.trim()).filter(Boolean);
-    if (cols.length >= 2) return cols;
-    return str.split(/\s+/).filter(Boolean);
-  }
-  function normHeader(tok) {
-    return String(tok || "").toUpperCase().replace(/[^A-Z0-9]/g, "");
-  }
-  /** Roll column index; Name is always the next complete column. */
-  function findRollNameIndexes(cols) {
-    let rollIdx = -1;
-    cols.forEach((c, i) => {
-      const h = normHeader(c);
-      if (!h) return;
-      if (rollIdx < 0 && (h.includes("ROLL") || h === "SNO" || h === "SRNO" || h === "NO" || h === "SR")) rollIdx = i;
-    });
-    if (rollIdx < 0) {
-      for (let i = 0; i < cols.length; i++) {
-        if (looksLikeRoll(cols[i])) {
-          rollIdx = i;
-          break;
-        }
-      }
-    }
-    if (rollIdx < 0 && cols.length >= 2 && /ROLL|SNO|NO/i.test(cols[0])) rollIdx = 0;
-    const nameIdx = rollIdx >= 0 && rollIdx + 1 < cols.length ? rollIdx + 1 : -1;
-    return { rollIdx, nameIdx };
-  }
-  function pushStudent(out, seen, roll, nameRaw) {
-    const name = fullNameColumn(nameRaw);
-    const r = String(roll || "").replace(/\s/g, "").toUpperCase();
-    if (!r || !looksLikeRoll(r) || !name || seen.has(r)) return false;
-    seen.add(r);
-    out.push({ roll: r, name });
-    return true;
-  }
-  /** When Roll is found, take the next complete column as Name (full cell text). */
-  function rollAndNextColumnName(cols) {
-    if (!cols || cols.length < 2) return null;
-    let i = 0;
-    if (/^\d{1,2}$/.test(cols[0]) && looksLikeRoll(cols[1])) i = 1;
-    if (!looksLikeRoll(cols[i])) {
-      const idx = cols.findIndex((c) => looksLikeRoll(c));
-      if (idx < 0) return null;
-      i = idx;
-    }
-    const nameCol = cols[i + 1];
-    if (!nameCol || isCnicOrPhone(nameCol)) return null;
-    return { roll: cols[i], name: nameCol };
-  }
-  function parseByHeaderColumns(text) {
-    const lines = String(text || "")
-      .split(/\r?\n/)
-      .map((l) => l.trim())
-      .filter(Boolean);
-    let rollIdx = -1;
-    let nameIdx = -1;
-    let headerAt = -1;
-    for (let i = 0; i < Math.min(lines.length, 12); i++) {
-      const cols = splitRowCols(lines[i]);
-      const joined = cols.join(" ").toUpperCase();
-      if (!/ROLL/.test(joined) && !/S\.?\s*NO/.test(joined) && !cols.some((c) => looksLikeRoll(c))) continue;
-      const hit = findRollNameIndexes(cols);
-      if (hit.rollIdx >= 0 && hit.nameIdx >= 0) {
-        rollIdx = hit.rollIdx;
-        nameIdx = hit.rollIdx + 1;
-        headerAt = i;
-        break;
-      }
-    }
-    if (headerAt < 0 || rollIdx < 0 || nameIdx < 0) return [];
-    const out = [];
-    const seen = new Set();
-    for (let i = headerAt + 1; i < lines.length; i++) {
-      const cols = splitRowCols(lines[i]);
-      if (cols.length <= Math.max(rollIdx, nameIdx)) {
-        const pair = rollAndNextColumnName(cols);
-        if (pair) pushStudent(out, seen, pair.roll, pair.name);
-        continue;
-      }
-      if (!looksLikeRoll(cols[rollIdx])) continue;
-      const nameRaw = cols[rollIdx + 1] != null ? cols[rollIdx + 1] : cols[nameIdx];
-      pushStudent(out, seen, cols[rollIdx], nameRaw);
-    }
-    return out;
-  }
-  function parseAdmissionList(text) {
-    const out = [];
-    const seen = new Set();
-    const lines = String(text || "")
-      .split(/\r?\n/)
-      .map((l) => l.trim())
-      .filter(Boolean);
-    for (const line of lines) {
-      const cols = splitRowCols(line);
-      const pair = rollAndNextColumnName(cols);
-      if (pair && (cols.length >= 3 || /\t|\s{2,}/.test(line))) {
-        pushStudent(out, seen, pair.roll, pair.name);
-        continue;
-      }
-      const m = line.match(/^(\d{3,4})\s+(.+?)\s+(\d{5}-\d{7}-\d)/i);
-      if (!m) continue;
-      const nameParts = m[2]
-        .split(/\s{2,}|\t+/)
-        .map((x) => x.trim())
+
+  /**
+   * Guide: after Roll on the same row, read the next column.
+   * Take every character there, but stop once 20 non-space characters
+   * (letters / ' / .) have been collected. Spaces are not counted toward 20
+   * but are kept between words in the saved name.
+   */
+  function nameFromTextAfterRoll(afterRoll) {
+    let src = String(afterRoll || "");
+    /* If the row has clear columns (tab / wide gap / |), use ONLY the next column cell */
+    if (/\t/.test(src) || /\s{2,}/.test(src) || /\|/.test(src)) {
+      const parts = src
+        .split(/\t+|\s{2,}|\s*\|\s*/)
+        .map((p) => p.trim())
         .filter(Boolean);
-      pushStudent(out, seen, m[1], nameParts[0] || m[2]);
+      if (parts.length) src = parts[0];
     }
-    return out;
+
+    let i = 0;
+    while (i < src.length && /[\s|:\-_]/.test(src[i])) i++;
+
+    let out = "";
+    let nonSpace = 0;
+    while (i < src.length && nonSpace < 20) {
+      const ch = src[i];
+      const ahead = src.slice(i).replace(/[\s\-]/g, "");
+
+      /* Next columns: CNIC, mobile, month of admission */
+      if (/^\d{5}\d{7}/.test(ahead)) break;
+      if (/^03\d{9}/.test(ahead)) break;
+      if (/^(JANUARY|FEBRUARY|MARCH|APRIL|MAY|JUNE|JULY|AUGUST|SEPTEMBER|OCTOBER|NOVEMBER|DECEMBER)/i.test(src.slice(i))) break;
+
+      if (/\s/.test(ch) || ch === "|" || ch === "\t") {
+        if (out.length && !out.endsWith(" ") && nonSpace > 0) out += " ";
+        i++;
+        continue;
+      }
+      if (/[0-9]/.test(ch)) {
+        if (nonSpace > 0) break;
+        i++;
+        continue;
+      }
+      if (!/[A-Za-z.']/.test(ch)) {
+        if (nonSpace > 0) break;
+        i++;
+        continue;
+      }
+      out += ch.toUpperCase();
+      nonSpace++;
+      i++;
+    }
+    return out.replace(/\s+/g, " ").trim();
   }
-  /** Extract Roll + complete Name column text. */
+
+  /** Same row: find Roll, then Name = next 20 non-space characters. */
+  function extractRollAndNameFromLine(line) {
+    const raw = String(line || "").trim();
+    if (!raw) return null;
+    if (isHeaderNoise(raw) && !/\d{3,4}/.test(raw)) return null;
+
+    /* Roll is usually 1001–1050 style at the start (or after a tiny serial). */
+    let m = raw.match(/^(\d{3,4})\b(.*)$/);
+    if (!m) {
+      m = raw.match(/^(?:\d{1,2}[\s.|]+)+(\d{3,4})\b(.*)$/);
+    }
+    if (!m) {
+      m = raw.match(/(?:^|[\s|\t])(\d{3,4})\b(.*)$/);
+    }
+    if (!m) return null;
+
+    const roll = String(m[1]).replace(/\s/g, "").toUpperCase();
+    if (!looksLikeRoll(roll)) return null;
+
+    const after = m[2] != null ? m[2] : "";
+    const name = nameFromTextAfterRoll(after);
+    if (!name || name.length < 2) return null;
+    if (isHeaderNoise(name)) return null;
+    return { roll, name };
+  }
+
+  /** Extract Roll + Name (next column, max 20 non-space characters) from every row. */
   function parseRosterText(text) {
-    const byHeader = parseByHeaderColumns(text);
-    if (byHeader.length >= 3) return byHeader;
     const lines = String(text || "")
       .split(/\r?\n/)
       .map((l) => l.trim())
@@ -615,27 +561,12 @@
     const out = [];
     const seen = new Set();
     for (const line of lines) {
-      const up = line.toUpperCase();
-      if (isHeaderNoise(up) && !/\d{3,4}/.test(line)) continue;
-      const cols = splitRowCols(line);
-      const pair = rollAndNextColumnName(cols);
-      if (pair) {
-        pushStudent(out, seen, pair.roll, pair.name);
-        continue;
-      }
-      const adm = line.match(/^(\d{3,4})\s+(.+?)\s+(\d{5}-\d{7}-\d)/i);
-      if (adm) {
-        const nameParts = adm[2]
-          .split(/\s{2,}|\t+/)
-          .map((x) => x.trim())
-          .filter(Boolean);
-        pushStudent(out, seen, adm[1], nameParts[0] || adm[2]);
-      }
+      const hit = extractRollAndNameFromLine(line);
+      if (!hit || seen.has(hit.roll)) continue;
+      seen.add(hit.roll);
+      out.push(hit);
     }
-    if (byHeader.length > out.length) return byHeader;
-    const admission = parseAdmissionList(text);
-    if (admission.length > out.length) return admission;
-    return out.length ? out : byHeader.length ? byHeader : admission;
+    return out;
   }
 
   function applyParsedRoster(list, statusMsg) {
@@ -648,7 +579,7 @@
     if (status) {
       status.textContent =
         statusMsg ||
-        `Extracted ${list.length} row(s): Roll + full Name column. Untick mistakes, then Add selected students.`;
+        `Extracted ${list.length} row(s): Roll + next column name (up to 20 letters). Untick mistakes, then Add selected students.`;
     }
     renderOcrPreview(list);
   }
