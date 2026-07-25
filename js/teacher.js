@@ -470,6 +470,10 @@
   function looksLikeRoll(tok) {
     return /^(\d{3,6})([A-Za-z])?$/.test(String(tok || "").replace(/\s/g, ""));
   }
+  function isCnicOrPhone(tok) {
+    const t = String(tok || "").replace(/\s/g, "");
+    return /^\d{5}-?\d{7}-?\d$/.test(t) || /^03\d{2}-?\d{7}$/.test(t) || /^0\d{10,12}$/.test(t);
+  }
   function cleanName(s) {
     return String(s || "")
       .replace(/[^A-Za-z .']/g, " ")
@@ -477,194 +481,161 @@
       .trim()
       .toUpperCase();
   }
-  function splitStudentName(between) {
-    const words = cleanName(between).split(" ").filter(Boolean);
-    if (!words.length) return { name: "", father: "" };
-    if (words.length === 1) return { name: words[0], father: "" };
-    if (words.length === 2) return { name: words.join(" "), father: "" };
-    const fatherStarts = /^(MUHAMMAD|MOHAMMAD|ABDUL|GHULAM|SYED|HAJI|MALIK|SARDAR|SHEIKH|MIRZA|CHAUDHARY|KHAN)$/;
-    if (words.length >= 3 && fatherStarts.test(words[1])) {
-      return { name: words[0], father: words.slice(1).join(" ") };
-    }
-    if (words.length >= 4) {
-      return { name: words.slice(0, 2).join(" "), father: words.slice(2).join(" ") };
-    }
-    return { name: words[0], father: words.slice(1).join(" ") };
+  /** Full Name-column text — keep every word in that cell. */
+  function fullNameColumn(raw) {
+    const name = cleanName(raw);
+    if (!name || name.length < 2) return "";
+    if (isHeaderNoise(name) || /^(FATHER|CNIC|CONTACT|PHONE|DATE)/.test(name)) return "";
+    return name;
   }
-
   function splitRowCols(line) {
-    let cols = String(line || "").split(/\t+/).map((c) => c.trim()).filter(Boolean);
+    const str = String(line || "").trim();
+    if (!str) return [];
+    let cols = str.split(/\t+/).map((c) => c.trim()).filter(Boolean);
     if (cols.length >= 2) return cols;
-    cols = String(line || "").split(/\s{2,}/).map((c) => c.trim()).filter(Boolean);
+    cols = str.split(/\s{2,}/).map((c) => c.trim()).filter(Boolean);
     if (cols.length >= 2) return cols;
-    return String(line || "").split(/\s+/).filter(Boolean);
+    cols = str.split(/\s*[|│]\s*/).map((c) => c.trim()).filter(Boolean);
+    if (cols.length >= 2) return cols;
+    return str.split(/\s+/).filter(Boolean);
   }
-
   function normHeader(tok) {
     return String(tok || "").toUpperCase().replace(/[^A-Z0-9]/g, "");
   }
-
-  /** Find Roll + Name column indexes from a header row (ignore Father, CNIC, etc.). */
+  /** Roll column index; Name is always the next complete column. */
   function findRollNameIndexes(cols) {
     let rollIdx = -1;
-    let nameIdx = -1;
     cols.forEach((c, i) => {
       const h = normHeader(c);
       if (!h) return;
-      if (rollIdx < 0 && (h.includes("ROLL") || h === "SNO" || h === "SRNO" || h === "NO" || h === "SR")) {
-        rollIdx = i;
-      }
-      if (
-        nameIdx < 0 &&
-        (h === "NAME" || h === "STUDENTNAME" || h === "STUDENT" || (h.includes("NAME") && !h.includes("FATHER") && !h.includes("PARENT")))
-      ) {
-        nameIdx = i;
-      }
+      if (rollIdx < 0 && (h.includes("ROLL") || h === "SNO" || h === "SRNO" || h === "NO" || h === "SR")) rollIdx = i;
     });
-    /* Typical ULC sheet: [Roll] [Name] [Father] [CNIC] … */
-    if (rollIdx < 0 && nameIdx < 0 && cols.length >= 2) {
-      if (looksLikeRoll(cols[0]) || /ROLL|SNO|NO/i.test(cols[0])) rollIdx = 0;
-      if (/NAME/i.test(cols[1]) && !/FATHER/i.test(cols[1])) nameIdx = 1;
-    }
-    if (rollIdx >= 0 && nameIdx < 0) {
-      for (let i = rollIdx + 1; i < cols.length; i++) {
-        const h = normHeader(cols[i]);
-        if (h.includes("FATHER") || h.includes("CNIC") || h.includes("CONTACT") || h.includes("DATE") || h.includes("PHONE")) continue;
-        if (h.includes("NAME") || h === "STUDENT") {
-          nameIdx = i;
+    if (rollIdx < 0) {
+      for (let i = 0; i < cols.length; i++) {
+        if (looksLikeRoll(cols[i])) {
+          rollIdx = i;
           break;
         }
       }
-      if (nameIdx < 0 && rollIdx + 1 < cols.length) nameIdx = rollIdx + 1;
     }
+    if (rollIdx < 0 && cols.length >= 2 && /ROLL|SNO|NO/i.test(cols[0])) rollIdx = 0;
+    const nameIdx = rollIdx >= 0 && rollIdx + 1 < cols.length ? rollIdx + 1 : -1;
     return { rollIdx, nameIdx };
   }
-
+  function pushStudent(out, seen, roll, nameRaw) {
+    const name = fullNameColumn(nameRaw);
+    const r = String(roll || "").replace(/\s/g, "").toUpperCase();
+    if (!r || !looksLikeRoll(r) || !name || seen.has(r)) return false;
+    seen.add(r);
+    out.push({ roll: r, name });
+    return true;
+  }
+  /** When Roll is found, take the next complete column as Name (full cell text). */
+  function rollAndNextColumnName(cols) {
+    if (!cols || cols.length < 2) return null;
+    let i = 0;
+    if (/^\d{1,2}$/.test(cols[0]) && looksLikeRoll(cols[1])) i = 1;
+    if (!looksLikeRoll(cols[i])) {
+      const idx = cols.findIndex((c) => looksLikeRoll(c));
+      if (idx < 0) return null;
+      i = idx;
+    }
+    const nameCol = cols[i + 1];
+    if (!nameCol || isCnicOrPhone(nameCol)) return null;
+    return { roll: cols[i], name: nameCol };
+  }
   function parseByHeaderColumns(text) {
-    const lines = String(text || "").split(/\r?\n/).map((l) => l.trim()).filter(Boolean);
+    const lines = String(text || "")
+      .split(/\r?\n/)
+      .map((l) => l.trim())
+      .filter(Boolean);
     let rollIdx = -1;
     let nameIdx = -1;
     let headerAt = -1;
     for (let i = 0; i < Math.min(lines.length, 12); i++) {
       const cols = splitRowCols(lines[i]);
-      const hit = findRollNameIndexes(cols);
       const joined = cols.join(" ").toUpperCase();
-      if ((hit.rollIdx >= 0 && hit.nameIdx >= 0) || (/ROLL/.test(joined) && /NAME/.test(joined) && !/FATHER\s*NAME.*ROLL/i.test(joined))) {
-        rollIdx = hit.rollIdx >= 0 ? hit.rollIdx : 0;
-        nameIdx = hit.nameIdx >= 0 ? hit.nameIdx : Math.min(1, cols.length - 1);
+      if (!/ROLL/.test(joined) && !/S\.?\s*NO/.test(joined) && !cols.some((c) => looksLikeRoll(c))) continue;
+      const hit = findRollNameIndexes(cols);
+      if (hit.rollIdx >= 0 && hit.nameIdx >= 0) {
+        rollIdx = hit.rollIdx;
+        nameIdx = hit.rollIdx + 1;
         headerAt = i;
         break;
       }
     }
     if (headerAt < 0 || rollIdx < 0 || nameIdx < 0) return [];
-
     const out = [];
     const seen = new Set();
     for (let i = headerAt + 1; i < lines.length; i++) {
       const cols = splitRowCols(lines[i]);
       if (cols.length <= Math.max(rollIdx, nameIdx)) {
-        /* OCR may glue columns — fall back to roll-at-start parse on this line */
+        const pair = rollAndNextColumnName(cols);
+        if (pair) pushStudent(out, seen, pair.roll, pair.name);
         continue;
       }
-      const rollRaw = cols[rollIdx];
-      const nameRaw = cols[nameIdx];
-      if (!looksLikeRoll(rollRaw)) continue;
-      const roll = String(rollRaw).replace(/\s/g, "").toUpperCase();
-      let name = cleanName(nameRaw);
-      if (!name || name.length < 2 || seen.has(roll)) continue;
-      if (isHeaderNoise(name) || /FATHER|CNIC|CONTACT/.test(name)) continue;
-      name = name.split(" ").slice(0, 5).join(" ");
-      seen.add(roll);
-      out.push({ roll, name });
+      if (!looksLikeRoll(cols[rollIdx])) continue;
+      const nameRaw = cols[rollIdx + 1] != null ? cols[rollIdx + 1] : cols[nameIdx];
+      pushStudent(out, seen, cols[rollIdx], nameRaw);
     }
     return out;
   }
-
-  /** Admission / multi-col rows: grab Roll, then Name only (stop before Father/CNIC/phone). */
   function parseAdmissionList(text) {
     const out = [];
     const seen = new Set();
-    const re = /(?:^|\n)\s*(\d{3,4})\s+([A-Za-z][A-Za-z .']{1,60}?)\s+(\d{5}[-\s]?\d{7}[-\s]?\d)/gim;
-    let m;
-    while ((m = re.exec(String(text || ""))) !== null) {
-      const roll = String(m[1]).toUpperCase();
-      const { name } = splitStudentName(m[2]);
-      if (!name || name.length < 2 || seen.has(roll)) continue;
-      if (isHeaderNoise(name)) continue;
-      seen.add(roll);
-      out.push({ roll, name });
+    const lines = String(text || "")
+      .split(/\r?\n/)
+      .map((l) => l.trim())
+      .filter(Boolean);
+    for (const line of lines) {
+      const cols = splitRowCols(line);
+      const pair = rollAndNextColumnName(cols);
+      if (pair && (cols.length >= 3 || /\t|\s{2,}/.test(line))) {
+        pushStudent(out, seen, pair.roll, pair.name);
+        continue;
+      }
+      const m = line.match(/^(\d{3,4})\s+(.+?)\s+(\d{5}-\d{7}-\d)/i);
+      if (!m) continue;
+      const nameParts = m[2]
+        .split(/\s{2,}|\t+/)
+        .map((x) => x.trim())
+        .filter(Boolean);
+      pushStudent(out, seen, m[1], nameParts[0] || m[2]);
     }
     return out;
   }
-
-  /** Extract ONLY roll number + student name from multi-column sheets. */
+  /** Extract Roll + complete Name column text. */
   function parseRosterText(text) {
     const byHeader = parseByHeaderColumns(text);
     if (byHeader.length >= 3) return byHeader;
-
-    const admission = parseAdmissionList(text);
-    if (admission.length >= 3) return admission;
-
-    const lines = String(text || "").split(/\r?\n/).map((l) => l.trim()).filter(Boolean);
+    const lines = String(text || "")
+      .split(/\r?\n/)
+      .map((l) => l.trim())
+      .filter(Boolean);
     const out = [];
     const seen = new Set();
     for (const line of lines) {
       const up = line.toUpperCase();
       if (isHeaderNoise(up) && !/\d{3,4}/.test(line)) continue;
-
+      const cols = splitRowCols(line);
+      const pair = rollAndNextColumnName(cols);
+      if (pair) {
+        pushStudent(out, seen, pair.roll, pair.name);
+        continue;
+      }
       const adm = line.match(/^(\d{3,4})\s+(.+?)\s+(\d{5}-\d{7}-\d)/i);
       if (adm) {
-        const roll = adm[1].toUpperCase();
-        const { name } = splitStudentName(adm[2]);
-        if (name && !seen.has(roll)) {
-          seen.add(roll);
-          out.push({ roll, name });
-          continue;
-        }
+        const nameParts = adm[2]
+          .split(/\s{2,}|\t+/)
+          .map((x) => x.trim())
+          .filter(Boolean);
+        pushStudent(out, seen, adm[1], nameParts[0] || adm[2]);
       }
-
-      const cols = splitRowCols(line);
-      let roll = "";
-      let name = "";
-
-      if (cols.length >= 2) {
-        let i = 0;
-        if (/^\d{1,2}$/.test(cols[0]) && looksLikeRoll(cols[1])) i = 1;
-        if (looksLikeRoll(cols[i])) {
-          roll = cols[i].replace(/\s/g, "").toUpperCase();
-          /* Name is the next column only — do not pull Father / CNIC / contact */
-          const nameCol = cols[i + 1] || "";
-          if (nameCol && !/^\d{5}-?\d{7}-?\d$/.test(nameCol.replace(/\s/g, "")) && !/^03\d{2}/.test(nameCol)) {
-            name = cleanName(nameCol);
-          } else {
-            const rest = [];
-            for (const tok of cols.slice(i + 1)) {
-              if (/^\d{5}-?\d{7}-?\d$/.test(tok.replace(/\s/g, ""))) break;
-              if (/^03\d{2}-?\d{7}$/.test(tok.replace(/\s/g, ""))) break;
-              if (/^(january|february|march|april|may|june|july|august|september|october|november|december)/i.test(tok)) break;
-              rest.push(tok);
-            }
-            name = splitStudentName(rest.join(" ")).name;
-          }
-        }
-      }
-
-      if (!roll || !name) {
-        const m = line.match(/\b(\d{3,6}[A-Za-z]?)\b\s+([A-Za-z][A-Za-z .']{2,}?)(?=\s+\d{5}-|\s+03\d|$)/);
-        if (m) {
-          roll = m[1].toUpperCase();
-          name = splitStudentName(m[2]).name || cleanName(m[2].split(/\s+/).slice(0, 3).join(" "));
-        }
-      }
-
-      if (!roll || !name || name.length < 2 || seen.has(roll)) continue;
-      if (isHeaderNoise(name)) continue;
-      name = name.split(" ").slice(0, 5).join(" ");
-      seen.add(roll);
-      out.push({ roll, name });
     }
     if (byHeader.length > out.length) return byHeader;
-    return out.length ? out : admission.length ? admission : byHeader;
+    const admission = parseAdmissionList(text);
+    if (admission.length > out.length) return admission;
+    return out.length ? out : byHeader.length ? byHeader : admission;
   }
 
   function applyParsedRoster(list, statusMsg) {
@@ -677,7 +648,7 @@
     if (status) {
       status.textContent =
         statusMsg ||
-        `Extracted ${list.length} row(s) from Roll + Name columns only. Untick mistakes, then Add selected students.`;
+        `Extracted ${list.length} row(s): Roll + full Name column. Untick mistakes, then Add selected students.`;
     }
     renderOcrPreview(list);
   }
@@ -768,7 +739,19 @@
       });
       const lines = [...lineMap.entries()]
         .sort((a, b) => b[0] - a[0])
-        .map(([, parts]) => parts.sort((a, b) => a.x - b.x).map((p) => p.str).join(" "));
+        .map(([, parts]) => {
+          parts.sort((a, b) => a.x - b.x);
+          if (parts.length === 1) return parts[0].str;
+          /* Insert tabs between cells when X gap is large → preserves full Name column */
+          let row = parts[0].str;
+          for (let i = 1; i < parts.length; i++) {
+            const gap = parts[i].x - parts[i - 1].x;
+            const prevLen = String(parts[i - 1].str || "").length;
+            row += gap > Math.max(18, prevLen * 3.2) ? "\t" : " ";
+            row += parts[i].str;
+          }
+          return row;
+        });
       text += lines.join("\n") + "\n";
     }
     return { text, doc };
@@ -1083,14 +1066,24 @@
 
   function awardPdfCss(partial) {
     return `
-      body{font-family:Times New Roman,serif;font-size:9px;color:#000;margin:8px}
-      .pdf-title{text-align:center;font-size:16px;font-weight:700}
-      .pdf-badge{text-align:center;font-weight:700;border:2px solid #000;padding:2px 18px;margin:6px auto;display:block;width:fit-content}
-      .meta{width:100%;border-collapse:collapse;margin:8px 0}
-      .meta td{border:1px solid #333;padding:3px 6px;font-size:9px}
-      .grid{width:100%;border-collapse:collapse}
-      .grid th,.grid td{border:1px solid #222;padding:${partial ? "6px 4px" : "2px 1px"};text-align:center;font-size:${partial ? "10px" : "7.2px"}}
-      .grid .nm{text-align:left;padding-left:3px;font-size:${partial ? "10px" : "7px"}}
+      *{box-sizing:border-box}
+      body{font-family:Times New Roman,serif;font-size:10px;color:#000;margin:0;background:#fff}
+      .award-pdf{width:1600px;max-width:1600px;padding:14px 16px 18px;background:#fff}
+      .pdf-title{text-align:center;font-size:18px;font-weight:700;letter-spacing:.02em;margin:0 0 4px}
+      .pdf-badge{text-align:center;font-weight:700;border:2px solid #000;padding:3px 20px;margin:6px auto 10px;display:block;width:fit-content;font-size:13px}
+      .pdf-page{text-align:right;font-size:9px;color:#333;margin:0 0 6px}
+      .meta{width:100%;border-collapse:collapse;margin:0 0 10px;table-layout:fixed}
+      .meta td{border:1px solid #333;padding:5px 8px;font-size:10px;vertical-align:top}
+      .grid{width:100%;border-collapse:collapse;table-layout:fixed}
+      .grid th,.grid td{
+        border:1px solid #222;padding:${partial ? "7px 5px" : "5px 3px"};
+        text-align:center;vertical-align:middle;
+        font-size:${partial ? "11px" : "9.5px"};
+        line-height:1.25;word-wrap:break-word;
+      }
+      .grid thead th{font-weight:700}
+      .grid .nm{text-align:left;padding-left:5px;font-size:${partial ? "11px" : "9.5px"};overflow:hidden}
+      .grid .roll{white-space:nowrap;font-weight:700;width:58px}
       .h-q{background:#d9d9d9}.h-a{background:#bdd7ee}.h-m{background:#c6efce}.h-f{background:#ffe699}.h-r{background:#f8cbad}
       .avg{background:#eee;font-weight:700}.pct{background:#e2efda}.grand{background:#ddebf7;font-weight:700}.rnd{background:#fce4d6;font-weight:700}
     `;
@@ -1148,11 +1141,12 @@
     return "MARKS SHEET";
   }
 
-  function buildPartialMarksHtml(cols) {
+  function buildPartialMarksHtml(cols, students, pageInfo) {
     const st = getStore();
     const c = activeClass();
     if (!c) return "";
-    sortStudentsByRoll(c.students);
+    const list = Array.isArray(students) ? students : c.students;
+    sortStudentsByRoll(list);
     const teacher = st.officialName || "";
     const metaCols = cols.map((k) => PDF_COL_META[k]).filter(Boolean);
     if (!metaCols.length) return "";
@@ -1161,7 +1155,7 @@
       `<th class="${col.cls}">${esc(col.label)}<br>${esc(col.sub)}</th>`
     ).join("");
 
-    const rows = c.students.map((s) => {
+    const rows = list.map((s) => {
       const m = c.marks[s.roll] || emptyMarks();
       const cells = metaCols.map((col) => {
         let v = +m[col.key] || 0;
@@ -1169,13 +1163,17 @@
         if (col.key === "final") v = Math.min(100, +m.final || ((+m.fin_obj || 0) + (+m.fin_sub || 0)));
         return `<td>${v.toFixed(1)}</td>`;
       }).join("");
-      return `<tr><td>${esc(s.roll)}</td><td class="nm">${esc(s.name)}</td>${cells}</tr>`;
+      return `<tr><td class="roll">${esc(s.roll)}</td><td class="nm">${esc(s.name)}</td>${cells}</tr>`;
     }).join("");
 
     const badge = pdfTitleForColumns(cols);
+    const pageLabel = pageInfo
+      ? `<div class="pdf-page">Page ${pageInfo.page} of ${pageInfo.pages}</div>`
+      : "";
     return `<div class="award-pdf" id="awardPdfSheet">
       <div class="pdf-title">UNIVERSITY LAW COLLEGE, QUETTA</div>
       <div class="pdf-badge">${esc(badge)}</div>
+      ${pageLabel}
       <table class="meta">
         <tr>
           <td><b>Program Title:</b> LL.B. (Five Years) Degree Program</td>
@@ -1196,7 +1194,7 @@
       <table class="grid">
         <thead>
           <tr>
-            <th>Roll #</th>
+            <th class="roll">Roll #</th>
             <th>Name of Student</th>
             ${head}
           </tr>
@@ -1357,17 +1355,18 @@
     }
   }
 
-  function buildAwardHtml() {
+  function buildAwardHtml(students, pageInfo) {
     const st = getStore();
     const c = activeClass();
     if (!c) return "";
-    sortStudentsByRoll(c.students);
+    const list = Array.isArray(students) ? students : c.students;
+    sortStudentsByRoll(list);
     const teacher = st.officialName || "";
-    const rows = c.students.map((s) => {
+    const rows = list.map((s) => {
       const m = c.marks[s.roll] || emptyMarks();
       const r = calcStudent(m);
       return `<tr>
-        <td>${esc(s.roll)}</td><td class="nm">${esc(s.name)}</td>
+        <td class="roll">${esc(s.roll)}</td><td class="nm">${esc(s.name)}</td>
         <td>${(+m.q1 || 0).toFixed(1)}</td><td>${(+m.q2 || 0).toFixed(1)}</td><td>${(+m.q3 || 0).toFixed(1)}</td><td>${(+m.q4 || 0).toFixed(1)}</td><td>${(+m.q5 || 0).toFixed(1)}</td>
         <td class="avg">${r.quiz.toFixed(1)}</td>
         <td>${(+m.a1 || 0).toFixed(1)}</td><td>${(+m.a2 || 0).toFixed(1)}</td>
@@ -1378,9 +1377,14 @@
       </tr>`;
     }).join("");
 
+    const pageLabel = pageInfo
+      ? `<div class="pdf-page">Page ${pageInfo.page} of ${pageInfo.pages}</div>`
+      : "";
+
     return `<div class="award-pdf" id="awardPdfSheet">
       <div class="pdf-title">UNIVERSITY LAW COLLEGE, QUETTA</div>
       <div class="pdf-badge">AWARD LIST</div>
+      ${pageLabel}
       <table class="meta">
         <tr>
           <td><b>Program Title:</b> LL.B. (Five Years) Degree Program</td>
@@ -1401,7 +1405,7 @@
       <table class="grid">
         <thead>
           <tr>
-            <th rowspan="3">Roll #</th>
+            <th rowspan="3" class="roll">Roll #</th>
             <th rowspan="3">Name of Student</th>
             <th colspan="17">ASSESSMENT</th>
             <th colspan="5">FINAL RESULT</th>
@@ -1437,54 +1441,152 @@
     return `${base}_Marks_${cols.join("-").toUpperCase()}`;
   }
 
+  function chunkStudents(students, size) {
+    const list = [...(students || [])];
+    sortStudentsByRoll(list);
+    if (!list.length) return [[]];
+    const chunks = [];
+    for (let i = 0; i < list.length; i += size) chunks.push(list.slice(i, i + size));
+    return chunks;
+  }
+
+  /** Draw canvas onto A4 pages at natural aspect ratio (no row/column stretch). */
+  function addCanvasToPdfPages(pdf, canvas, marginMm) {
+    const margin = marginMm == null ? 8 : marginMm;
+    const pageW = pdf.internal.pageSize.getWidth();
+    const pageH = pdf.internal.pageSize.getHeight();
+    const usableW = pageW - margin * 2;
+    const usableH = pageH - margin * 2;
+    const imgW = usableW;
+    const pxPerMm = canvas.width / imgW;
+    const pageHeightPx = usableH * pxPerMm;
+    let srcY = 0;
+    let first = true;
+    while (srcY < canvas.height - 0.5) {
+      if (!first) pdf.addPage();
+      first = false;
+      const slicePx = Math.min(pageHeightPx, canvas.height - srcY);
+      const sliceCanvas = document.createElement("canvas");
+      sliceCanvas.width = canvas.width;
+      sliceCanvas.height = Math.max(1, Math.ceil(slicePx));
+      const ctx = sliceCanvas.getContext("2d");
+      ctx.fillStyle = "#ffffff";
+      ctx.fillRect(0, 0, sliceCanvas.width, sliceCanvas.height);
+      ctx.drawImage(
+        canvas,
+        0, srcY, canvas.width, slicePx,
+        0, 0, canvas.width, slicePx
+      );
+      const sliceHmm = slicePx / pxPerMm;
+      pdf.addImage(
+        sliceCanvas.toDataURL("image/jpeg", 0.94),
+        "JPEG",
+        margin,
+        margin,
+        imgW,
+        sliceHmm
+      );
+      srcY += slicePx;
+    }
+  }
+
+  async function renderSheetToCanvas(html, partial) {
+    const host = document.getElementById("teacherPdfHost");
+    const widthPx = 1600;
+    host.innerHTML = `<style>${awardPdfCss(partial)}</style>` + html;
+    host.style.cssText =
+      "position:fixed;left:-99999px;top:0;width:" + widthPx + "px;background:#fff;";
+    const sheet = document.getElementById("awardPdfSheet");
+    if (!sheet) throw new Error("sheet missing");
+    const canvas = await html2canvas(sheet, {
+      scale: 2,
+      backgroundColor: "#ffffff",
+      logging: false,
+      width: widthPx,
+      windowWidth: widthPx,
+      scrollX: 0,
+      scrollY: 0,
+    });
+    return canvas;
+  }
+
   async function exportAwardPdf() {
     const c = activeClass();
-    if (!c || !c.students.length) { alert("Add students and marks first."); return; }
+    if (!c || !c.students.length) {
+      alert("Add students and marks first.");
+      return;
+    }
     const cols = selectedPdfColumns();
     if (cols && !cols.length) {
       alert("Select at least one marks column, or choose Full official award list.");
       return;
     }
     const partial = !!(cols && cols.length);
-    const html = partial ? buildPartialMarksHtml(cols) : buildAwardHtml();
-    const host = document.getElementById("teacherPdfHost");
-    host.innerHTML = `<style>${awardPdfCss(partial)}</style>` + html;
-    host.style.cssText = "position:fixed;left:-99999px;top:0;width:" + (partial ? "900" : "1400") + "px;background:#fff;";
-    const sheet = document.getElementById("awardPdfSheet");
     const btn = document.getElementById("tr-pdf-btn");
-    const label = btn.textContent;
-    btn.disabled = true;
-    btn.textContent = "Generating PDF…";
+    const label = btn ? btn.textContent : "Download award list PDF";
+    if (btn) {
+      btn.disabled = true;
+      btn.textContent = "Generating PDF…";
+    }
+    const host = document.getElementById("teacherPdfHost");
     try {
-      if (typeof html2canvas === "undefined" || !window.jspdf) throw new Error("libs");
-      const canvas = await html2canvas(sheet, {
-        scale: 2,
-        backgroundColor: "#ffffff",
-        logging: false,
-        width: partial ? 900 : 1400,
-        windowWidth: partial ? 900 : 1400,
-      });
-      const { jsPDF } = window.jspdf;
-      const orient = partial && cols.length <= 3 ? "portrait" : "landscape";
-      const pdf = new jsPDF({ orientation: orient, unit: "mm", format: "a4" });
-      const pageW = pdf.internal.pageSize.getWidth();
-      const pageH = pdf.internal.pageSize.getHeight();
-      const imgW = pageW - 10;
-      const imgH = (canvas.height * imgW) / canvas.width;
-      const useH = Math.min(imgH, pageH - 10);
-      pdf.addImage(canvas.toDataURL("image/jpeg", 0.92), "JPEG", 5, 5, imgW, useH);
+      if (typeof html2canvas === "undefined" || !(window.jspdf || global.jspdf)) {
+        throw new Error("libs");
+      }
+      const { jsPDF } = window.jspdf || global.jspdf;
+      /* Always A4 landscape — clear print, no squeezed columns */
+      const pdf = new jsPDF({ orientation: "landscape", unit: "mm", format: "a4" });
+      const rowsPerPage = partial ? 22 : 12;
+      const chunks = chunkStudents(c.students, rowsPerPage);
+      const pages = chunks.length;
+
+      for (let i = 0; i < chunks.length; i++) {
+        if (btn) btn.textContent = `Generating PDF… ${i + 1}/${pages}`;
+        const pageInfo = { page: i + 1, pages };
+        const html = partial
+          ? buildPartialMarksHtml(cols, chunks[i], pageInfo)
+          : buildAwardHtml(chunks[i], pageInfo);
+        const canvas = await renderSheetToCanvas(html, partial);
+        if (i > 0) pdf.addPage();
+        /* Width-fit on A4 landscape; keep aspect ratio — never squash rows/columns */
+        const margin = 7;
+        const pageW = pdf.internal.pageSize.getWidth();
+        const pageH = pdf.internal.pageSize.getHeight();
+        const usableW = pageW - margin * 2;
+        const usableH = pageH - margin * 2;
+        const imgW = usableW;
+        const imgH = (canvas.height * imgW) / canvas.width;
+        if (imgH <= usableH) {
+          pdf.addImage(canvas.toDataURL("image/jpeg", 0.94), "JPEG", margin, margin, imgW, imgH);
+        } else {
+          addCanvasToPdfPages(pdf, canvas, margin);
+        }
+      }
+
       pdf.save((pdfFileSlug(cols) + ".pdf").replace(/\s+/g, "_"));
     } catch (e) {
       console.error(e);
+      const html = partial ? buildPartialMarksHtml(cols) : buildAwardHtml();
       const w = window.open("", "_blank");
-      w.document.write(`<html><head><title>Marks PDF</title><style>${awardPdfCss(partial)}</style></head><body>${html}</body></html>`);
-      w.document.close();
-      w.focus();
-      w.print();
+      if (w) {
+        w.document.write(
+          `<html><head><title>Award List</title><style>${awardPdfCss(partial)}
+          @page{size:A4 landscape;margin:10mm}
+          @media print{.award-pdf{width:100%!important;max-width:none}}
+          </style></head><body>${html}</body></html>`
+        );
+        w.document.close();
+        w.focus();
+        w.print();
+      } else {
+        alert("Could not generate award PDF. Allow pop-ups or hard-refresh and try again.");
+      }
     } finally {
-      btn.disabled = false;
-      btn.textContent = label;
-      host.innerHTML = "";
+      if (btn) {
+        btn.disabled = false;
+        btn.textContent = label;
+      }
+      if (host) host.innerHTML = "";
     }
   }
 

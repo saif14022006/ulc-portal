@@ -1401,7 +1401,7 @@ body.landing-open .app{visibility:hidden;pointer-events:none}
         <div class="t-panel" id="tp-roster">
           <div class="card">
             <h3>Import students</h3>
-            <p class="hint">Tap <b>Analyze file</b> (or choose a file first). Multi-column lists are supported — only the <b>Roll</b> column and <b>Name</b> column are read; father, CNIC, contact, etc. are ignored.</p>
+            <p class="hint">Tap <b>Analyze file</b>. When a <b>Roll</b> is found, the <b>next full column</b> is taken as the student <b>Name</b> (complete cell text). Father, CNIC, and other columns are ignored.</p>
             <div class="roster-drop">
               <div class="field">
                 <label>PDF or photo of student list</label>
@@ -1476,7 +1476,7 @@ body.landing-open .app{visibility:hidden;pointer-events:none}
         <div class="t-panel" id="tp-pdf">
           <div class="card">
             <h3>Award list</h3>
-            <p class="hint">Download the full official award list, or only the marks you choose (e.g. Quiz 1 only).</p>
+            <p class="hint">Downloads as <b>A4 landscape</b>. Rows stay readable (not stretched) and split across as many pages as needed for clear printing.</p>
             <div class="field"><label>What to include</label>
               <select id="tr-pdf-mode" onchange="TeacherApp.onPdfModeChange()">
                 <option value="full">Full official award list</option>
