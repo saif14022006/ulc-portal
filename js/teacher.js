@@ -4,9 +4,12 @@
 */
 (function (global) {
   const LS_TEACHER = "ulc_teacher_data_v1";
-  const WEEKS = 16;
+  const LS_SEM_ROSTER = "ulc_semester_rosters_v1";
+  const DEFAULT_CLASSES = 30;
   const ORD = ["", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10"];
   function semLabel(n) { return n ? ("Semester " + n) : "—"; }
+
+  let pendingOcr = [];
 
   function loadJSON(k, fb) {
     try { return JSON.parse(localStorage.getItem(k)) ?? fb; } catch { return fb; }
@@ -95,9 +98,109 @@
     return { q1: 0, q2: 0, q3: 0, q4: 0, q5: 0, a1: 0, a2: 0, mid_obj: 0, mid_sub: 0, mid: 0, fin_obj: 0, fin_sub: 0, final: 0, remarks: "" };
   }
   function emptyAttendance() {
-    const o = {};
-    for (let i = 1; i <= WEEKS; i++) o["w" + i] = "";
-    return o;
+    return { daily: {}, presentCount: null };
+  }
+  function ensureClassMeta(c) {
+    if (!c) return;
+    if (!c.totalClasses || c.totalClasses < 1) c.totalClasses = DEFAULT_CLASSES;
+    if (c.attMode !== "weekly" && c.attMode !== "daily") c.attMode = "daily";
+    if (!c.students) c.students = [];
+    if (!c.attendance) c.attendance = {};
+    if (!c.marks) c.marks = {};
+  }
+  function normalizeAtt(att) {
+    if (!att || typeof att !== "object") return emptyAttendance();
+    if (att.daily) return { daily: att.daily || {}, presentCount: att.presentCount ?? null };
+    // migrate old W1–W16 style
+    const daily = {};
+    Object.keys(att).forEach((k) => {
+      if (/^w\d+$/i.test(k) && att[k]) daily["d" + k.slice(1)] = att[k];
+    });
+    return { daily, presentCount: att.presentCount ?? null };
+  }
+  function presentFromDaily(att, total) {
+    const a = normalizeAtt(att);
+    let n = 0;
+    for (let i = 1; i <= total; i++) if (a.daily["d" + i] === "P") n++;
+    return n;
+  }
+  function effectivePresent(att, total, mode) {
+    const a = normalizeAtt(att);
+    if (mode === "weekly" && a.presentCount != null && a.presentCount !== "") return Math.min(total, Math.max(0, +a.presentCount || 0));
+    return presentFromDaily(a, total);
+  }
+
+  /* Shared semester roster — roll + name only, across teachers of same semester */
+  function getSemesterRoster(sem) {
+    const all = loadJSON(LS_SEM_ROSTER, {});
+    return Array.isArray(all[String(sem)]) ? all[String(sem)] : [];
+  }
+  function publishSemesterRoster(sem, students) {
+    const all = loadJSON(LS_SEM_ROSTER, {});
+    const key = String(sem);
+    const map = new Map((all[key] || []).map((s) => [s.roll, s]));
+    (students || []).forEach((s) => {
+      if (!s?.roll || !s?.name) return;
+      map.set(s.roll, { roll: String(s.roll).toUpperCase(), name: String(s.name).toUpperCase() });
+    });
+    all[key] = [...map.values()].sort((a, b) => {
+      const na = parseInt(String(a.roll).replace(/\D/g, ""), 10);
+      const nb = parseInt(String(b.roll).replace(/\D/g, ""), 10);
+      if (!isNaN(na) && !isNaN(nb) && na !== nb) return na - nb;
+      return String(a.roll).localeCompare(String(b.roll), undefined, { numeric: true });
+    });
+    saveJSON(LS_SEM_ROSTER, all);
+  }
+  function sortStudentsByRoll(students) {
+    if (!Array.isArray(students)) return [];
+    students.sort((a, b) => {
+      const ra = String(a?.roll || "").trim().toUpperCase();
+      const rb = String(b?.roll || "").trim().toUpperCase();
+      const na = parseInt(ra.replace(/\D/g, ""), 10);
+      const nb = parseInt(rb.replace(/\D/g, ""), 10);
+      if (!isNaN(na) && !isNaN(nb) && na !== nb) return na - nb;
+      return ra.localeCompare(rb, undefined, { numeric: true, sensitivity: "base" });
+    });
+    return students;
+  }
+  function importSemesterRoster(cls) {
+    ensureClassMeta(cls);
+    const shared = getSemesterRoster(cls.semester);
+    let added = 0;
+    shared.forEach((s) => {
+      if (cls.students.some((x) => x.roll === s.roll)) return;
+      cls.students.push({ roll: s.roll, name: s.name });
+      cls.attendance[s.roll] = emptyAttendance();
+      cls.marks[s.roll] = emptyMarks();
+      added++;
+    });
+    sortStudentsByRoll(cls.students);
+    return added;
+  }
+  function addStudentsToClass(list) {
+    const st = getStore();
+    const c = st.classes.find((x) => x.id === activeClass()?.id);
+    if (!c) return 0;
+    ensureClassMeta(c);
+    let added = 0;
+    for (const s of list) {
+      const roll = String(s.roll || "").trim().toUpperCase();
+      const name = String(s.name || "").trim().toUpperCase();
+      if (!roll || !name) continue;
+      if (c.students.some((x) => x.roll === roll)) {
+        const hit = c.students.find((x) => x.roll === roll);
+        if (hit && name.length > hit.name.length) hit.name = name;
+        continue;
+      }
+      c.students.push({ roll, name });
+      c.attendance[roll] = emptyAttendance();
+      c.marks[roll] = emptyMarks();
+      added++;
+    }
+    sortStudentsByRoll(c.students);
+    publishSemesterRoster(c.semester, c.students);
+    setStore(st);
+    return added;
   }
 
   function showTeacherPanel(panel) {
@@ -173,10 +276,13 @@
       id: uid(),
       semester, subject, subjectCode, creditHours, session,
       midExamDate: "", finExamDate: "",
+      totalClasses: DEFAULT_CLASSES,
+      attMode: "daily",
       students: [],
       attendance: {},
       marks: {},
     };
+    importSemesterRoster(cls);
 
     st.officialName = name;
     st.profileComplete = true;
@@ -201,14 +307,8 @@
     const roll = document.getElementById("tr-roll").value.trim().toUpperCase();
     const name = document.getElementById("tr-name").value.trim().toUpperCase();
     if (!roll || !name) { alert("Enter roll number and name."); return; }
-    const st = getStore();
-    const cls = st.classes.find((x) => x.id === c.id);
-    if (cls.students.some((s) => s.roll === roll)) { alert("This roll is already in the class."); return; }
-    cls.students.push({ roll, name });
-    cls.students.sort((a, b) => a.roll.localeCompare(b.roll, undefined, { numeric: true }));
-    cls.attendance[roll] = emptyAttendance();
-    cls.marks[roll] = emptyMarks();
-    setStore(st);
+    const added = addStudentsToClass([{ roll, name }]);
+    if (!added) { alert("This roll is already in the class."); return; }
     document.getElementById("tr-roll").value = "";
     document.getElementById("tr-name").value = "";
     renderRoster();
@@ -229,22 +329,96 @@
     renderMarks();
   }
 
+  function isHeaderNoise(s) {
+    return /WEEK|ATTENDANCE|ROLL|NAME|SERIAL|TOTAL|UNIVERSITY|COLLEGE|SEMESTER|SUBJECT|FATHER|S\/O|D\/O|SIGNATURE|PRESENT|ABSENT|CLASS|CHR/.test(s);
+  }
+  function looksLikeRoll(tok) {
+    return /^(\d{3,6})([A-Za-z])?$/.test(String(tok || "").replace(/\s/g, ""));
+  }
+  function cleanName(s) {
+    return String(s || "")
+      .replace(/[^A-Za-z .']/g, " ")
+      .replace(/\s+/g, " ")
+      .trim()
+      .toUpperCase();
+  }
+  /** Read only first two data columns: Roll # + Name */
   function parseRosterText(text) {
-    const lines = text.split(/\r?\n/).map((l) => l.trim()).filter(Boolean);
+    const lines = String(text || "").split(/\r?\n/).map((l) => l.trim()).filter(Boolean);
     const out = [];
     const seen = new Set();
     for (const line of lines) {
-      let m = line.match(/^(\d{3,5}(?:-[A-Za-z])?)\s+([A-Za-z][A-Za-z .']{2,})$/);
-      if (!m) m = line.match(/\b(\d{3,5}(?:-[A-Za-z])?)\b.*?([A-Z][A-Z ]{3,})/);
-      if (!m) continue;
-      const roll = m[1].toUpperCase();
-      const name = m[2].replace(/\s+/g, " ").trim().toUpperCase();
-      if (seen.has(roll) || name.length < 3) continue;
-      if (/WEEK|ATTENDANCE|ROLL|NAME|SERIAL|TOTAL|UNIVERSITY|COLLEGE/.test(name)) continue;
+      if (isHeaderNoise(line.toUpperCase())) continue;
+
+      // Prefer tab / multi-space columns (sheet layout)
+      let cols = line.split(/\t+|\s{2,}/).map((c) => c.trim()).filter(Boolean);
+      if (cols.length < 2) cols = line.split(/\s+/).filter(Boolean);
+
+      let roll = "";
+      let name = "";
+
+      if (cols.length >= 2) {
+        // Skip leading serial (1, 2, 01…) when next token is the roll
+        let i = 0;
+        if (/^\d{1,2}$/.test(cols[0]) && looksLikeRoll(cols[1])) i = 1;
+        if (looksLikeRoll(cols[i])) {
+          roll = cols[i].replace(/\s/g, "").toUpperCase();
+          name = cleanName(cols.slice(i + 1).join(" "));
+        }
+      }
+
+      if (!roll || !name) {
+        const m = line.match(/\b(\d{3,6}[A-Za-z]?)\b\s+([A-Za-z][A-Za-z .']{2,})/);
+        if (m) {
+          roll = m[1].toUpperCase();
+          name = cleanName(m[2]);
+        }
+      }
+
+      if (!roll || !name || name.length < 3 || seen.has(roll)) continue;
+      if (isHeaderNoise(name)) continue;
+      // Keep name to first ~5 words (ignore trailing marks columns OCR noise)
+      name = name.split(" ").slice(0, 5).join(" ");
       seen.add(roll);
       out.push({ roll, name });
     }
     return out;
+  }
+
+  function renderOcrPreview(list) {
+    const box = document.getElementById("tr-ocr-preview");
+    if (!box) return;
+    if (!list.length) { box.innerHTML = ""; return; }
+    box.innerHTML = `
+      <div class="ocr-preview">
+        ${list.map((s, i) => `
+          <label class="ocr-row">
+            <input type="checkbox" data-ocr-i="${i}" checked>
+            <span class="roll">${esc(s.roll)}</span>
+            <span class="nm">${esc(s.name)}</span>
+          </label>`).join("")}
+      </div>
+      <button class="btn btn-primary" type="button" style="margin-top:10px" onclick="TeacherApp.confirmOcrStudents()">Add selected students</button>
+      <button class="btn btn-ghost" type="button" style="margin-top:8px" onclick="TeacherApp.clearOcrPreview()">Cancel</button>`;
+  }
+  function clearOcrPreview() {
+    pendingOcr = [];
+    const box = document.getElementById("tr-ocr-preview");
+    if (box) box.innerHTML = "";
+    const st = document.getElementById("tr-ocr-status");
+    if (st) st.textContent = "";
+  }
+  function confirmOcrStudents() {
+    const checks = [...document.querySelectorAll("#tr-ocr-preview input[data-ocr-i]:checked")];
+    const picked = checks.map((el) => pendingOcr[+el.dataset.ocrI]).filter(Boolean);
+    if (!picked.length) { alert("Select at least one student."); return; }
+    const added = addStudentsToClass(picked);
+    document.getElementById("tr-ocr-status").textContent =
+      `Saved ${added} new student(s). Shared with other teachers of Semester ${activeClass()?.semester}.`;
+    clearOcrPreview();
+    renderRoster();
+    renderAttendance();
+    renderMarks();
   }
 
   async function ocrAttendancePhoto(file) {
@@ -254,7 +428,8 @@
       status.textContent = "OCR library not loaded. Check your internet connection.";
       return;
     }
-    status.textContent = "Reading attendance photo… this may take a moment.";
+    status.textContent = "Reading attendance photo (roll + name columns)…";
+    clearOcrPreview();
     try {
       const result = await Tesseract.recognize(file, "eng", {
         logger: (m) => {
@@ -263,27 +438,16 @@
           }
         },
       });
-      const parsed = parseRosterText(result.data.text || "");
+      const raw = result.data.text || "";
+      const parsed = parseRosterText(raw);
       if (!parsed.length) {
-        status.textContent = "No roll/name pairs found. Try a clearer photo or add students manually.";
+        status.textContent = "Could not detect roll/name in the first two columns. Try a clearer photo, or add manually.";
+        console.log("OCR raw text:", raw);
         return;
       }
-      const st = getStore();
-      const c = st.classes.find((x) => x.id === activeClass().id);
-      let added = 0;
-      for (const s of parsed) {
-        if (c.students.some((x) => x.roll === s.roll)) continue;
-        c.students.push(s);
-        c.attendance[s.roll] = emptyAttendance();
-        c.marks[s.roll] = emptyMarks();
-        added++;
-      }
-      c.students.sort((a, b) => a.roll.localeCompare(b.roll, undefined, { numeric: true }));
-      setStore(st);
-      status.textContent = `Found ${parsed.length} · added ${added} new students. Review the list and fix OCR mistakes.`;
-      renderRoster();
-      renderAttendance();
-      renderMarks();
+      pendingOcr = parsed;
+      status.textContent = `Detected ${parsed.length} student(s) from columns 1–2. Untick any mistakes, then add.`;
+      renderOcrPreview(parsed);
     } catch (e) {
       console.error(e);
       status.textContent = "OCR failed. Please add students manually.";
@@ -295,9 +459,10 @@
     const el = document.getElementById("tr-roster");
     if (!el) return;
     if (!c || !c.students.length) {
-      el.innerHTML = '<div class="empty">No students yet. Upload an attendance photo or add manually.</div>';
+      el.innerHTML = '<div class="empty">No students yet. Upload a list photo or add manually.</div>';
       return;
     }
+    sortStudentsByRoll(c.students);
     el.innerHTML = c.students.map((s) => `
       <div class="award-item">
         <div><div class="t">${esc(s.roll)}</div><div class="m">${esc(s.name)}</div></div>
@@ -305,39 +470,124 @@
       </div>`).join("");
   }
 
-  function setAtt(roll, week, val) {
+  function setAttMode(mode) {
+    const st = getStore();
+    const c = st?.classes.find((x) => x.id === activeClass()?.id);
+    if (!c) return;
+    ensureClassMeta(c);
+    c.attMode = mode === "weekly" ? "weekly" : "daily";
+    setStore(st);
+    document.getElementById("att-tog-daily")?.classList.toggle("active", c.attMode === "daily");
+    document.getElementById("att-tog-weekly")?.classList.toggle("active", c.attMode === "weekly");
+    const hint = document.getElementById("tr-att-hint");
+    if (hint) {
+      hint.textContent = c.attMode === "daily"
+        ? "Daily: tap each class P / A / L. Present counts roll into weekly automatically."
+        : "Weekly: enter how many classes each student attended (out of total CHR).";
+    }
+    renderAttendance();
+  }
+  function setTotalClasses(val) {
+    const st = getStore();
+    const c = st?.classes.find((x) => x.id === activeClass()?.id);
+    if (!c) return;
+    ensureClassMeta(c);
+    c.totalClasses = Math.min(60, Math.max(1, parseInt(val, 10) || DEFAULT_CLASSES));
+    setStore(st);
+    renderAttendance();
+  }
+  function cycleDaily(roll, day) {
     const st = getStore();
     const c = st.classes.find((x) => x.id === activeClass().id);
+    ensureClassMeta(c);
     if (!c.attendance[roll]) c.attendance[roll] = emptyAttendance();
-    c.attendance[roll]["w" + week] = val;
+    c.attendance[roll] = normalizeAtt(c.attendance[roll]);
+    const cur = c.attendance[roll].daily["d" + day] || "";
+    const next = cur === "" ? "P" : cur === "P" ? "A" : cur === "A" ? "L" : "";
+    c.attendance[roll].daily["d" + day] = next;
+    // keep weekly number in sync from daily
+    c.attendance[roll].presentCount = presentFromDaily(c.attendance[roll], c.totalClasses);
     setStore(st);
+    renderAttendance();
+  }
+  function setWeeklyPresent(roll, value) {
+    const st = getStore();
+    const c = st.classes.find((x) => x.id === activeClass().id);
+    ensureClassMeta(c);
+    if (!c.attendance[roll]) c.attendance[roll] = emptyAttendance();
+    c.attendance[roll] = normalizeAtt(c.attendance[roll]);
+    const n = value === "" ? null : Math.min(c.totalClasses, Math.max(0, parseInt(value, 10) || 0));
+    c.attendance[roll].presentCount = n;
+    setStore(st);
+    updateAttSummary();
+  }
+  function updateAttSummary() {
+    const c = activeClass();
+    const el = document.getElementById("tr-att-summary");
+    if (!el || !c) return;
+    ensureClassMeta(c);
+    const total = c.totalClasses;
+    const mode = c.attMode;
+    let sum = 0;
+    c.students.forEach((s) => { sum += effectivePresent(c.attendance[s.roll], total, mode); });
+    const avg = c.students.length ? (sum / c.students.length) : 0;
+    el.textContent = `${c.students.length} students · ${total} CHR · avg ${avg.toFixed(1)} present`;
   }
 
   function renderAttendance() {
     const c = activeClass();
     const el = document.getElementById("tr-att-table");
     if (!el) return;
-    if (!c || !c.students.length) {
+    if (!c) { el.innerHTML = '<div class="empty">Create a class first.</div>'; return; }
+    ensureClassMeta(c);
+    const total = c.totalClasses || DEFAULT_CLASSES;
+    const mode = c.attMode || "daily";
+    const totInput = document.getElementById("tr-total-classes");
+    if (totInput) totInput.value = total;
+    document.getElementById("att-tog-daily")?.classList.toggle("active", mode === "daily");
+    document.getElementById("att-tog-weekly")?.classList.toggle("active", mode === "weekly");
+
+    if (!c.students.length) {
       el.innerHTML = '<div class="empty">Add students first.</div>';
+      updateAttSummary();
       return;
     }
-    const head = Array.from({ length: WEEKS }, (_, i) => `<th>W${i + 1}</th>`).join("");
-    const rows = c.students.map((s) => {
-      const att = c.attendance[s.roll] || emptyAttendance();
-      const cells = Array.from({ length: WEEKS }, (_, i) => {
-        const w = i + 1;
-        const v = att["w" + w] || "";
-        return `<td><select class="att-sel" onchange="TeacherApp.setAtt('${esc(s.roll)}',${w},this.value)">
-          <option value="" ${v === "" ? "selected" : ""}>—</option>
-          <option value="P" ${v === "P" ? "selected" : ""}>P</option>
-          <option value="A" ${v === "A" ? "selected" : ""}>A</option>
-          <option value="L" ${v === "L" ? "selected" : ""}>L</option>
-        </select></td>`;
+    sortStudentsByRoll(c.students);
+
+    if (mode === "weekly") {
+      const rows = c.students.map((s) => {
+        const att = normalizeAtt(c.attendance[s.roll]);
+        const fromDaily = presentFromDaily(att, total);
+        const val = att.presentCount != null ? att.presentCount : fromDaily;
+        return `<tr>
+          <td class="sticky-col"><b>${esc(s.roll)}</b><br><small>${esc(s.name)}</small></td>
+          <td><input class="att-num" type="number" min="0" max="${total}" value="${val}"
+            onchange="TeacherApp.setWeeklyPresent('${esc(s.roll)}',this.value)"></td>
+          <td>${total}</td>
+          <td>${total ? Math.round((val / total) * 100) : 0}%</td>
+        </tr>`;
       }).join("");
-      return `<tr><td class="sticky-col"><b>${esc(s.roll)}</b><br><small>${esc(s.name)}</small></td>${cells}</tr>`;
-    }).join("");
-    el.innerHTML = `<div class="scroll-x"><table class="data-table"><thead><tr><th class="sticky-col">Student</th>${head}</tr></thead><tbody>${rows}</tbody></table></div>
-      <p class="hint">P = Present · A = Absent · L = Leave · Weeks 1–${WEEKS}</p>`;
+      el.innerHTML = `<div class="scroll-x"><table class="data-table">
+        <thead><tr><th class="sticky-col">Student</th><th>Attended</th><th>CHR</th><th>%</th></tr></thead>
+        <tbody>${rows}</tbody></table></div>
+        <p class="hint">Enter attended classes yourself (0–${total}). Daily marks still keep a running count if you switch back.</p>`;
+    } else {
+      const head = Array.from({ length: total }, (_, i) => `<th>C${i + 1}</th>`).join("");
+      const rows = c.students.map((s) => {
+        const att = normalizeAtt(c.attendance[s.roll]);
+        const cells = Array.from({ length: total }, (_, i) => {
+          const d = i + 1;
+          const v = att.daily["d" + d] || "";
+          return `<td><button type="button" class="att-chip ${v ? "on-" + v : ""}" title="Tap to cycle"
+            onclick="TeacherApp.cycleDaily('${esc(s.roll)}',${d})">${v || "·"}</button></td>`;
+        }).join("");
+        const p = presentFromDaily(att, total);
+        return `<tr><td class="sticky-col"><b>${esc(s.roll)}</b><br><small>${esc(s.name)}</small><br><small>${p}/${total}</small></td>${cells}</tr>`;
+      }).join("");
+      el.innerHTML = `<div class="scroll-x"><table class="data-table"><thead><tr><th class="sticky-col">Student</th>${head}</tr></thead><tbody>${rows}</tbody></table></div>
+        <p class="hint">Tap a cell: · → P → A → L. Scroll sideways for all ${total} classes. Present totals feed weekly automatically.</p>`;
+    }
+    updateAttSummary();
   }
 
   function setMark(roll, field, value) {
@@ -366,6 +616,7 @@
       el.innerHTML = '<div class="empty">Add students first.</div>';
       return;
     }
+    sortStudentsByRoll(c.students);
     const showQ = mode === "all" || mode === "quiz";
     const showA = mode === "all" || mode === "assn";
     const showM = mode === "all" || mode === "mid" || mode === "overall";
@@ -392,7 +643,8 @@
       return `<tr><td class="sticky-col"><b>${esc(s.roll)}</b><br><small>${esc(s.name)}</small></td>${cells}</tr>`;
     }).join("");
 
-    el.innerHTML = `<div class="scroll-x"><table class="data-table"><thead><tr>${head}</tr></thead><tbody>${rows}</tbody></table></div>`;
+    el.innerHTML = `<div class="scroll-x"><table class="data-table"><thead><tr>${head}</tr></thead><tbody>${rows}</tbody></table></div>
+      <p class="hint">Scroll sideways if needed. Sticky student column stays visible.</p>`;
   }
 
   function awardPdfCss(partial) {
@@ -466,6 +718,7 @@
     const st = getStore();
     const c = activeClass();
     if (!c) return "";
+    sortStudentsByRoll(c.students);
     const teacher = st.officialName || "";
     const metaCols = cols.map((k) => PDF_COL_META[k]).filter(Boolean);
     if (!metaCols.length) return "";
@@ -523,6 +776,7 @@
     const st = getStore();
     const c = activeClass();
     if (!c) return "";
+    sortStudentsByRoll(c.students);
     const teacher = st.officialName || "";
     const rows = c.students.map((s) => {
       const m = c.marks[s.roll] || emptyMarks();
@@ -654,17 +908,9 @@
     const s = document.createElement("style");
     s.id = "teacherUiStyles";
     s.textContent = `
-      .scroll-x{overflow-x:auto;border:1px solid var(--line);border-radius:12px;background:#fff}
-      .data-table{border-collapse:collapse;min-width:900px;width:100%;font-size:12px}
-      .data-table th,.data-table td{border-bottom:1px solid #eee;padding:6px 4px;text-align:center;vertical-align:middle}
-      .data-table th{background:#f5f2ea;font-size:11px;color:var(--navy)}
-      .sticky-col{position:sticky;left:0;background:#fff;text-align:left!important;min-width:110px;z-index:1}
-      .att-sel,.mk{width:52px;padding:4px 2px;font-size:12px;border:1px solid #ddd;border-radius:6px;text-align:center}
-      .mk{width:58px}
-      .res-cell{font-weight:700;color:var(--navy);white-space:nowrap;font-size:11px}
+      .res-cell{font-weight:700;color:var(--navy);white-space:nowrap;font-size:10px}
       .t-panel{display:none}.t-panel.active{display:block}
       .t-mode-btn.active{background:var(--navy)!important;color:#fff!important;border-color:var(--navy)!important}
-      .teacher-modes{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:12px 0}
     `;
     document.head.appendChild(s);
   }
@@ -674,21 +920,33 @@
     const st = getStore();
     const u = global.currentUser && global.currentUser();
     if (!st || !u || u.role !== "teacher") return;
+    // Pull shared semester students (roll + name only) + keep roll numbers ascending
+    st.classes.forEach((cls) => {
+      ensureClassMeta(cls);
+      importSemesterRoster(cls);
+      sortStudentsByRoll(cls.students);
+    });
+    setStore(st);
+
     const welcome = document.getElementById("t-welcome");
     if (welcome) welcome.textContent = "Welcome, " + (st.officialName || u.name);
     refreshClassSelect();
     const c = activeClass();
+    if (c) ensureClassMeta(c);
     const meta = document.getElementById("t-class-meta");
     if (meta) {
       meta.textContent = c
-        ? `Semester ${c.semester} · ${c.subject}${c.subjectCode ? " (" + c.subjectCode + ")" : ""} · ${c.students.length} students`
+        ? `Semester ${c.semester} · ${c.subject}${c.subjectCode ? " (" + c.subjectCode + ")" : ""} · ${c.students.length} students · ${c.totalClasses || DEFAULT_CLASSES} CHR`
         : "No class configured";
     }
-    // dates
     const mid = document.getElementById("tr-mid-date");
     const fin = document.getElementById("tr-fin-date");
     if (c && mid) mid.value = c.midExamDate || "";
     if (c && fin) fin.value = c.finExamDate || "";
+    if (c) {
+      document.getElementById("att-tog-daily")?.classList.toggle("active", c.attMode !== "weekly");
+      document.getElementById("att-tog-weekly")?.classList.toggle("active", c.attMode === "weekly");
+    }
     renderRoster();
     renderAttendance();
     renderMarks();
@@ -722,7 +980,12 @@
     addStudentManual,
     removeStudent,
     ocrAttendancePhoto,
-    setAtt,
+    confirmOcrStudents,
+    clearOcrPreview,
+    setAttMode,
+    setTotalClasses,
+    cycleDaily,
+    setWeeklyPresent,
     setMark,
     renderMarks,
     exportAwardPdf,

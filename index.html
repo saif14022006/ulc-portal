@@ -88,6 +88,28 @@ main{flex:1;padding:18px 16px calc(var(--nav-h) + 28px);width:100%}
 .pdf-cols{display:flex;flex-wrap:wrap;gap:8px}
 .pdf-cols .chk{display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:600;color:var(--navy);background:#fff;border:1px solid var(--line);border-radius:9px;padding:8px 10px;cursor:pointer}
 .pdf-cols .chk input{accent-color:var(--navy)}
+.att-toggle{display:grid;grid-template-columns:1fr 1fr;gap:6px;background:#eef2f7;padding:4px;border-radius:12px}
+.att-tog{border:none;background:transparent;border-radius:9px;padding:10px;font-weight:700;font-size:13px;color:var(--slate);cursor:pointer;font-family:var(--sans)}
+.att-tog.active{background:var(--navy);color:#fff}
+.fit-panel{max-width:100%;overflow:hidden}
+.fit-panel .scroll-x{overflow:auto;max-width:100%;max-height:min(52vh,460px);-webkit-overflow-scrolling:touch;border:1px solid var(--line);border-radius:12px;background:#fff}
+.fit-panel .data-table{border-collapse:collapse;width:max-content;min-width:100%;font-size:11px}
+.fit-panel .data-table th,.fit-panel .data-table td{border-bottom:1px solid #eee;padding:4px 3px;text-align:center;vertical-align:middle}
+.fit-panel .data-table th{background:#f5f2ea;font-size:10px;color:var(--navy);position:sticky;top:0;z-index:2}
+.fit-panel .sticky-col{position:sticky;left:0;background:#fff;text-align:left!important;min-width:92px;max-width:110px;z-index:1;font-size:10px;line-height:1.25}
+.fit-panel thead .sticky-col{z-index:3;background:#f5f2ea}
+.att-chip{width:26px;height:26px;border-radius:6px;border:1px solid #ddd;background:#fff;font-size:10px;font-weight:700;padding:0;cursor:pointer;color:var(--slate)}
+.att-chip.on-P{background:#e7f5ec;border-color:#8fd1a4;color:#1b7a3d}
+.att-chip.on-A{background:#fdecea;border-color:#f0b4aa;color:#b42318}
+.att-chip.on-L{background:#fff6e0;border-color:#e6c87a;color:#8a6a12}
+.att-num{width:64px;padding:6px 4px;font-size:12px;border:1px solid #ddd;border-radius:8px;text-align:center}
+.ocr-preview{margin-top:10px;border:1px solid var(--line);border-radius:12px;background:#fff;max-height:220px;overflow:auto}
+.ocr-row{display:flex;gap:8px;align-items:center;padding:8px 10px;border-bottom:1px solid #f0ece2;font-size:12px}
+.ocr-row:last-child{border-bottom:none}
+.ocr-row input[type=checkbox]{accent-color:var(--navy)}
+.ocr-row .roll{font-weight:700;color:var(--navy);min-width:64px}
+.ocr-row .nm{flex:1;color:var(--ink)}
+.mk{width:48px;padding:4px 2px;font-size:11px;border:1px solid #ddd;border-radius:6px;text-align:center}
 .field{margin-bottom:12px}
 .field label{display:block;font-size:12px;font-weight:600;color:var(--navy);margin-bottom:5px}
 .field input,.field select,textarea{width:100%;font-family:var(--sans);font-size:14px;color:var(--ink);background:var(--white);border:1px solid var(--line);border-radius:10px;padding:11px 12px}
@@ -661,7 +683,7 @@ main{flex:1;padding:18px 16px calc(var(--nav-h) + 28px);width:100%}
         <div class="max-narrow">
         <div class="eyebrow">Account</div>
         <h2 class="view-title">Sign in</h2>
-        <p class="view-sub">Students use roll number · Teachers use staff ID. Choose your role when creating an account.</p>
+        <p class="view-sub">Students need a roll number. Teachers sign up with name &amp; contact — staff ID is optional. No email required.</p>
 
         <div id="accountLoggedOut">
           <div class="tabs-mini">
@@ -672,9 +694,10 @@ main{flex:1;padding:18px 16px calc(var(--nav-h) + 28px);width:100%}
 
           <div class="card" id="loginCard">
             <h3>Login</h3>
-            <div class="field"><label>Roll number / Staff ID</label><input id="login-roll" autocomplete="username" placeholder="Student roll or teacher staff ID"></div>
+            <div class="field"><label id="login-id-label">Roll number / Staff ID / Contact</label><input id="login-roll" autocomplete="username" placeholder="Student roll, staff ID, or teacher contact"></div>
             <div class="field"><label>Password</label><input id="login-pass" type="password" autocomplete="current-password" placeholder="Password"></div>
             <button class="btn btn-primary" onclick="doLogin()">Login</button>
+            <p class="hint">Teachers without a staff ID can log in with their contact number.</p>
           </div>
 
           <div class="card" id="signupCard" style="display:none">
@@ -686,12 +709,16 @@ main{flex:1;padding:18px 16px calc(var(--nav-h) + 28px);width:100%}
               </select>
             </div>
             <div class="field"><label>Full official name</label><input id="su-name" placeholder="As on college records"></div>
-            <div class="field"><label id="su-id-label">Roll number</label><input id="su-roll" placeholder="Unique ID"></div>
+            <div class="field" id="su-id-wrap">
+              <label id="su-id-label">Roll number</label>
+              <input id="su-roll" placeholder="Unique roll number">
+              <p class="hint" id="su-id-hint" style="display:none">Optional for teachers — leave blank if you don’t have one.</p>
+            </div>
             <div class="field"><label>Contact number</label><input id="su-contact" type="tel" placeholder="03xx-xxxxxxx"></div>
             <div class="field"><label>Password</label><input id="su-pass" type="password" autocomplete="new-password" placeholder="Min. 6 characters"></div>
             <div class="field"><label>Confirm password</label><input id="su-pass2" type="password" autocomplete="new-password"></div>
             <button class="btn btn-gold" onclick="doSignup()">Create account</button>
-            <p class="hint">Teachers keep class results on their account only (not shared to student award lists).</p>
+            <p class="hint">No email address is needed. Teachers keep class results on their account only.</p>
           </div>
         </div>
 
@@ -761,9 +788,10 @@ main{flex:1;padding:18px 16px calc(var(--nav-h) + 28px);width:100%}
         <div class="t-panel active" id="tp-roster">
           <div class="card">
             <h3>Add students from attendance list</h3>
-            <p class="hint">Photograph the official attendance sheet (roll + name). The app extracts them — then review for OCR mistakes.</p>
+            <p class="hint">Upload a photo of the sheet. Only the first two columns are read: <b>Roll #</b> and <b>Name</b>. Review before saving.</p>
             <div class="field"><label>Upload photo</label><input id="tr-photo" type="file" accept="image/*" capture="environment" onchange="TeacherApp.ocrAttendancePhoto(this.files[0])"></div>
             <p class="hint" id="tr-ocr-status"></p>
+            <div id="tr-ocr-preview"></div>
           </div>
           <div class="card">
             <h3>Or add manually</h3>
@@ -773,14 +801,27 @@ main{flex:1;padding:18px 16px calc(var(--nav-h) + 28px);width:100%}
             </div>
             <button class="btn btn-primary" type="button" onclick="TeacherApp.addStudentManual()">Add student</button>
           </div>
-          <div class="card"><h3>Class roster</h3><div id="tr-roster"></div></div>
+          <div class="card"><h3>Class roster</h3><p class="hint" style="margin-top:-6px">Same-semester teachers share roll + name only (not marks).</p><div id="tr-roster"></div></div>
         </div>
 
         <div class="t-panel" id="tp-attendance">
           <div class="card">
-            <h3>Weekly attendance</h3>
-            <p class="hint">Mark Present / Absent / Leave for each week.</p>
-            <div id="tr-att-table"></div>
+            <h3>Attendance</h3>
+            <div class="att-toggle" role="group" aria-label="Attendance mode">
+              <button type="button" class="att-tog active" id="att-tog-daily" onclick="TeacherApp.setAttMode('daily')">Daily</button>
+              <button type="button" class="att-tog" id="att-tog-weekly" onclick="TeacherApp.setAttMode('weekly')">Weekly</button>
+            </div>
+            <div class="row2" style="margin-top:10px">
+              <div class="field"><label>Total classes (CHR)</label>
+                <input id="tr-total-classes" type="number" min="1" max="60" value="30" onchange="TeacherApp.setTotalClasses(this.value)">
+                <p class="hint">e.g. 30 CHR = 30 classes for this subject</p>
+              </div>
+              <div class="field"><label>Summary</label>
+                <div class="pill ok" id="tr-att-summary" style="margin-top:8px">—</div>
+              </div>
+            </div>
+            <p class="hint" id="tr-att-hint">Daily: mark each class P / A / L — totals roll into weekly. Weekly: enter attended classes yourself.</p>
+            <div id="tr-att-table" class="fit-panel"></div>
           </div>
         </div>
 
@@ -789,15 +830,15 @@ main{flex:1;padding:18px 16px calc(var(--nav-h) + 28px);width:100%}
             <h3>Upload marks</h3>
             <div class="field"><label>Show fields for</label>
               <select id="tr-marks-mode" onchange="TeacherApp.renderMarks(this.value)">
-                <option value="all">Full award list (all columns)</option>
                 <option value="quiz">Quizzes only (Q1–Q5)</option>
                 <option value="assn">Assignments only (A1–A2)</option>
                 <option value="mid">Mid exam only</option>
                 <option value="final">Final exam only</option>
-                <option value="overall">Mid + Final (overall papers)</option>
+                <option value="overall">Mid + Final</option>
+                <option value="all">Full award list</option>
               </select>
             </div>
-            <div id="tr-marks-table"></div>
+            <div id="tr-marks-table" class="fit-panel"></div>
           </div>
         </div>
 
@@ -1008,11 +1049,36 @@ function setAuthTab(which){
   document.getElementById('loginCard').style.display=which==='login'?'block':'none';
   document.getElementById('signupCard').style.display=which==='signup'?'block':'none';
   document.getElementById('authMsg').className='msg';
+  if(which==='signup') onSignupRoleChange();
 }
 function onSignupRoleChange(){
   const role=document.getElementById('su-role').value;
-  document.getElementById('su-id-label').textContent=role==='teacher'?'Staff ID':'Roll number';
-  document.getElementById('su-roll').placeholder=role==='teacher'?'Unique staff ID':'Unique roll number';
+  const isTeacher=role==='teacher';
+  document.getElementById('su-id-label').textContent=isTeacher?'Staff ID (optional)':'Roll number';
+  document.getElementById('su-roll').placeholder=isTeacher?'Optional — leave blank if none':'Unique roll number';
+  document.getElementById('su-roll').required=!isTeacher;
+  const hint=document.getElementById('su-id-hint');
+  if(hint) hint.style.display=isTeacher?'block':'none';
+}
+function normalizeContact(c){ return String(c||'').replace(/\D/g,''); }
+function teacherAccountKey(staffId, contact){
+  const id=String(staffId||'').trim().toUpperCase();
+  if(id) return id;
+  const digits=normalizeContact(contact);
+  return digits ? ('T-'+digits) : ('T-'+Date.now().toString(36).toUpperCase());
+}
+function findLocalUserByLogin(id){
+  const users=getUsers();
+  const key=String(id||'').trim().toUpperCase();
+  if(users[key]) return { roll:key, user:users[key] };
+  const digits=normalizeContact(id);
+  if(digits){
+    const byContactKey='T-'+digits;
+    if(users[byContactKey]) return { roll:byContactKey, user:users[byContactKey] };
+    const hit=Object.entries(users).find(([,u])=>u.role==='teacher' && normalizeContact(u.contact)===digits);
+    if(hit) return { roll:hit[0], user:hit[1] };
+  }
+  return null;
 }
 function afterAuthLanding(){
   const u=currentUser();
@@ -1025,67 +1091,122 @@ function afterAuthLanding(){
     go('award');
   }
 }
+function isAuthRateLimit(err){
+  const m=String(err?.message||err||'').toLowerCase();
+  return m.includes('rate limit') || m.includes('email rate') || m.includes('over_email_send_rate_limit');
+}
+async function signupLocal({ name, roll, contact, pass, role, rawId }){
+  const users=getUsers();
+  if(users[roll]){ showAuthMsg('This account already exists. Login instead.'); return false; }
+  if(role==='teacher'){
+    const digits=normalizeContact(contact);
+    const clash=Object.values(users).some(u=>u.role==='teacher' && normalizeContact(u.contact)===digits);
+    if(clash){ showAuthMsg('A teacher account with this contact number already exists. Login instead.'); return false; }
+  }
+  users[roll]={name, contact, role, passHash: await hashPass(pass), createdAt: Date.now(), profileComplete: role==='teacher'};
+  setUsers(users);
+  _sbUser=null;
+  setSession({roll});
+  showAuthMsg(role==='teacher'
+    ? (rawId ? 'Teacher account created. You can open Teacher desk now.'
+             : 'Teacher account created. Next time log in with your contact number + password.')
+    : 'Account created on this device.', true);
+  refreshAccountView(); refreshTopAcc();
+  afterAuthLanding();
+  return true;
+}
 async function doSignup(){
   const name=document.getElementById('su-name').value.trim();
-  const roll=document.getElementById('su-roll').value.trim().toUpperCase();
+  const rawId=document.getElementById('su-roll').value.trim().toUpperCase();
   const contact=document.getElementById('su-contact').value.trim();
   const pass=document.getElementById('su-pass').value;
   const pass2=document.getElementById('su-pass2').value;
   const role=document.getElementById('su-role').value==='teacher'?'teacher':'student';
-  if(!name||!roll||!contact||!pass){ showAuthMsg('Fill all fields.'); return; }
+
+  if(!name||!contact||!pass){ showAuthMsg('Enter name, contact number, and password.'); return; }
+  if(role==='student' && !rawId){ showAuthMsg('Students must enter a roll number.'); return; }
   if(pass.length<6){ showAuthMsg('Password must be at least 6 characters.'); return; }
   if(pass!==pass2){ showAuthMsg('Passwords do not match.'); return; }
 
+  const roll=role==='teacher' ? teacherAccountKey(rawId, contact) : rawId;
+  const payload={ name, roll, contact, pass, role, rawId };
+
+  // Teachers never use Supabase Auth email — avoids rate limits and email requirement
+  if(role==='teacher'){
+    showAuthMsg('Creating teacher account…', true);
+    await signupLocal(payload);
+    return;
+  }
+
   const sb=getSb();
   if(sb){
-    showAuthMsg('Creating cloud account…', true);
+    showAuthMsg('Creating account…', true);
     const email=rollEmail(roll, role);
     const {data, error}=await sb.auth.signUp({ email, password: pass, options:{ data:{ roll_no:roll, full_name:name, contact, role } } });
-    if(error){ showAuthMsg(error.message); return; }
+    if(error){
+      if(isAuthRateLimit(error)){
+        showAuthMsg('Cloud signup is temporarily limited — saving account on this device instead…', true);
+        await signupLocal(payload);
+        return;
+      }
+      showAuthMsg(error.message); return;
+    }
     const uid=data.user?.id;
-    if(!uid){ showAuthMsg('Check your email to confirm, or disable email confirm in Supabase Auth settings.'); return; }
+    if(!uid){
+      showAuthMsg('Cloud needs email confirm off — creating account on this device instead…', true);
+      await signupLocal(payload);
+      return;
+    }
     const {error: pErr}=await sb.from('profiles').upsert({ id:uid, roll_no:roll, full_name:name, contact, role });
     if(pErr){ showAuthMsg(pErr.message); return; }
-    _sbUser={ id:uid, roll, name, contact, role, profileComplete: role==='teacher' };
+    _sbUser={ id:uid, roll, name, contact, role, profileComplete:false };
     setSession({roll, cloud:true});
-    showAuthMsg('Cloud account created.', true);
+    showAuthMsg('Account created.', true);
     refreshAccountView(); refreshTopAcc();
     afterAuthLanding();
     return;
   }
 
-  const users=getUsers();
-  if(users[roll]){ showAuthMsg('This ID already has an account. Login instead.'); return; }
-  users[roll]={name, contact, role, passHash: await hashPass(pass), createdAt: Date.now(), profileComplete: role==='teacher'};
-  setUsers(users);
-  setSession({roll});
-  showAuthMsg('Account created.', true);
-  refreshAccountView(); refreshTopAcc();
-  afterAuthLanding();
+  await signupLocal(payload);
 }
 async function doLogin(){
-  const roll=document.getElementById('login-roll').value.trim().toUpperCase();
+  const raw=document.getElementById('login-roll').value.trim();
   const pass=document.getElementById('login-pass').value;
-  if(!roll||!pass){ showAuthMsg('Enter ID and password.'); return; }
+  if(!raw||!pass){ showAuthMsg('Enter your ID/contact and password.'); return; }
+
+  // Prefer local accounts first (teachers are always local)
+  const found=findLocalUserByLogin(raw);
+  if(found){
+    if(found.user.passHash !== await hashPass(pass)){ showAuthMsg('Incorrect password.'); return; }
+    _sbUser=null;
+    setSession({roll: found.roll});
+    refreshAccountView(); refreshTopAcc();
+    afterAuthLanding();
+    return;
+  }
 
   const sb=getSb();
   if(sb){
     showAuthMsg('Signing in…', true);
-    // Try student email first, then staff
+    const candidates=[
+      rollEmail(raw.toUpperCase(), 'student'),
+      rollEmail(raw.toUpperCase(), 'teacher'),
+      rollEmail('T-'+normalizeContact(raw), 'teacher'),
+    ].filter((v,i,a)=>v && a.indexOf(v)===i);
     let data=null, error=null;
-    ({data, error}=await sb.auth.signInWithPassword({ email: rollEmail(roll, 'student'), password: pass }));
-    if(error){
-      ({data, error}=await sb.auth.signInWithPassword({ email: rollEmail(roll, 'teacher'), password: pass }));
+    for(const email of candidates){
+      ({data, error}=await sb.auth.signInWithPassword({ email, password: pass }));
+      if(!error) break;
     }
-    if(error){ showAuthMsg(error.message); return; }
+    if(error){ showAuthMsg('Incorrect ID/contact or password.'); return; }
     const uid=data.user.id;
     const {data: prof, error: pErr}=await sb.from('profiles').select('*').eq('id', uid).maybeSingle();
     if(pErr){ showAuthMsg(pErr.message); return; }
-    const name=prof?.full_name || data.user.user_metadata?.full_name || roll;
+    const name=prof?.full_name || data.user.user_metadata?.full_name || raw;
     const contact=prof?.contact || data.user.user_metadata?.contact || '';
     const role=prof?.role || data.user.user_metadata?.role || 'student';
     _sbUser={
-      id:uid, roll: prof?.roll_no || roll, name, contact, role,
+      id:uid, roll: prof?.roll_no || raw.toUpperCase(), name, contact, role,
       currentSemester:prof?.current_semester, prevGpa:prof?.prev_gpa, cgpa:prof?.cgpa,
       session:prof?.session, notes:prof?.notes, profileComplete: role==='teacher' ? true : !!prof?.profile_complete
     };
@@ -1095,12 +1216,7 @@ async function doLogin(){
     return;
   }
 
-  const u=getUsers()[roll];
-  if(!u){ showAuthMsg('No account for this ID.'); return; }
-  if(u.passHash !== await hashPass(pass)){ showAuthMsg('Incorrect password.'); return; }
-  setSession({roll});
-  refreshAccountView(); refreshTopAcc();
-  afterAuthLanding();
+  showAuthMsg('No account found for this ID/contact.');
 }
 async function doLogout(){
   const sb=getSb();
@@ -1210,7 +1326,9 @@ function refreshAccountView(){
     const teacher=u.role==='teacher';
     document.getElementById('accAv').textContent=(u.name||'U').charAt(0).toUpperCase();
     document.getElementById('accName').textContent=u.name;
-    document.getElementById('accMeta').textContent=`${teacher?'Staff':'Roll'} ${u.roll} · ${u.contact}`;
+    document.getElementById('accMeta').textContent=teacher
+      ? `${u.roll && !String(u.roll).startsWith('T-') ? 'Staff '+u.roll+' · ' : ''}${u.contact||'No contact'}`
+      : `Roll ${u.roll} · ${u.contact}`;
     document.getElementById('accAcadStats').style.display=teacher?'none':'grid';
     document.getElementById('accStudentCard').style.display=teacher?'none':'block';
     document.getElementById('accTeacherCard').style.display=teacher?'block':'none';
