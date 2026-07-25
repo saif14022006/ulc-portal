@@ -468,22 +468,29 @@
     if (el) el.value = v == null || v === "" ? "0" : v;
   }
 
+  function syllabusKeys() {
+    const syl = global.SYLLABUS || {};
+    return Object.keys(syl)
+      .map(Number)
+      .filter((n) => n > 0 && syl[n])
+      .sort((a, b) => a - b);
+  }
+
   function renderSubjectMarks() {
     const u = currentUser();
     if (!u || u.role === "teacher") return;
     const semSel = document.getElementById("sm-sem");
-    if (semSel && !semSel.dataset.ready) {
-      semSel.innerHTML = Object.keys(syllabus())
-        .map((n) => `<option value="${n}">Semester ${n}</option>`)
-        .join("");
-      semSel.dataset.ready = "1";
-    }
-    const p = getProfile(u);
+    const keys = syllabusKeys();
     if (semSel) {
-      const prefer = p.currentSemester || u.currentSemester || 1;
-      if (![...semSel.options].some((o) => o.selected && o.value)) {
-        semSel.value = String(prefer);
-      }
+      const prefer = String(
+        getProfile(u).currentSemester || u.currentSemester || keys[0] || 1
+      );
+      const keep = semSel.value && keys.includes(+semSel.value) ? semSel.value : prefer;
+      semSel.innerHTML = keys.length
+        ? keys.map((n) => `<option value="${n}">Semester ${n}</option>`).join("")
+        : '<option value="">Syllabus not loaded — refresh the page</option>';
+      if (keys.length) semSel.value = keep;
+      semSel.dataset.ready = keys.length ? "1" : "";
     }
     fillSubjectMarksSubjects();
     renderSavedSubjectMarks();
@@ -491,7 +498,8 @@
   }
 
   function fillSubjectMarksSubjects() {
-    const sem = +document.getElementById("sm-sem")?.value || 1;
+    const semSel = document.getElementById("sm-sem");
+    const sem = +(semSel?.value || syllabusKeys()[0] || 1);
     const subj = document.getElementById("sm-subj");
     if (!subj) return;
     const list = syllabus()[sem] || [];
@@ -502,6 +510,7 @@
         .map((x, i) => `<option value="${i}">${esc(x[0])} — ${esc(x[1])}</option>`)
         .join("");
     if (prev && [...subj.options].some((o) => o.value === prev)) subj.value = prev;
+    else subj.value = "";
     onSubjectMarksSubjChange();
   }
 
@@ -1204,11 +1213,15 @@
       return;
     }
     const btn = document.getElementById("sr-tx-btn");
-    const label = btn ? btn.textContent : "";
+    const label = btn ? btn.textContent : "Generate transcript";
     if (btn) {
       btn.disabled = true;
       btn.textContent = "Generating…";
     }
+    // Also disable matching saved-row buttons while generating
+    document.querySelectorAll(".sr-saved-actions .btn-gold").forEach((b) => {
+      b.disabled = true;
+    });
     const html = buildTranscriptHtml(sem);
     const holder = document.createElement("div");
     holder.style.cssText = "position:fixed;left:-99999px;top:0;width:1122px;background:#fff;";
@@ -1257,6 +1270,9 @@
         btn.disabled = false;
         btn.textContent = label;
       }
+      document.querySelectorAll(".sr-saved-actions .btn-gold").forEach((b) => {
+        b.disabled = false;
+      });
     }
   }
 

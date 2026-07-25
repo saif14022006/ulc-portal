@@ -862,7 +862,6 @@ body.landing-open .app{visibility:hidden;pointer-events:none}
               <div class="msg" id="sr-msg"></div>
               <div class="btn-row">
                 <button class="btn btn-primary" type="button" onclick="StudentDash.openRecordsModal()">Add semester record</button>
-                <button class="btn btn-gold" type="button" id="sr-tx-btn" onclick="StudentDash.generateTranscript()">Generate transcript</button>
               </div>
             </div>
             <div class="card">
@@ -2432,14 +2431,13 @@ function renderSlots(){
 /* -------- Syllabus accordion -------- */
 function renderSyllabusAcc(){
   const el=document.getElementById('semAcc');
-  if(el.dataset.ready==='1') return;
+  if(!el) return;
   el.innerHTML=Object.keys(SYLLABUS).map(n=>{
     const subs=SYLLABUS[n], cr=subs.reduce((a,x)=>a+x[2],0);
-    const open=n==YOUR_SEM?' open':'';
     let body=subs.map(x=>`<div class="subj"><div class="code">${x[0]}</div><div class="nm">${x[1]}</div><div class="ch">${x[2]} CH</div></div>`).join('');
     if(n==8) body+=`<div class="intern"><b>Internship (3 CH)</b> — compulsory 10–12 weeks after Semester 8.</div>`;
     if(n==9||n==10) body+=`<details class="elec-wrap"><summary>Elective courses — choose any four</summary><div class="elec-list">${ELECTIVES.map(e=>`<div>• ${e}</div>`).join('')}</div></details>`;
-    return `<details${open}>
+    return `<details>
       <summary>
         <div class="sem-num">${n}</div>
         <div class="sem-meta"><div class="ttl">Semester ${n}</div><div class="sub">${subs.length} courses · ${cr} credit hours</div></div>
@@ -2448,7 +2446,6 @@ function renderSyllabusAcc(){
       <div class="sem-body">${body}</div>
     </details>`;
   }).join('');
-  el.dataset.ready='1';
 }
 
 /* init */
