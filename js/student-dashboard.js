@@ -261,8 +261,16 @@
         teacher.style.display = "";
         const t = document.getElementById("homeTeacherTitle");
         const s = document.getElementById("homeTeacherSub");
-        if (t) t.textContent = "Welcome " + u.name;
-        if (s) s.textContent = (u.email || "Teacher") + " · Open Teacher desk for classes and award lists.";
+        const st = global.TeacherApp?.getStore?.();
+        const cls = global.TeacherApp?.activeClass?.();
+        const nm = st?.officialName || u.name;
+        if (t) t.textContent = "Welcome " + (nm || "Teacher");
+        if (s) {
+          s.textContent = cls
+            ? `Semester ${cls.semester} · ${cls.subject} · ${cls.students?.length || 0} students`
+            : (u.email || "Teacher") + " · Set up your class in Teacher desk.";
+        }
+        if (global.TeacherApp?.syncHomeOverview) global.TeacherApp.syncHomeOverview();
       }
       return;
     }

@@ -10,6 +10,7 @@
   function semLabel(n) { return n ? ("Semester " + n) : "—"; }
 
   let pendingOcr = [];
+  let editingStudentRoll = null;
 
   function loadJSON(k, fb) {
     try { return JSON.parse(localStorage.getItem(k)) ?? fb; } catch { return fb; }
@@ -204,10 +205,61 @@
   }
 
   function showTeacherPanel(panel) {
+    const allowed = ["overview", "roster", "attendance", "marks", "pdf"];
+    if (!allowed.includes(panel)) panel = "overview";
     document.querySelectorAll(".t-panel").forEach((p) => p.classList.remove("active"));
     const el = document.getElementById("tp-" + panel);
     if (el) el.classList.add("active");
     document.querySelectorAll(".t-mode-btn").forEach((b) => b.classList.toggle("active", b.dataset.panel === panel));
+    if (panel === "overview") renderOverview();
+    if (panel === "roster") renderRoster();
+    if (panel === "attendance") renderAttendance();
+    if (panel === "marks") renderMarks();
+  }
+
+  function renderOverview() {
+    const grid = document.getElementById("t-overview-grid");
+    if (!grid) return;
+    const st = getStore();
+    const c = activeClass();
+    if (!st || !c) {
+      grid.innerHTML = '<div class="empty" style="grid-column:1/-1">Set up a class to see your overview.</div>';
+      return;
+    }
+    const shared = getSemesterRoster(c.semester).length;
+    grid.innerHTML = `
+      <div class="t-ov-stat wide"><div class="lbl">Teacher name</div><div class="val">${esc(st.officialName || "—")}</div></div>
+      <div class="t-ov-stat"><div class="lbl">Semester / class</div><div class="val">Semester ${c.semester}</div></div>
+      <div class="t-ov-stat"><div class="lbl">Session</div><div class="val">${esc(c.session || "—")}</div></div>
+      <div class="t-ov-stat wide"><div class="lbl">Subject</div><div class="val">${esc(c.subject)}${c.subjectCode ? " · " + esc(c.subjectCode) : ""}</div></div>
+      <div class="t-ov-stat"><div class="lbl">Credit hours</div><div class="val">${(+c.creditHours || 3).toFixed(0)}</div></div>
+      <div class="t-ov-stat"><div class="lbl">Students in roster</div><div class="val">${c.students.length}</div></div>
+      <div class="t-ov-stat"><div class="lbl">Total classes (CHR)</div><div class="val">${c.totalClasses || DEFAULT_CLASSES}</div></div>
+      <div class="t-ov-stat"><div class="lbl">Shared semester rolls</div><div class="val">${shared}</div></div>
+    `;
+  }
+
+  function syncHomeOverview() {
+    const box = document.getElementById("homeTeacherOverview");
+    if (!box) return;
+    const st = getStore();
+    const u = global.currentUser && global.currentUser();
+    if (!st || !u || u.role !== "teacher") {
+      box.innerHTML = "";
+      return;
+    }
+    const c = activeClass();
+    if (!c) {
+      box.innerHTML = `<div class="t-ov-stat wide"><div class="lbl">Setup needed</div><div class="val">Open Teacher desk to create your class.</div></div>`;
+      return;
+    }
+    box.innerHTML = `
+      <div class="t-overview-grid">
+        <div class="t-ov-stat wide"><div class="lbl">Your name</div><div class="val">${esc(st.officialName || u.name || "—")}</div></div>
+        <div class="t-ov-stat"><div class="lbl">Class</div><div class="val">Semester ${c.semester}</div></div>
+        <div class="t-ov-stat"><div class="lbl">Students</div><div class="val">${c.students.length}</div></div>
+        <div class="t-ov-stat wide"><div class="lbl">Subject</div><div class="val">${esc(c.subject)}</div></div>
+      </div>`;
   }
 
   function refreshClassSelect() {
@@ -282,7 +334,7 @@
       attendance: {},
       marks: {},
     };
-    importSemesterRoster(cls);
+    const imported = importSemesterRoster(cls);
 
     st.officialName = name;
     st.profileComplete = true;
@@ -294,11 +346,52 @@
     closeTeacherSetup();
     renderTeacherHome();
     if (global.go) global.go("teacher");
+    if (imported > 0) {
+      alert(`Class saved. ${imported} student(s) from this semester’s shared roster were added automatically.`);
+    }
   }
 
   function addAnotherClass() {
     document.getElementById("teacherSetupOverlay").dataset.mode = "addClass";
     openTeacherSetup(true);
+  }
+
+  function setStudentFormMode(editing) {
+    const saveBtn = document.getElementById("tr-student-save-btn");
+    const cancelBtn = document.getElementById("tr-student-cancel-btn");
+    const hint = document.getElementById("tr-student-edit-hint");
+    if (saveBtn) saveBtn.textContent = editing ? "Save changes" : "Add student";
+    if (cancelBtn) cancelBtn.style.display = editing ? "" : "none";
+    if (hint) {
+      hint.style.display = editing ? "" : "none";
+      hint.textContent = editing
+        ? "Editing roll " + editingStudentRoll + ". Change roll/name then tap Save changes."
+        : "";
+    }
+  }
+
+  function cancelEditStudent() {
+    editingStudentRoll = null;
+    const rollEl = document.getElementById("tr-roll");
+    const nameEl = document.getElementById("tr-name");
+    if (rollEl) rollEl.value = "";
+    if (nameEl) nameEl.value = "";
+    setStudentFormMode(false);
+  }
+
+  function editStudent(roll) {
+    const c = activeClass();
+    if (!c) return;
+    const s = c.students.find((x) => x.roll === roll);
+    if (!s) return;
+    editingStudentRoll = roll;
+    const rollEl = document.getElementById("tr-roll");
+    const nameEl = document.getElementById("tr-name");
+    if (rollEl) rollEl.value = s.roll;
+    if (nameEl) nameEl.value = s.name;
+    setStudentFormMode(true);
+    showTeacherPanel("roster");
+    rollEl?.focus();
   }
 
   function addStudentManual() {
@@ -307,26 +400,66 @@
     const roll = document.getElementById("tr-roll").value.trim().toUpperCase();
     const name = document.getElementById("tr-name").value.trim().toUpperCase();
     if (!roll || !name) { alert("Enter roll number and name."); return; }
+
+    if (editingStudentRoll) {
+      const st = getStore();
+      const cls = st.classes.find((x) => x.id === activeClass()?.id);
+      if (!cls) return;
+      const oldRoll = editingStudentRoll;
+      const student = cls.students.find((x) => x.roll === oldRoll);
+      if (!student) {
+        cancelEditStudent();
+        return;
+      }
+      if (roll !== oldRoll && cls.students.some((x) => x.roll === roll)) {
+        alert("Another student already has roll " + roll + ".");
+        return;
+      }
+      student.roll = roll;
+      student.name = name;
+      if (roll !== oldRoll) {
+        cls.attendance[roll] = cls.attendance[oldRoll] || emptyAttendance();
+        cls.marks[roll] = cls.marks[oldRoll] || emptyMarks();
+        delete cls.attendance[oldRoll];
+        delete cls.marks[oldRoll];
+      }
+      sortStudentsByRoll(cls.students);
+      publishSemesterRoster(cls.semester, cls.students);
+      setStore(st);
+      cancelEditStudent();
+      renderOverview();
+      renderRoster();
+      renderAttendance();
+      renderMarks();
+      syncHomeOverview();
+      return;
+    }
+
     const added = addStudentsToClass([{ roll, name }]);
     if (!added) { alert("This roll is already in the class."); return; }
     document.getElementById("tr-roll").value = "";
     document.getElementById("tr-name").value = "";
+    renderOverview();
     renderRoster();
     renderAttendance();
     renderMarks();
+    syncHomeOverview();
   }
 
   function removeStudent(roll) {
-    if (!confirm("Remove " + roll + " from this class?")) return;
+    if (!confirm("Delete " + roll + " from this class roster?")) return;
     const st = getStore();
     const c = st.classes.find((x) => x.id === activeClass().id);
     c.students = c.students.filter((s) => s.roll !== roll);
     delete c.attendance[roll];
     delete c.marks[roll];
+    if (editingStudentRoll === roll) cancelEditStudent();
     setStore(st);
+    renderOverview();
     renderRoster();
     renderAttendance();
     renderMarks();
+    syncHomeOverview();
   }
 
   function isHeaderNoise(s) {
@@ -416,9 +549,11 @@
     document.getElementById("tr-ocr-status").textContent =
       `Saved ${added} new student(s). Shared with other teachers of Semester ${activeClass()?.semester}.`;
     clearOcrPreview();
+    renderOverview();
     renderRoster();
     renderAttendance();
     renderMarks();
+    syncHomeOverview();
   }
 
   async function ocrAttendancePhoto(file) {
@@ -459,15 +594,23 @@
     const el = document.getElementById("tr-roster");
     if (!el) return;
     if (!c || !c.students.length) {
-      el.innerHTML = '<div class="empty">No students yet. Upload a list photo or add manually.</div>';
+      el.innerHTML = '<div class="empty">No students yet. Upload a list photo or add manually — they will appear for other teachers of this semester too.</div>';
       return;
     }
     sortStudentsByRoll(c.students);
-    el.innerHTML = c.students.map((s) => `
-      <div class="award-item">
-        <div><div class="t">${esc(s.roll)}</div><div class="m">${esc(s.name)}</div></div>
-        <button type="button" onclick="TeacherApp.removeStudent('${esc(s.roll)}')">Remove</button>
-      </div>`).join("");
+    el.innerHTML = c.students.map((s) => {
+      const rollJs = JSON.stringify(s.roll);
+      return `<div class="tr-student-row">
+        <div class="tr-student-meta">
+          <div class="t">${esc(s.roll)}</div>
+          <div class="m">${esc(s.name)}</div>
+        </div>
+        <div class="sr-saved-actions">
+          <button type="button" class="btn btn-ghost btn-sm" onclick='TeacherApp.editStudent(${rollJs})'>Edit</button>
+          <button type="button" class="btn btn-danger btn-sm" onclick='TeacherApp.removeStudent(${rollJs})'>Delete</button>
+        </div>
+      </div>`;
+    }).join("");
   }
 
   function setAttMode(mode) {
@@ -772,6 +915,132 @@
     </div>`;
   }
 
+  function buildAttendanceHtml() {
+    const st = getStore();
+    const c = activeClass();
+    if (!c) return "";
+    ensureClassMeta(c);
+    sortStudentsByRoll(c.students);
+    const total = c.totalClasses || DEFAULT_CLASSES;
+    const teacher = st.officialName || "";
+    const mode = c.attMode === "weekly" ? "Weekly" : "Daily";
+    const rows = c.students.map((s, i) => {
+      const present = effectivePresent(c.attendance[s.roll], total, c.attMode);
+      const pct = total ? ((present / total) * 100).toFixed(1) : "0.0";
+      return `<tr>
+        <td>${i + 1}</td>
+        <td>${esc(s.roll)}</td>
+        <td class="nm">${esc(s.name)}</td>
+        <td>${present}</td>
+        <td>${total}</td>
+        <td>${pct}%</td>
+      </tr>`;
+    }).join("");
+    return `<div class="award-pdf" id="attendancePdfSheet">
+      <div class="pdf-title">UNIVERSITY LAW COLLEGE, QUETTA</div>
+      <div class="pdf-badge">ATTENDANCE SHEET</div>
+      <table class="meta">
+        <tr>
+          <td><b>Teacher:</b> ${esc(teacher)}</td>
+          <td><b>Session:</b> ${esc(c.session || "")}</td>
+          <td><b>Semester:</b> ${c.semester}</td>
+        </tr>
+        <tr>
+          <td><b>Course:</b> ${esc(c.subject)}</td>
+          <td><b>Code:</b> ${esc(c.subjectCode || "")}</td>
+          <td><b>Mode:</b> ${mode} · CHR ${total}</td>
+        </tr>
+      </table>
+      <table class="grid">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Roll #</th>
+            <th>Name of Student</th>
+            <th>Present</th>
+            <th>Total classes</th>
+            <th>%</th>
+          </tr>
+        </thead>
+        <tbody>${rows}</tbody>
+      </table>
+    </div>`;
+  }
+
+  async function exportAttendancePdf() {
+    const c = activeClass();
+    if (!c || !c.students.length) {
+      alert("Add students before downloading attendance.");
+      return;
+    }
+    const sheetHtml = buildAttendanceHtml();
+    const host = document.getElementById("teacherPdfHost");
+    host.innerHTML = `<style>${awardPdfCss(true)}</style>` + sheetHtml;
+    host.style.cssText = "position:fixed;left:-99999px;top:0;width:900px;background:#fff;";
+    const sheet = document.getElementById("attendancePdfSheet");
+    const btn = document.getElementById("tr-att-pdf-btn");
+    const label = btn ? btn.textContent : "Download attendance PDF";
+    if (btn) {
+      btn.disabled = true;
+      btn.textContent = "Generating PDF…";
+    }
+    try {
+      if (typeof html2canvas === "undefined" || !window.jspdf) throw new Error("libs");
+      const canvas = await html2canvas(sheet, {
+        scale: 2,
+        backgroundColor: "#ffffff",
+        logging: false,
+        width: 900,
+        windowWidth: 900,
+      });
+      const { jsPDF } = window.jspdf;
+      const pdf = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
+      const pageW = pdf.internal.pageSize.getWidth();
+      const pageH = pdf.internal.pageSize.getHeight();
+      const imgW = pageW - 14;
+      const imgH = (canvas.height * imgW) / canvas.width;
+      if (imgH <= pageH - 14) {
+        pdf.addImage(canvas.toDataURL("image/jpeg", 0.92), "JPEG", 7, 7, imgW, imgH);
+      } else {
+        let srcY = 0;
+        const pageImgH = pageH - 14;
+        const canvasPageH = (pageImgH / imgW) * canvas.width;
+        let first = true;
+        while (srcY < canvas.height - 1) {
+          const sliceH = Math.min(canvas.height - srcY, canvasPageH);
+          const sliceCanvas = document.createElement("canvas");
+          sliceCanvas.width = canvas.width;
+          sliceCanvas.height = Math.max(1, Math.floor(sliceH));
+          sliceCanvas.getContext("2d").drawImage(
+            canvas,
+            0, srcY, canvas.width, sliceH,
+            0, 0, canvas.width, sliceH
+          );
+          const hMm = (sliceCanvas.height * imgW) / canvas.width;
+          if (!first) pdf.addPage();
+          first = false;
+          pdf.addImage(sliceCanvas.toDataURL("image/jpeg", 0.92), "JPEG", 7, 7, imgW, hMm);
+          srcY += sliceH;
+        }
+      }
+      const slug = `ULC_${c.subject}_Sem${c.semester}_Attendance`.replace(/\s+/g, "_");
+      pdf.save(slug + ".pdf");
+    } catch (e) {
+      console.error(e);
+      const w = window.open("", "_blank");
+      w.document.write(`<html><head><title>Attendance</title><style>${awardPdfCss(true)}</style></head><body>${sheetHtml}</body></html>`);
+      w.document.close();
+      w.focus();
+      w.print();
+    } finally {
+      if (btn) {
+        btn.disabled = false;
+        btn.textContent = label;
+      }
+      host.innerHTML = "";
+    }
+  }
+
   function buildAwardHtml() {
     const st = getStore();
     const c = activeClass();
@@ -943,13 +1212,18 @@
     const fin = document.getElementById("tr-fin-date");
     if (c && mid) mid.value = c.midExamDate || "";
     if (c && fin) fin.value = c.finExamDate || "";
+    const tc = document.getElementById("tr-total-classes");
+    if (c && tc) tc.value = c.totalClasses || DEFAULT_CLASSES;
     if (c) {
       document.getElementById("att-tog-daily")?.classList.toggle("active", c.attMode !== "weekly");
       document.getElementById("att-tog-weekly")?.classList.toggle("active", c.attMode === "weekly");
     }
+    renderOverview();
     renderRoster();
     renderAttendance();
     renderMarks();
+    syncHomeOverview();
+    showTeacherPanel("overview");
   }
 
   function saveClassDates() {
@@ -978,6 +1252,8 @@
     onClassChange,
     showTeacherPanel,
     addStudentManual,
+    editStudent,
+    cancelEditStudent,
     removeStudent,
     ocrAttendancePhoto,
     confirmOcrStudents,
@@ -989,9 +1265,11 @@
     setMark,
     renderMarks,
     exportAwardPdf,
+    exportAttendancePdf,
     onPdfModeChange,
     initTeacherView,
     renderTeacherHome,
+    syncHomeOverview,
     saveClassDates,
     getStore,
     activeClass,

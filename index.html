@@ -85,8 +85,21 @@ main{flex:1;padding:18px 16px 36px;width:100%}
 .ic-account{background:linear-gradient(145deg,#0b3a6b,#c6a13c)}
 .ic-teacher{background:linear-gradient(145deg,#1e4d3a,#3d8f6a)}
 .note{background:#fff;border:1px solid var(--line);border-left:3px solid var(--gold);border-radius:10px;padding:12px 14px;font-size:12px;color:var(--slate);margin-top:14px;line-height:1.55}
-.teacher-modes{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:12px 0}
+.teacher-modes{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0}
+.teacher-modes .t-mode-btn{flex:1 1 calc(50% - 4px);min-width:132px;padding:10px 12px;font-size:13px}
 .t-panel{display:none}.t-panel.active{display:block}
+.t-overview-grid{display:grid;gap:10px;grid-template-columns:1fr 1fr}
+.t-ov-stat{background:#fff;border:1px solid var(--line);border-radius:12px;padding:12px 14px}
+.t-ov-stat .lbl{font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--slate)}
+.t-ov-stat .val{font-size:15px;font-weight:700;color:var(--navy);margin-top:4px;line-height:1.3;font-family:var(--serif)}
+.t-ov-stat.wide{grid-column:1/-1}
+.tr-student-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap;background:#fff;border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin-bottom:8px}
+.tr-student-row .tr-student-meta{flex:1;min-width:140px}
+.tr-student-row .tr-student-meta .t{font-size:13.5px;font-weight:600;color:var(--navy)}
+.tr-student-row .tr-student-meta .m{font-size:12px;color:var(--slate)}
+.tr-student-row .sr-saved-actions{margin-left:auto}
+.home-teacher-overview{display:grid;gap:10px;margin-bottom:14px}
+.home-teacher-overview .t-ov-stat{background:rgba(255,255,255,.92)}
 .t-mode-btn.active{background:var(--navy)!important;color:#fff!important;border-color:var(--navy)!important}
 .pdf-cols{display:flex;flex-wrap:wrap;gap:8px}
 .pdf-cols .chk{display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:600;color:var(--navy);background:#fff;border:1px solid var(--line);border-radius:9px;padding:8px 10px;cursor:pointer}
@@ -712,8 +725,9 @@ body.landing-open .app{visibility:hidden;pointer-events:none}
           <div class="dash-welcome">
             <div class="kicker">Teacher</div>
             <h2 id="homeTeacherTitle">Welcome</h2>
-            <p id="homeTeacherSub">Open Teacher desk for classes and award lists.</p>
+            <p id="homeTeacherSub">Your class overview and desk tools.</p>
           </div>
+          <div class="home-teacher-overview" id="homeTeacherOverview"></div>
           <button class="btn btn-primary" type="button" onclick="go('teacher')" style="margin-bottom:14px">Open Teacher desk</button>
           <div class="section-head"><h3>More tools</h3><span>Shared</span></div>
           <div class="tool-grid">
@@ -1304,30 +1318,51 @@ body.landing-open .app{visibility:hidden;pointer-events:none}
           </div>
         </div>
 
-        <div class="teacher-modes">
-          <button type="button" class="btn btn-ghost t-mode-btn active" data-panel="roster" onclick="TeacherApp.showTeacherPanel('roster')">Students / Roster</button>
+        <div class="teacher-modes" role="tablist">
+          <button type="button" class="btn btn-ghost t-mode-btn active" data-panel="overview" onclick="TeacherApp.showTeacherPanel('overview')">Overview</button>
+          <button type="button" class="btn btn-ghost t-mode-btn" data-panel="roster" onclick="TeacherApp.showTeacherPanel('roster')">Students</button>
           <button type="button" class="btn btn-ghost t-mode-btn" data-panel="attendance" onclick="TeacherApp.showTeacherPanel('attendance')">Attendance</button>
           <button type="button" class="btn btn-ghost t-mode-btn" data-panel="marks" onclick="TeacherApp.showTeacherPanel('marks')">Upload marks</button>
-          <button type="button" class="btn btn-ghost t-mode-btn" data-panel="pdf" onclick="TeacherApp.showTeacherPanel('pdf')">Award list PDF</button>
+          <button type="button" class="btn btn-ghost t-mode-btn" data-panel="pdf" onclick="TeacherApp.showTeacherPanel('pdf')">Award list</button>
         </div>
 
-        <div class="t-panel active" id="tp-roster">
+        <div class="t-panel active" id="tp-overview">
+          <div class="card">
+            <h3>Class overview</h3>
+            <p class="hint" style="margin-top:-4px;margin-bottom:12px">Your name, subject, and class at a glance. Students added by any teacher of this semester appear automatically in Students.</p>
+            <div class="t-overview-grid" id="t-overview-grid"></div>
+            <div class="btn-row" style="margin-top:14px">
+              <button class="btn btn-primary" type="button" onclick="TeacherApp.showTeacherPanel('roster')">Manage students</button>
+              <button class="btn btn-ghost" type="button" onclick="TeacherApp.addAnotherClass()">Add another class</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="t-panel" id="tp-roster">
           <div class="card">
             <h3>Add students from attendance list</h3>
-            <p class="hint">Upload a photo of the sheet. Only the first two columns are read: <b>Roll #</b> and <b>Name</b>. Review before saving.</p>
+            <p class="hint">Upload a photo of the sheet. Only the first two columns are read: <b>Roll #</b> and <b>Name</b>. Review before saving. New students are shared with other teachers of the same semester.</p>
             <div class="field"><label>Upload photo</label><input id="tr-photo" type="file" accept="image/*" capture="environment" onchange="TeacherApp.ocrAttendancePhoto(this.files[0])"></div>
             <p class="hint" id="tr-ocr-status"></p>
             <div id="tr-ocr-preview"></div>
           </div>
           <div class="card">
-            <h3>Or add manually</h3>
+            <h3>Or add / edit manually</h3>
             <div class="row2">
               <div class="field"><label>Roll #</label><input id="tr-roll" placeholder="1001"></div>
               <div class="field"><label>Name</label><input id="tr-name" placeholder="STUDENT NAME"></div>
             </div>
-            <button class="btn btn-primary" type="button" onclick="TeacherApp.addStudentManual()">Add student</button>
+            <div class="btn-row">
+              <button class="btn btn-primary" type="button" id="tr-student-save-btn" onclick="TeacherApp.addStudentManual()">Add student</button>
+              <button class="btn btn-ghost" type="button" id="tr-student-cancel-btn" style="display:none" onclick="TeacherApp.cancelEditStudent()">Cancel edit</button>
+            </div>
+            <p class="hint" id="tr-student-edit-hint" style="display:none;margin-top:8px"></p>
           </div>
-          <div class="card"><h3>Class roster</h3><p class="hint" style="margin-top:-6px">Same-semester teachers share roll + name only (not marks).</p><div id="tr-roster"></div></div>
+          <div class="card">
+            <h3>Students</h3>
+            <p class="hint" style="margin-top:-6px">Roll number and name · Edit or Delete on each row. Shared across teachers of this semester (marks stay private).</p>
+            <div id="tr-roster"></div>
+          </div>
         </div>
 
         <div class="t-panel" id="tp-attendance">
@@ -1347,6 +1382,9 @@ body.landing-open .app{visibility:hidden;pointer-events:none}
               </div>
             </div>
             <p class="hint" id="tr-att-hint">Daily: mark each class P / A / L — totals roll into weekly. Weekly: enter attended classes yourself.</p>
+            <div class="btn-row" style="margin-bottom:12px">
+              <button class="btn btn-gold" type="button" id="tr-att-pdf-btn" onclick="TeacherApp.exportAttendancePdf()">Download attendance PDF</button>
+            </div>
             <div id="tr-att-table" class="fit-panel"></div>
           </div>
         </div>
@@ -1370,7 +1408,7 @@ body.landing-open .app{visibility:hidden;pointer-events:none}
 
         <div class="t-panel" id="tp-pdf">
           <div class="card">
-            <h3>Download PDF</h3>
+            <h3>Award list</h3>
             <p class="hint">Download the full official award list, or only the marks you choose (e.g. Quiz 1 only).</p>
             <div class="field"><label>What to include</label>
               <select id="tr-pdf-mode" onchange="TeacherApp.onPdfModeChange()">
@@ -1404,7 +1442,7 @@ body.landing-open .app{visibility:hidden;pointer-events:none}
                 <label class="chk"><input type="checkbox" value="final"> Final</label>
               </div>
             </div>
-            <button class="btn btn-gold" type="button" id="tr-pdf-btn" onclick="TeacherApp.exportAwardPdf()">Download PDF</button>
+            <button class="btn btn-gold" type="button" id="tr-pdf-btn" onclick="TeacherApp.exportAwardPdf()">Download award list PDF</button>
           </div>
           <div class="note">Teacher results stay on this teacher account only. They are not pushed into student award lists.</div>
         </div>
