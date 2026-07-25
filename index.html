@@ -1551,12 +1551,23 @@ function onGpaSemChange(){
   const prev=sel.value;
   sel.innerHTML='<option value="">Select course</option>'+list.map(x=>`<option value="${esc(x[1])}" data-ch="${x[2]}">${esc(x[1])}</option>`).join('');
   if(prev && list.some(x=>x[1]===prev)) sel.value=prev;
-  const hit=list.find(x=>x[1]===sel.value);
-  if(hit) document.getElementById('g-ch').value=hit[2];
-  sel.onchange=()=>{
+  const applyCh=()=>{
     const h=(SYLLABUS[n]||[]).find(x=>x[1]===sel.value);
     if(h) document.getElementById('g-ch').value=h[2];
   };
+  applyCh();
+  sel.onchange=applyCh;
+}
+function addGrade(){
+  const course=document.getElementById('g-course').value.trim();
+  const ch=+document.getElementById('g-ch').value||0;
+  const gp=+document.getElementById('g-grade').value;
+  const sem=+document.getElementById('g-sem').value;
+  if(!sem){ alert('Select a semester.'); return; }
+  if(!course||ch<=0){ alert('Select a course and credits.'); return; }
+  const arr=getGrades(); arr.push({id:Date.now().toString(36),sem,course,ch,gp}); setGrades(arr);
+  document.getElementById('g-course').value='';
+  renderGrades();
 }
 function onSemChange(){
   const n=document.getElementById('f-sem').value;
@@ -1599,33 +1610,33 @@ async function downloadPDF(){
 }
 
 /* -------- Aggregate / GPA / Timetable -------- */
-function pct(o,t){o=parseFloat(o);t=parseFloat(t);return (t>0&&o>=0)?(o/t*100):0;}
+function pct(o,t){o=parseFloat(o);t=parseFloat(t);return (t>0&&!isNaN(o)&&o>=0)?(o/t*100):0;}
 function calcAgg(){
-  const mm=pct(m_obt.value,m_tot.value), ii=pct(i_obt.value,i_tot.value), ee=pct(e_obt.value,e_tot.value);
-  const wm=+w_m.value||0, wi=+w_i.value||0, we=+w_e.value||0;
+  const mObt=document.getElementById('m-obt').value.trim();
+  const iObt=document.getElementById('i-obt').value.trim();
+  const eObt=document.getElementById('e-obt').value.trim();
+  const mTot=document.getElementById('m-tot').value;
+  const iTot=document.getElementById('i-tot').value;
+  const eTot=document.getElementById('e-tot').value;
+  const wm=+document.getElementById('w-m').value||0;
+  const wi=+document.getElementById('w-i').value||0;
+  const we=+document.getElementById('w-e').value||0;
   document.getElementById('w-warn').classList.toggle('show', Math.round(wm+wi+we)!==100);
-  if(!(m_obt.value!=='' && i_obt.value!=='' && e_obt.value!=='')){
+  if(mObt===''||iObt===''||eObt===''){
     alert('Please enter Matric, Intermediate and LAT obtained marks.');
     return;
   }
+  const mm=pct(mObt,mTot), ii=pct(iObt,iTot), ee=pct(eObt,eTot);
   const agg=(mm*wm+ii*wi+ee*we)/100;
+  const box=document.getElementById('aggResult');
   document.getElementById('agg-val').innerHTML=agg.toFixed(2)+'<small>%</small>';
   document.getElementById('agg-brk').innerHTML=`Matric ${mm.toFixed(1)}% × ${wm}% · Inter ${ii.toFixed(1)}% × ${wi}% · LAT ${ee.toFixed(1)}% × ${we}%`;
-  document.getElementById('aggResult').style.display='block';
-  document.getElementById('aggResult').scrollIntoView({behavior:'smooth',block:'nearest'});
+  box.style.display='block';
+  box.scrollIntoView({behavior:'smooth',block:'nearest'});
 }
 function getGrades(){ return loadJSON(LS_GRADES, []); }
 function setGrades(arr){ saveJSON(LS_GRADES, arr); }
 function gradeLabel(gp){ const map={4:"A",3.7:"A−",3.3:"B+",3:"B",2.7:"B−",2.3:"C+",2:"C",1.7:"C−",1:"D",0:"F"}; const k=Object.keys(map).map(Number).find(x=>Math.abs(x-gp)<0.01); return k===undefined?gp.toFixed(2):map[k]; }
-function addGrade(){
-  const course=document.getElementById('g-course').value.trim();
-  const ch=+document.getElementById('g-ch').value||0;
-  const gp=+document.getElementById('g-grade').value;
-  const sem=+document.getElementById('g-sem').value;
-  if(!course||ch<=0){ alert('Enter course and credits.'); return; }
-  const arr=getGrades(); arr.push({id:Date.now().toString(36),sem,course,ch,gp}); setGrades(arr);
-  document.getElementById('g-course').value=''; renderGrades();
-}
 function delGrade(id){ setGrades(getGrades().filter(x=>x.id!==id)); renderGrades(); }
 function weighted(list){ const ch=list.reduce((a,x)=>a+x.ch,0); if(!ch) return null; return list.reduce((a,x)=>a+x.gp*x.ch,0)/ch; }
 function renderGrades(){
