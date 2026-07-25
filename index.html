@@ -377,7 +377,7 @@ body.landing-open .app{visibility:hidden;pointer-events:none}
 .landing-scroll-hint span{opacity:.9}
 .landing-scroll-hint svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;animation:landBounce 1.4s ease-in-out infinite}
 @keyframes landBounce{0%,100%{transform:translateY(0)}50%{transform:translateY(5px)}}
-.landing-features{flex:none;background:var(--bg);color:var(--ink);padding:28px 18px calc(40px + env(safe-area-inset-bottom));max-width:720px;margin:0 auto;width:100%;box-sizing:border-box}
+.landing-features{flex:none;background:var(--bg);color:var(--ink);padding:28px 18px 24px;max-width:720px;margin:0 auto;width:100%;box-sizing:border-box}
 .landing-features .lf-head{margin-bottom:16px}
 .landing-features .lf-head h2{font-family:var(--serif);font-size:22px;color:var(--navy);margin:0 0 6px}
 .landing-features .lf-head p{font-size:13px;color:var(--slate);margin:0;line-height:1.45}
@@ -388,16 +388,21 @@ body.landing-open .app{visibility:hidden;pointer-events:none}
 @media (min-width:900px){
   .landing-inner{max-width:560px;padding-bottom:24px}
   .landing-inner h1{font-size:34px}
-  .landing-features{padding:36px 28px 48px;max-width:900px}
+  .landing-features{padding:36px 28px 28px;max-width:900px}
   .landing-features .tool-grid{grid-template-columns:repeat(3,1fr)}
   .landing-features .tool-card.featured{grid-column:span 3}
 }
 /* Student dashboard */
-.dash-welcome{background:linear-gradient(155deg,var(--navy-deep),var(--navy) 50%,var(--navy-2));color:var(--paper);border-radius:18px;padding:18px 18px 16px;margin-bottom:14px;box-shadow:var(--shadow);position:relative;overflow:hidden}
+.dash-welcome{background:linear-gradient(155deg,var(--navy-deep),var(--navy) 50%,var(--navy-2));color:var(--paper);border-radius:18px;padding:18px 18px 16px;margin-bottom:14px;box-shadow:var(--shadow);position:relative;overflow:hidden;display:flex;align-items:center;justify-content:space-between;gap:14px}
 .dash-welcome:before{content:"";position:absolute;inset:0;background:radial-gradient(140px 100px at 100% 0%,rgba(198,161,60,.25),transparent 60%);pointer-events:none}
-.dash-welcome .kicker{font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--gold-lt);position:relative}
-.dash-welcome h2{font-family:var(--serif);font-size:20px;margin:6px 0 4px;position:relative}
-.dash-welcome p{font-size:12.5px;color:#cdd9e6;position:relative;margin:0}
+.dash-welcome-copy{position:relative;z-index:1;min-width:0;flex:1}
+.dash-welcome .kicker{font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--gold-lt)}
+.dash-welcome h2{font-family:var(--serif);font-size:20px;margin:6px 0 4px;line-height:1.2}
+.dash-welcome p{font-size:12.5px;color:#cdd9e6;margin:0}
+.dash-cgpa{position:relative;z-index:1;flex:none;min-width:88px;text-align:center;background:rgba(255,255,255,.1);border:1px solid rgba(226,197,104,.45);border-radius:14px;padding:10px 12px;backdrop-filter:blur(6px)}
+.dash-cgpa .lbl{display:block;font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--gold-lt);font-weight:700;margin-bottom:4px}
+.dash-cgpa .val{display:block;font-family:var(--serif);font-size:26px;font-weight:700;color:#fff;line-height:1;letter-spacing:.02em}
+.dash-cgpa .hint{display:block;font-size:10px;color:#cdd9e6;margin-top:4px;font-weight:500}
 .dash-tabs{display:flex;gap:6px;overflow-x:auto;padding:2px 0 12px;scrollbar-width:none}
 .dash-tabs::-webkit-scrollbar{display:none}
 .dash-tab{flex:none;padding:9px 12px;border-radius:10px;border:1px solid var(--line);background:#fff;font-size:12.5px;font-weight:600;color:var(--navy);cursor:pointer;font-family:var(--sans)}
@@ -446,16 +451,30 @@ body.landing-open .app{visibility:hidden;pointer-events:none}
 .tx-cell{display:grid;grid-template-columns:118px 1fr;gap:6px;align-items:center;font-size:12px}
 .tx-cell label{font-weight:700;color:#0a2a5c}
 .tx-cell span{background:#fff;border:1px solid #333;padding:4px 6px;min-height:22px;font-weight:600}
-.tx-photo{border:1.5px solid #0a2a5c;background:#fff;min-height:128px;display:grid;place-items:center;overflow:hidden}
-.tx-photo img{width:100%;height:128px;object-fit:cover}
-.tx-photo-ph{font-size:11px;font-weight:700;color:#889}
+.tx-photo{border:1.5px solid #0a2a5c;background:#fff;min-height:136px;width:110px;display:grid;place-items:center;overflow:hidden;justify-self:end}
+.tx-photo img{width:110px;height:136px;object-fit:cover;display:block}
+.tx-photo-ph{font-size:11px;font-weight:700;color:#889;width:110px;height:136px;display:grid;place-items:center;background:#f3f5f8}
 .tx-table{width:100%;border-collapse:collapse;font-size:12px;margin-bottom:0}
 .tx-table th,.tx-table td{border:1px solid #222;padding:5px 6px;text-align:center}
 .tx-table td.left{text-align:left}
 .tx-table-banner th{background:#dfe6ee;font-size:13px;letter-spacing:.08em;padding:7px}
 .tx-table thead tr:last-child th{background:#f3f5f8;font-size:11px}
 .tx-summary{display:flex;flex-wrap:wrap;justify-content:space-between;gap:8px 14px;background:#1e4f9a;color:#fff;font-weight:700;font-size:12.5px;padding:9px 12px;border:1px solid #0a2a5c;border-top:none}
+.tx-sigs{display:grid;grid-template-columns:1fr 1fr 1fr;gap:18px 28px;margin:28px 10px 8px;align-items:end}
+.tx-sig{text-align:center;min-width:0}
+.tx-sig-line{border-bottom:1.5px solid #0a2a5c;min-height:44px;margin-bottom:4px;display:flex;align-items:flex-end;justify-content:center;padding-bottom:2px}
+.tx-sig-line .tx-sig-signed{font-size:12px;font-weight:700;font-family:Georgia,'Times New Roman',serif;color:#0a2a5c;line-height:1.2;max-width:100%;word-break:break-word}
+.tx-sig-role{font-size:11px;font-weight:800;letter-spacing:.06em;color:#0a2a5c;text-transform:uppercase}
+.tx-sig-name{font-size:11px;font-weight:700;color:#1a2a40;margin-top:4px;line-height:1.25;min-height:1.25em}
 .tx-footer{margin-top:10px;border:1px solid #0a2a5c;padding:7px 10px;font-size:10px;line-height:1.45;color:#1a2a40;text-align:center}
+.sheet.sheet-wide{max-width:560px}
+.sheet .sheet-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+.landing-gate .site-footer{margin-top:0;padding:28px 18px calc(36px + env(safe-area-inset-bottom));width:100%;box-sizing:border-box}
+.landing-gate .site-footer .ft-inner{max-width:900px;margin:0 auto}
+.landing-gate .site-footer .ft-col button{cursor:pointer}
+@media (min-width:720px){
+  .sheet.sheet-wide{max-width:640px}
+}
 </style>
 </head>
 <body>
@@ -516,6 +535,46 @@ body.landing-open .app{visibility:hidden;pointer-events:none}
       <strong>Want saved records &amp; transcripts?</strong> Create a free account above — your student dashboard keeps profile, semester marks, and PDFs with your login.
     </div>
   </section>
+  <footer class="site-footer" aria-label="University Law College footer">
+    <div class="ft-inner">
+      <div class="ft-brand">
+        <img class="ft-logo" src="icons/ulc-logo.png" alt="University Law College crest">
+        <div>
+          <div class="ft-tag">Faculty of Law</div>
+          <h3>University Law College</h3>
+          <p>Quetta · Affiliated with the University of Balochistan. A student toolkit for covers, award lists, syllabus, GPA, and classroom work.</p>
+          <p class="ft-meta" style="margin-top:10px">Khojak Road Quetta Cantt · Balochistan, Pakistan<br>Ph: 0092-81-920-3851 · ulc.qta@gmail.com</p>
+        </div>
+      </div>
+      <div class="ft-cols">
+        <div class="ft-col">
+          <h4>Toolkit</h4>
+          <button type="button" onclick="StudentDash.openToolFromLanding('cover')">Cover Page</button>
+          <button type="button" onclick="StudentDash.openToolFromLanding('award')">Award List</button>
+          <button type="button" onclick="StudentDash.openToolFromLanding('syllabus')">LLB Syllabus</button>
+          <button type="button" onclick="StudentDash.openToolFromLanding('aggregate')">Admission Aggregate</button>
+          <button type="button" onclick="StudentDash.openToolFromLanding('gpa')">GPA Tracker</button>
+          <button type="button" onclick="StudentDash.openToolFromLanding('timetable')">Timetable</button>
+        </div>
+        <div class="ft-col">
+          <h4>University</h4>
+          <a href="https://uob.ac.pk/" target="_blank" rel="noopener noreferrer">University of Balochistan</a>
+          <a href="https://www.uob.ac.pk/departments/law%20college/index.htm" target="_blank" rel="noopener noreferrer">Law College page</a>
+          <a href="https://cms.uob.edu.pk/ugso/admission.html" target="_blank" rel="noopener noreferrer">Admissions (UGSO)</a>
+          <a href="https://www.uob.ac.pk/Prospectus/index.php" target="_blank" rel="noopener noreferrer">Prospectus</a>
+        </div>
+        <div class="ft-col">
+          <h4>About this toolkit</h4>
+          <p class="ft-meta">Built for students and teachers of University Law College, Quetta — assignment covers, results, and study tools in one place.</p>
+          <button type="button" onclick="StudentDash.openAuthFromLanding('login')" style="margin-top:10px">Student / Teacher account</button>
+        </div>
+      </div>
+      <div class="ft-bottom">
+        <div class="ft-dev">Designed by a student from batch <strong>2025–29, Section A</strong>, University Law College (ULC), Quetta.</div>
+        <div class="ft-copy">© University Law College Quetta · ULC Toolkit</div>
+      </div>
+    </div>
+  </footer>
 </div>
 <div class="app">
   <header class="topbar">
@@ -629,9 +688,16 @@ body.landing-open .app{visibility:hidden;pointer-events:none}
         <!-- Student dashboard -->
         <div id="homeStudent" style="display:none">
           <div class="dash-welcome">
-            <div class="kicker">Student dashboard</div>
-            <h2 id="dashWelcomeTitle">Welcome</h2>
-            <p id="dashWelcomeSub">Profile, semester records, GPA, and Ask ULC.</p>
+            <div class="dash-welcome-copy">
+              <div class="kicker">Student dashboard</div>
+              <h2 id="dashWelcomeTitle">Welcome</h2>
+              <p id="dashWelcomeSub">Profile, semester records, GPA, and Ask ULC.</p>
+            </div>
+            <div class="dash-cgpa" id="dashCgpaBox" aria-label="Cumulative GPA">
+              <span class="lbl">CGPA</span>
+              <span class="val" id="dashCgpaVal">—</span>
+              <span class="hint" id="dashCgpaHint">from records</span>
+            </div>
           </div>
 
           <div class="dash-tabs" role="tablist">
@@ -669,6 +735,11 @@ body.landing-open .app{visibility:hidden;pointer-events:none}
                 <div class="field"><label>Program</label><input id="sp-program" value="LL.B Five Year"></div>
               </div>
               <div class="field"><label>Current semester</label><select id="sp-sem"></select></div>
+              <h3 style="margin:18px 0 8px;font-size:15px">Transcript signatures</h3>
+              <p class="hint" style="margin-top:0;margin-bottom:10px">Typed personal names printed under Prepared By, Coordinator, and Principal on your provisional certificate.</p>
+              <div class="field"><label>Prepared by (name)</label><input id="sp-prepared" placeholder="Full name as on certificate"></div>
+              <div class="field"><label>Coordinator (name)</label><input id="sp-coordinator" placeholder="Full name as on certificate"></div>
+              <div class="field"><label>Principal (name)</label><input id="sp-principal" placeholder="Full name as on certificate"></div>
               <button class="btn btn-primary" type="button" onclick="StudentDash.saveProfile()">Save profile</button>
             </div>
           </div>
@@ -676,13 +747,10 @@ body.landing-open .app{visibility:hidden;pointer-events:none}
           <div class="dash-panel" id="dash-records">
             <div class="card">
               <h3>Semester records</h3>
-              <p class="hint" style="margin-top:-4px;margin-bottom:10px">Subjects load from the LLB syllabus. Enter marks /100 — GP and grade use the official ULC table.</p>
+              <p class="hint" style="margin-top:-4px;margin-bottom:12px">Add each semester’s marks for your transcript and GPA analysis. Subjects load from the LLB syllabus.</p>
               <div class="msg" id="sr-msg"></div>
-              <div class="field"><label>Semester</label><select id="sr-sem" onchange="StudentDash.onRecordsSemChange()"></select></div>
-              <div id="sr-courses"></div>
-              <p class="hint" id="sr-live" style="margin:8px 0 12px">Enter marks to see semester GPA.</p>
               <div class="btn-row">
-                <button class="btn btn-primary" type="button" onclick="StudentDash.saveSemester()">Save semester</button>
+                <button class="btn btn-primary" type="button" onclick="StudentDash.openRecordsModal()">Add semester record</button>
                 <button class="btn btn-gold" type="button" id="sr-tx-btn" onclick="StudentDash.generateTranscript()">Generate transcript</button>
               </div>
             </div>
@@ -1268,6 +1336,21 @@ body.landing-open .app{visibility:hidden;pointer-events:none}
 
   <div id="printhost" class="no-print" style="display:none"></div>
   <div id="transcriptHost" style="display:none" aria-hidden="true"></div>
+
+  <div class="overlay" id="srOverlay">
+    <div class="sheet sheet-wide">
+      <h2 id="srModalTitle">Add semester record</h2>
+      <p class="lead">Pick a semester — subjects load from the syllabus. Enter marks /100; GP and grade use the official ULC table.</p>
+      <div class="msg" id="sr-modal-msg"></div>
+      <div class="field"><label>Semester</label><select id="sr-sem" onchange="StudentDash.onRecordsSemChange()"></select></div>
+      <div id="sr-courses"></div>
+      <p class="hint" id="sr-live" style="margin:8px 0 4px">Enter marks to see semester GPA.</p>
+      <div class="sheet-actions">
+        <button class="btn btn-primary" type="button" onclick="StudentDash.saveSemester()">Save semester</button>
+        <button class="btn btn-ghost" type="button" onclick="StudentDash.closeRecordsModal()">Cancel</button>
+      </div>
+    </div>
+  </div>
 
   <div class="overlay" id="onboardOverlay">
     <div class="sheet">

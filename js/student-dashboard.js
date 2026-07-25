@@ -204,16 +204,52 @@
     student.style.display = "";
     const title = document.getElementById("dashWelcomeTitle");
     const sub = document.getElementById("dashWelcomeSub");
-    if (title) title.textContent = "Welcome, " + (u.name || "Student");
+    const cgpaVal = document.getElementById("dashCgpaVal");
+    const cgpaHint = document.getElementById("dashCgpaHint");
+    const p = getProfile(u);
+    const name = (u.name || "Student").trim();
+    const cgpaInfo = studentCgpaSummary(u);
+    if (title) {
+      title.textContent = name;
+    }
     if (sub) {
-      const p = getProfile(u);
+      const bits = [];
+      if (u.roll) bits.push("Roll " + u.roll);
+      else if (u.email) bits.push(u.email);
       const sem = p.currentSemester || u.currentSemester;
-      sub.textContent =
-        (u.email || "Roll " + u.roll) +
-        (sem ? " · Semester " + sem : "") +
-        " · Your student dashboard";
+      if (sem) bits.push("Semester " + sem);
+      if (p.session || u.session) bits.push(p.session || u.session);
+      if (cgpaInfo.value != null) bits.push("CGPA " + cgpaInfo.value.toFixed(2));
+      sub.textContent = bits.length ? bits.join(" · ") : "Your student dashboard";
+    }
+    if (cgpaVal) {
+      cgpaVal.textContent = cgpaInfo.value != null ? cgpaInfo.value.toFixed(2) : "—";
+    }
+    if (cgpaHint) {
+      cgpaHint.textContent = cgpaInfo.hint;
     }
     setDashTab(activeDashTab, true);
+  }
+
+  function studentCgpaSummary(u) {
+    const records = getRecords(u);
+    const keys = Object.keys(records)
+      .map(Number)
+      .filter((n) => records[n]?.courses)
+      .sort((a, b) => a - b);
+    if (keys.length) {
+      const latest = keys[keys.length - 1];
+      const cgpa = cumulativeThrough(records, latest);
+      return {
+        value: cgpa,
+        hint: keys.length === 1 ? "Semester " + latest : keys.length + " semesters",
+      };
+    }
+    const fallback = u.cgpa != null && u.cgpa !== "" ? +u.cgpa : null;
+    if (fallback != null && !isNaN(fallback)) {
+      return { value: fallback, hint: "from profile" };
+    }
+    return { value: null, hint: "add records" };
   }
 
   function setDashTab(tab, force) {
@@ -256,18 +292,29 @@
       semSel.dataset.ready = "1";
     }
     if (semSel) semSel.value = String(p.currentSemester || u.currentSemester || 1);
+    set("sp-prepared", p.preparedByName || "");
+    set("sp-coordinator", p.coordinatorName || "");
+    set("sp-principal", p.principalName || "");
     const img = document.getElementById("sp-photo-preview");
     if (img) {
       if (p.photo) {
         img.src = p.photo;
         img.style.display = "";
+        delete img.dataset.pending;
       } else {
         img.removeAttribute("src");
         img.style.display = "none";
+        delete img.dataset.pending;
       }
     }
     const msg = document.getElementById("sp-msg");
     if (msg) msg.className = "msg";
+  }
+
+  function persistPhotoNow(dataUrl) {
+    const u = typeof currentUser === "function" ? currentUser() : null;
+    if (!u || u.role === "teacher" || !dataUrl) return;
+    setProfile(u, { photo: dataUrl });
   }
 
   function onPhotoSelected(file) {
@@ -276,7 +323,7 @@
     reader.onload = () => {
       const img = new Image();
       img.onload = () => {
-        const max = 480;
+        const max = 640;
         let w = img.width,
           h = img.height;
         if (w > h && w > max) {
@@ -290,12 +337,18 @@
         canvas.width = w;
         canvas.height = h;
         canvas.getContext("2d").drawImage(img, 0, 0, w, h);
-        const data = canvas.toDataURL("image/jpeg", 0.72);
+        const data = canvas.toDataURL("image/jpeg", 0.85);
         const preview = document.getElementById("sp-photo-preview");
         if (preview) {
           preview.src = data;
           preview.style.display = "";
           preview.dataset.pending = data;
+        }
+        persistPhotoNow(data);
+        const msg = document.getElementById("sp-msg");
+        if (msg) {
+          msg.textContent = "Photo saved for your transcript. Fill the rest and tap Save profile.";
+          msg.className = "msg show ok";
         }
       };
       img.src = reader.result;
@@ -307,11 +360,10 @@
     const u = currentUser();
     if (!u || u.role === "teacher") return;
     const preview = document.getElementById("sp-photo-preview");
-    const pending = preview?.dataset?.pending || preview?.src || "";
-    const photo =
-      pending && pending.indexOf("data:image") === 0
-        ? pending
-        : getProfile(u).photo || "";
+    const pending = preview?.dataset?.pending || "";
+    const fromSrc =
+      preview?.src && String(preview.src).indexOf("data:image") === 0 ? preview.src : "";
+    const photo = pending || fromSrc || getProfile(u).photo || "";
     const data = {
       fatherName: document.getElementById("sp-father")?.value.trim() || "",
       cnic: document.getElementById("sp-cnic")?.value.trim() || "",
@@ -320,20 +372,61 @@
       session: document.getElementById("sp-session")?.value.trim() || "",
       program: document.getElementById("sp-program")?.value.trim() || "LL.B Five Year",
       currentSemester: +document.getElementById("sp-sem")?.value || 1,
+      preparedByName: document.getElementById("sp-prepared")?.value.trim() || "",
+      coordinatorName: document.getElementById("sp-coordinator")?.value.trim() || "",
+      principalName: document.getElementById("sp-principal")?.value.trim() || "",
       photo,
     };
     setProfile(u, data);
     if (preview) delete preview.dataset.pending;
     const msg = document.getElementById("sp-msg");
     if (msg) {
-      msg.textContent = "Profile saved on this device.";
+      msg.textContent = photo
+        ? "Profile saved on this device (photo + signature names included)."
+        : "Profile saved. Upload a photo so it appears on your transcript.";
       msg.className = "msg show ok";
     }
     refreshHomeShell();
   }
 
   /* -------- Semester records -------- */
+  function openRecordsModal(sem) {
+    const ov = document.getElementById("srOverlay");
+    if (!ov) return;
+    if (sem != null) editingSem = +sem;
+    const title = document.getElementById("srModalTitle");
+    const records = currentUser() ? getRecords(currentUser()) : {};
+    if (title) {
+      title.textContent = records[editingSem] ? "Edit semester record" : "Add semester record";
+    }
+    const modalMsg = document.getElementById("sr-modal-msg");
+    if (modalMsg) modalMsg.className = "msg";
+    renderRecordsForm();
+    ov.classList.add("show");
+  }
+
+  function closeRecordsModal() {
+    document.getElementById("srOverlay")?.classList.remove("show");
+  }
+
   function renderRecords() {
+    const u = currentUser();
+    if (!u || u.role === "teacher") return;
+    const sel = document.getElementById("sr-sem");
+    if (sel && !sel.dataset.ready) {
+      sel.innerHTML = Object.keys(syllabus())
+        .map((n) => `<option value="${n}">Semester ${n}</option>`)
+        .join("");
+      sel.dataset.ready = "1";
+    }
+    const p = getProfile(u);
+    if (!editingSem) {
+      editingSem = +(p.currentSemester || u.currentSemester || 1);
+    }
+    renderSavedSemesters();
+  }
+
+  function renderRecordsForm() {
     const u = currentUser();
     if (!u || u.role === "teacher") return;
     const sel = document.getElementById("sr-sem");
@@ -350,11 +443,16 @@
       editingSem = +sel.value;
     }
     loadSemesterForm(editingSem);
-    renderSavedSemesters();
   }
 
   function onRecordsSemChange() {
     editingSem = +document.getElementById("sr-sem")?.value || 1;
+    const title = document.getElementById("srModalTitle");
+    const u = currentUser();
+    const records = u ? getRecords(u) : {};
+    if (title) {
+      title.textContent = records[editingSem] ? "Edit semester record" : "Add semester record";
+    }
     loadSemesterForm(editingSem);
   }
 
@@ -483,8 +581,15 @@
       msg.textContent = `Semester ${sem} saved · GPA ${stats.gpa.toFixed(2)}`;
       msg.className = "msg show ok";
     }
+    const modalMsg = document.getElementById("sr-modal-msg");
+    if (modalMsg) {
+      modalMsg.textContent = `Semester ${sem} saved · GPA ${stats.gpa.toFixed(2)}`;
+      modalMsg.className = "msg show ok";
+    }
     renderSavedSemesters();
     if (activeDashTab === "gpa") renderGpaAnalysis();
+    closeRecordsModal();
+    refreshHomeShell();
   }
 
   function renderSavedSemesters() {
@@ -497,7 +602,7 @@
       .filter((n) => records[n]?.courses)
       .sort((a, b) => a - b);
     if (!keys.length) {
-      el.innerHTML = '<div class="empty">No saved semesters yet.</div>';
+      el.innerHTML = '<div class="empty">No saved semesters yet. Tap <strong>Add semester record</strong> to begin.</div>';
       return;
     }
     el.innerHTML = keys
@@ -513,10 +618,8 @@
 
   function editSemester(n) {
     editingSem = +n;
-    const sel = document.getElementById("sr-sem");
-    if (sel) sel.value = String(n);
     setDashTab("records");
-    loadSemesterForm(n);
+    openRecordsModal(n);
   }
 
   function cumulativeBefore(records, sem) {
@@ -572,9 +675,14 @@
     const prev = cumulativeBefore(records, sem);
     const curr = cumulativeThrough(records, sem);
     const logo = global.LOGO || "icons/ulc-logo.png";
-    const photo = p.photo
-      ? `<img src="${p.photo}" alt="">`
+    const uob = "icons/uob-logo.png";
+    const photoSrc = p.photo && String(p.photo).indexOf("data:image") === 0 ? p.photo : "";
+    const photo = photoSrc
+      ? `<img src="${photoSrc}" alt="Student photo" width="110" height="136">`
       : `<div class="tx-photo-ph">PHOTO</div>`;
+    const prepared = (p.preparedByName || "").trim();
+    const coordinator = (p.coordinatorName || "").trim();
+    const principal = (p.principalName || "").trim();
     const rows = courses
       .map(
         (c) => `<tr>
@@ -591,7 +699,7 @@
       <div class="tx-outer">
         <div class="tx-inner">
           <div class="tx-head">
-            <img class="tx-logo" src="${logo}" alt="">
+            <img class="tx-logo" src="${logo}" alt="University Law College">
             <div class="tx-head-text">
               <div class="tx-uni">UNIVERSITY LAW COLLEGE QUETTA</div>
               <div class="tx-unit">EXAMINATION UNIT</div>
@@ -599,7 +707,7 @@
               <div class="tx-sem">${ORD[sem] || ("SEMESTER " + sem)} SEMESTER</div>
               <div class="tx-title">PROVISIONAL CERTIFICATE</div>
             </div>
-            <div class="tx-logo tx-logo-uob" aria-hidden="true"><span>UoB</span></div>
+            <img class="tx-logo" src="${uob}" alt="University of Balochistan">
           </div>
           <div class="tx-student">
             <div class="tx-grid">
@@ -635,6 +743,23 @@
             <span>Previous CGPA: ${prev.toFixed(2)}</span>
             <span>Current CGPA: ${curr.toFixed(2)}</span>
           </div>
+          <div class="tx-sigs">
+            <div class="tx-sig">
+              <div class="tx-sig-line"></div>
+              <div class="tx-sig-role">Prepared By</div>
+              <div class="tx-sig-name">${esc(prepared || "—")}</div>
+            </div>
+            <div class="tx-sig">
+              <div class="tx-sig-line"></div>
+              <div class="tx-sig-role">Coordinator</div>
+              <div class="tx-sig-name">${esc(coordinator || "—")}</div>
+            </div>
+            <div class="tx-sig">
+              <div class="tx-sig-line"></div>
+              <div class="tx-sig-role">Principal</div>
+              <div class="tx-sig-name">${esc(principal || "—")}</div>
+            </div>
+          </div>
           <div class="tx-footer">
             Khojak Road Quetta Cantt: Balochistan, Pakistan. Ph: 0092-81-920-3851 · Fax: 0092-81-920-3751 · email: ulc.qta@gmail.com · URL http://www.uob.edu.pk/law college
           </div>
@@ -643,21 +768,56 @@
     </div>`;
   }
 
+  function waitForImages(root) {
+    const imgs = [...(root?.querySelectorAll("img") || [])];
+    return Promise.all(
+      imgs.map(
+        (img) =>
+          new Promise((resolve) => {
+            if (img.complete && img.naturalWidth) return resolve();
+            img.onload = () => resolve();
+            img.onerror = () => resolve();
+            setTimeout(resolve, 1500);
+          })
+      )
+    );
+  }
+
   async function generateTranscript() {
     const u = currentUser();
     if (!u) {
       alert("Login required.");
       return;
     }
-    const sem = editingSem;
+    const profile = getProfile(u);
+    if (!profile.photo || String(profile.photo).indexOf("data:image") !== 0) {
+      const goPhoto = confirm(
+        "No student photo found on your profile. Upload a photo in Profile first?\n\nOK = open Profile · Cancel = generate without photo"
+      );
+      if (goPhoto) {
+        setDashTab("profile");
+        return;
+      }
+    }
     const records = getRecords(u);
+    let sem = editingSem;
     if (!records[sem]) {
-      alert("Save this semester before generating a transcript.");
-      return;
+      const keys = Object.keys(records)
+        .map(Number)
+        .filter((n) => records[n]?.courses)
+        .sort((a, b) => b - a);
+      if (!keys.length) {
+        alert("Add and save a semester record before generating a transcript.");
+        openRecordsModal();
+        return;
+      }
+      sem = keys[0];
+      editingSem = sem;
     }
     const filled = (records[sem].courses || []).filter((c) => c.marks !== "" && c.marks != null);
     if (!filled.length) {
       alert("Enter and save marks first.");
+      openRecordsModal(sem);
       return;
     }
     const btn = document.getElementById("sr-tx-btn");
@@ -673,6 +833,7 @@
     document.body.appendChild(holder);
     const cert = holder.querySelector(".tx-cert");
     try {
+      await waitForImages(cert);
       if (typeof html2canvas === "undefined" || !global.jspdf) {
         const host = document.getElementById("printhost");
         if (host) {
@@ -685,10 +846,12 @@
       const canvas = await html2canvas(cert, {
         scale: 2,
         useCORS: true,
+        allowTaint: true,
         backgroundColor: "#ffffff",
         logging: false,
         width: 1122,
         windowWidth: 1122,
+        imageTimeout: 4000,
       });
       const { jsPDF } = global.jspdf;
       const pdf = new jsPDF("l", "mm", "a4");
@@ -768,7 +931,7 @@
     {
       keys: ["transcript", "certificate", "pdf", "download", "provisional", "print"],
       answer:
-        "In Semester Records, save your marks first, then tap Generate transcript. You’ll get a provisional certificate–style PDF (no signature blocks). Fill Profile (photo, father name, CNIC, etc.) so the header is complete.",
+        "In Semester Records, tap Add semester record, enter marks, Save, then Generate transcript. The PDF matches the provisional certificate layout (ULC + UoB logos, courses table, GPA bar, and Prepared By / Coordinator / Principal signature places).",
     },
     {
       keys: ["cover", "assignment", "page"],
@@ -868,6 +1031,8 @@
     onPhotoSelected,
     saveProfile,
     renderRecords,
+    openRecordsModal,
+    closeRecordsModal,
     onRecordsSemChange,
     onMarksInput,
     saveSemester,
