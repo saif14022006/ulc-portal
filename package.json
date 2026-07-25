@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "type": "module",
-  "description": "ULC Portal — University Law College Quetta student toolkit PWA",
+  "description": "ULC Toolkit — University Law College Quetta student toolkit PWA",
   "scripts": {
     "logo": "node scripts/process-logo.mjs",
     "start": "npx --yes serve -p 8080",

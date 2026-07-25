@@ -4,13 +4,13 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#0b3a6b">
-<title>ULC Portal · University Law College, Quetta</title>
-<meta name="description" content="ULC Quetta student toolkit — covers, syllabus, aggregate, GPA, timetable, and personal award lists.">
+<title>ULC Toolkit · University Law College, Quetta</title>
+<meta name="description" content="ULC Toolkit for University Law College, Quetta — covers, syllabus, aggregate, GPA, timetable, and award lists.">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="favicon.png">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="ULC Portal">
+<meta name="apple-mobile-web-app-title" content="ULC Toolkit">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Cormorant+Garamond:wght@600;700&family=Source+Sans+3:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -363,7 +363,7 @@ main{flex:1;padding:18px 16px calc(var(--nav-h) + 28px);width:100%}
 <div class="app">
   <header class="topbar">
     <img class="seal-img" src="icons/ulc-logo.png" alt="ULC crest">
-    <div class="brand"><h1>University Law College</h1><p>Quetta · Student Portal</p></div>
+    <div class="brand"><h1>University Law College</h1><p>Quetta · ULC Toolkit</p></div>
     <button class="top-acc" id="topAccBtn" onclick="go('account')"><span id="topAccLabel">Account</span></button>
   </header>
 
@@ -387,7 +387,7 @@ main{flex:1;padding:18px 16px calc(var(--nav-h) + 28px);width:100%}
         <div class="hero">
           <div class="hero-copy">
             <div class="kicker">Affiliated · University of Balochistan</div>
-            <h2 id="heroTitle">Student toolkit</h2>
+            <h2 id="heroTitle">ULC Toolkit</h2>
             <p id="heroSub">Covers, award lists, syllabus, and more — built for University Law College, Quetta.</p>
           </div>
           <img class="hero-seal" src="icons/ulc-logo.png" alt="">
@@ -928,7 +928,7 @@ main{flex:1;padding:18px 16px calc(var(--nav-h) + 28px);width:100%}
       </div>
       <div class="ft-cols">
         <div class="ft-col">
-          <h4>Portal</h4>
+          <h4>Toolkit</h4>
           <button type="button" onclick="go('cover')">Cover Page</button>
           <button type="button" onclick="go('award')">Award List</button>
           <button type="button" onclick="go('syllabus')">LLB Syllabus</button>
@@ -945,7 +945,7 @@ main{flex:1;padding:18px 16px calc(var(--nav-h) + 28px);width:100%}
           <a href="https://www.uob.ac.pk/departments/law%20college/Academic/Academic.htm" target="_blank" rel="noopener noreferrer">Academic information</a>
         </div>
         <div class="ft-col">
-          <h4>About this portal</h4>
+          <h4>About this toolkit</h4>
           <p class="ft-meta">Built for students and teachers of University Law College, Quetta — assignment covers, results, and study tools in one place.</p>
           <button type="button" onclick="go('account')" style="margin-top:10px">Student / Teacher account</button>
           <button type="button" onclick="go('teacher')">Teacher desk</button>
@@ -953,7 +953,7 @@ main{flex:1;padding:18px 16px calc(var(--nav-h) + 28px);width:100%}
       </div>
       <div class="ft-bottom">
         <div class="ft-dev">Developed by a student of <strong>3rd Semester, Section A</strong>, University Law College (ULC), Quetta.</div>
-        <div class="ft-copy">© University Law College Quetta · Student Portal</div>
+        <div class="ft-copy">© University Law College Quetta · ULC Toolkit</div>
       </div>
     </div>
   </footer>
@@ -1385,7 +1385,7 @@ function refreshHeroWelcome(){
       sub.textContent=(u.email||('Roll '+u.roll))+' · Your law-study toolkit for University Law College, Quetta.';
     }
   }else{
-    title.textContent='Student toolkit';
+    title.textContent='ULC Toolkit';
     sub.textContent='Covers, award lists, syllabus, and more — built for University Law College, Quetta.';
   }
 }

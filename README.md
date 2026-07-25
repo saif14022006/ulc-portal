@@ -1,4 +1,4 @@
-# ULC Portal
+# ULC Toolkit
 
 Mobile-first PWA for **University Law College, Quetta**.
 

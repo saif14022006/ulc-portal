@@ -1,7 +1,7 @@
 {
-  "name": "ULC Portal — University Law College, Quetta",
-  "short_name": "ULC Portal",
-  "description": "Student toolkit for University Law College, Quetta: covers, aggregate, GPA, timetable, and LLB syllabus.",
+  "name": "ULC Toolkit — University Law College, Quetta",
+  "short_name": "ULC Toolkit",
+  "description": "ULC Toolkit for University Law College, Quetta: covers, aggregate, GPA, timetable, and LLB syllabus.",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
