@@ -1150,37 +1150,49 @@
         padding:0;line-height:1.05;overflow:hidden;
       }
       .grid thead th{
-        font-size:6px;font-weight:700;padding:1px 0;line-height:1.1;
+        font-size:6px;font-weight:700;padding:1px 0;line-height:1.08;
       }
       .grid thead th.roll,.grid thead th.nm{
-        font-size:7.5px;line-height:1.15;padding:2px;
+        font-size:7.5px;line-height:1.15;padding:2px;vertical-align:middle;
       }
       .grid thead th.nm{text-align:center}
       .grid thead .top{
-        font-size:8px;letter-spacing:.04em;padding:2px 0;height:16px;
+        font-size:8px;letter-spacing:.04em;padding:2px 0;height:15px;
       }
       .grid thead .sub{
-        font-size:6.2px;padding:2px 1px;height:14px;white-space:nowrap;
+        font-size:6.2px;padding:1px;height:13px;white-space:nowrap;
+      }
+      .grid thead .lab{
+        font-size:5.8px;padding:1px 0;height:16px;line-height:1.08;vertical-align:middle;
       }
       .grid thead .leaf{
-        font-size:5.6px;padding:1px 0;height:22px;line-height:1.08;vertical-align:middle;
+        font-size:5.2px;padding:0;height:11px;line-height:1;vertical-align:middle;
+        font-weight:600;
       }
       .grid thead .h-r{
         font-size:5.8px;padding:1px;line-height:1.1;vertical-align:middle;
       }
-      /* Data rows — keep compact height (confirmed matching sample) */
+      /* Data rows — compact; quiz/assn tint matches sample top row */
       .grid tbody tr{height:15px}
       .grid tbody td{
         font-size:6.8px;height:15px;max-height:15px;min-height:15px;
-        padding:0 1px;line-height:15px;
+        padding:0 1px;line-height:15px;background:#fff;
       }
+      .grid tbody td.tint{background:#e4eaf3}
+      .grid tbody td.avg{background:#d0d7de;font-weight:700}
+      .grid tbody td.avg-a{background:#c5d7ea;font-weight:700}
+      .grid tbody td.grand{background:#fff8dc;font-weight:700}
+      .grid tbody td.rnd{background:#fce4d6;font-weight:700}
+      .grid tbody td.grd{background:#fce4ec}
+      .grid tbody td.gp{background:#ddebf7;font-weight:700}
       .grid tbody tr:nth-child(even) td{background:#eef3f8}
-      .grid tbody tr:nth-child(even) td.avg,
-      .grid tbody tr:nth-child(even) td.avg-a,
-      .grid tbody tr:nth-child(even) td.pct,
-      .grid tbody tr:nth-child(even) td.pct-f{background:#c8d2dc}
-      .grid tbody tr:nth-child(even) td.rnd,
-      .grid tbody tr:nth-child(even) td.gp{background:#f5d9c8}
+      .grid tbody tr:nth-child(even) td.tint{background:#d9e2ef}
+      .grid tbody tr:nth-child(even) td.avg{background:#c8d2dc}
+      .grid tbody tr:nth-child(even) td.avg-a{background:#b8cce0}
+      .grid tbody tr:nth-child(even) td.grand{background:#f5eec8}
+      .grid tbody tr:nth-child(even) td.rnd{background:#f5d9c8}
+      .grid tbody tr:nth-child(even) td.grd{background:#f5d0e0}
+      .grid tbody tr:nth-child(even) td.gp{background:#c8d9ea}
       .grid tbody td.roll{
         font-weight:700;white-space:nowrap;font-size:6.8px;padding:0 1px;text-align:center;
       }
@@ -1190,18 +1202,12 @@
       }
       .h-q{background:#d9d9d9}
       .h-a{background:#bdd7ee}
-      .h-m{background:#c6efce}
-      .h-f{background:#ffe699}
+      .h-m{background:#ffffff}
+      .h-f{background:#ffffff}
       .h-r{background:#f8cbad}
-      .avg{background:#d0d7de;font-weight:700}
-      .avg-a{background:#d0d7de;font-weight:700}
       .obt{background:#fff}
-      .pct{background:#d0d7de}
-      .pct-f{background:#d0d7de}
-      .grand{background:#fff;font-weight:700}
-      .rnd{background:#fce4d6;font-weight:700}
-      .grd{background:#fff}
-      .gp{background:#fce4d6;font-weight:700}
+      .pct{background:#fff}
+      .pct-f{background:#fff}
       .rem{background:#fff}
     `;
   }
@@ -1486,14 +1492,14 @@
         return `<tr>
         <td class="roll">${esc(s.roll)}</td>
         <td class="nm">${esc(String(s.name || "").toUpperCase())}</td>
-        <td>${(+m.q1 || 0).toFixed(1)}</td>
-        <td>${(+m.q2 || 0).toFixed(1)}</td>
-        <td>${(+m.q3 || 0).toFixed(1)}</td>
-        <td>${(+m.q4 || 0).toFixed(1)}</td>
-        <td>${(+m.q5 || 0).toFixed(1)}</td>
+        <td class="tint">${(+m.q1 || 0).toFixed(1)}</td>
+        <td class="tint">${(+m.q2 || 0).toFixed(1)}</td>
+        <td class="tint">${(+m.q3 || 0).toFixed(1)}</td>
+        <td class="tint">${(+m.q4 || 0).toFixed(1)}</td>
+        <td class="tint">${(+m.q5 || 0).toFixed(1)}</td>
         <td class="avg">${r.quiz.toFixed(1)}</td>
-        <td>${(+m.a1 || 0).toFixed(1)}</td>
-        <td>${(+m.a2 || 0).toFixed(1)}</td>
+        <td class="tint">${(+m.a1 || 0).toFixed(1)}</td>
+        <td class="tint">${(+m.a2 || 0).toFixed(1)}</td>
         <td class="avg-a">${r.assn.toFixed(1)}</td>
         <td>${(+m.mid_obj || 0).toFixed(1)}</td>
         <td>${(+m.mid_sub || 0).toFixed(1)}</td>
@@ -1549,8 +1555,8 @@
         </colgroup>
         <thead>
           <tr>
-            <th rowspan="3" class="roll">Roll #</th>
-            <th rowspan="3" class="nm">Name of Student</th>
+            <th rowspan="4" class="roll">Roll #</th>
+            <th rowspan="4" class="nm">Name of Student</th>
             <th colspan="17" class="top">ASSESSMENT</th>
             <th colspan="5" class="top">FINAL RESULT</th>
           </tr>
@@ -1559,30 +1565,49 @@
             <th colspan="3" class="h-a sub">ASSIGNMENTS (15%)</th>
             <th colspan="4" class="h-m sub">MID SEMESTER (30%)</th>
             <th colspan="4" class="h-f sub">FINAL SEMESTER (40%)</th>
-            <th rowspan="2" class="h-r">Grand Marks<br>(Out of 100)</th>
-            <th rowspan="2" class="h-r">Rounded up<br>Marks</th>
-            <th rowspan="2" class="h-r">Grade</th>
-            <th rowspan="2" class="h-r">GP</th>
-            <th rowspan="2" class="h-r">Remarks</th>
+            <th rowspan="3" class="h-r">Grand Marks<br>Out of 100</th>
+            <th rowspan="3" class="h-r">Rounded up<br>Makrs</th>
+            <th rowspan="3" class="h-r">Grade</th>
+            <th rowspan="3" class="h-r">GP</th>
+            <th rowspan="3" class="h-r">Remarks</th>
           </tr>
           <tr>
-            <th class="h-q leaf">Q. 01<br>Marks 15</th>
-            <th class="h-q leaf">Q. 02<br>Marks 15</th>
-            <th class="h-q leaf">Q. 03<br>Marks 15</th>
-            <th class="h-q leaf">Q. 04<br>Marks 15</th>
-            <th class="h-q leaf">Q. 05<br>Marks 15</th>
-            <th class="h-q leaf">Average<br>(Of Best Three)</th>
-            <th class="h-a leaf">A.# 01<br>Marks 15</th>
-            <th class="h-a leaf">A.# 02<br>Marks 15</th>
-            <th class="h-a leaf">Average</th>
-            <th class="h-m leaf">Obj<br>Marks</th>
-            <th class="h-m leaf">Sub<br>Marks</th>
-            <th class="h-m leaf">Marks Obt.<br>(Out of 100)</th>
-            <th class="h-m leaf">30%<br>Marks</th>
-            <th class="h-f leaf">Obj<br>Marks</th>
-            <th class="h-f leaf">Sub<br>Marks</th>
-            <th class="h-f leaf">Marks Obt.<br>(Out of 100)</th>
-            <th class="h-f leaf">40%<br>Marks</th>
+            <th class="h-q lab">Q. 01</th>
+            <th class="h-q lab">Q. 02</th>
+            <th class="h-q lab">Q. 03</th>
+            <th class="h-q lab">Q. 04</th>
+            <th class="h-q lab">Q. 05</th>
+            <th class="h-q lab">Average</th>
+            <th class="h-a lab">A.# 01</th>
+            <th class="h-a lab">A.# 02</th>
+            <th class="h-a lab">Average</th>
+            <th class="h-m lab">Obj<br>Marks</th>
+            <th class="h-m lab">Sub<br>Marks</th>
+            <th class="h-m lab">Marks Obt.</th>
+            <th class="h-m lab">30%<br>Marks</th>
+            <th class="h-f lab">Obj<br>Marks</th>
+            <th class="h-f lab">Sub<br>Marks</th>
+            <th class="h-f lab">Marks Obt.</th>
+            <th class="h-f lab">40%<br>Marks</th>
+          </tr>
+          <tr>
+            <th class="h-q leaf">Marks 15</th>
+            <th class="h-q leaf">Marks 15</th>
+            <th class="h-q leaf">Marks 15</th>
+            <th class="h-q leaf">Marks 15</th>
+            <th class="h-q leaf">Marks 15</th>
+            <th class="h-q leaf">(Of Best Three)</th>
+            <th class="h-a leaf">Marks 15</th>
+            <th class="h-a leaf">Marks 15</th>
+            <th class="h-a leaf"></th>
+            <th class="h-m leaf"></th>
+            <th class="h-m leaf"></th>
+            <th class="h-m leaf">(Out of 100)</th>
+            <th class="h-m leaf"></th>
+            <th class="h-f leaf"></th>
+            <th class="h-f leaf"></th>
+            <th class="h-f leaf">(Out of 100)</th>
+            <th class="h-f leaf"></th>
           </tr>
         </thead>
         <tbody>${rows}${pad}</tbody>
