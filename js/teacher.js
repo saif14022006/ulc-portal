@@ -995,28 +995,115 @@
       <p class="hint">Scroll sideways if needed. Sticky student column stays visible.</p>`;
   }
 
+  function semOrdinal(n) {
+    n = +n || 0;
+    const map = { 1: "1st", 2: "2nd", 3: "3rd", 4: "4th", 5: "5th", 6: "6th", 7: "7th", 8: "8th", 9: "9th", 10: "10th" };
+    return map[n] || (n ? n + "th" : "—");
+  }
+
+  /** Official ULC award-list sheet — A4 landscape, matches college template. */
   function awardPdfCss(partial) {
+    if (partial) {
+      return `
+        *{box-sizing:border-box}
+        body{font-family:"Times New Roman",Times,serif;color:#000;margin:0;background:#fff}
+        .award-pdf{width:1122px;padding:16px 18px;background:#fff}
+        .pdf-title{text-align:center;font-size:18px;font-weight:700;margin:0 0 4px}
+        .pdf-badge{text-align:center;font-weight:700;border:1.5px solid #000;padding:2px 22px;margin:6px auto 10px;display:block;width:fit-content;font-size:13px}
+        .pdf-page{text-align:right;font-size:9px;margin:0 0 4px}
+        .meta{width:100%;border-collapse:collapse;margin:0 0 8px}
+        .meta td{border:1px solid #333;padding:4px 6px;font-size:10px}
+        .grid{width:100%;border-collapse:collapse;table-layout:fixed}
+        .grid th,.grid td{border:1px solid #000;padding:5px 4px;text-align:center;font-size:10px}
+        .grid .nm{text-align:left;padding-left:4px}
+        .grid .roll{font-weight:700;white-space:nowrap}
+        .h-q{background:#d9d9d9}.h-a{background:#bdd7ee}.h-m{background:#fff2cc}.h-f{background:#c6efce}.h-r{background:#f8cbad}
+        .avg{background:#d9d9d9;font-weight:700}.avg-a{background:#bdd7ee;font-weight:700}
+        .pct{background:#fff2cc}.pct-f{background:#c6efce}.grand{background:#ddebf7;font-weight:700}
+        .rnd{background:#fce4d6;font-weight:700}.grd{background:#e8d5f2}.gp{background:#fff2cc;font-weight:700}
+      `;
+    }
+    /* Full official award list — sized for one A4 landscape page (~25 rows) */
     return `
       *{box-sizing:border-box}
-      body{font-family:Times New Roman,serif;font-size:10px;color:#000;margin:0;background:#fff}
-      .award-pdf{width:1600px;max-width:1600px;padding:14px 16px 18px;background:#fff}
-      .pdf-title{text-align:center;font-size:18px;font-weight:700;letter-spacing:.02em;margin:0 0 4px}
-      .pdf-badge{text-align:center;font-weight:700;border:2px solid #000;padding:3px 20px;margin:6px auto 10px;display:block;width:fit-content;font-size:13px}
-      .pdf-page{text-align:right;font-size:9px;color:#333;margin:0 0 6px}
-      .meta{width:100%;border-collapse:collapse;margin:0 0 10px;table-layout:fixed}
-      .meta td{border:1px solid #333;padding:5px 8px;font-size:10px;vertical-align:top}
-      .grid{width:100%;border-collapse:collapse;table-layout:fixed}
-      .grid th,.grid td{
-        border:1px solid #222;padding:${partial ? "7px 5px" : "5px 3px"};
-        text-align:center;vertical-align:middle;
-        font-size:${partial ? "11px" : "9.5px"};
-        line-height:1.25;word-wrap:break-word;
+      body{font-family:"Times New Roman",Times,serif;color:#000;margin:0;background:#fff}
+      .award-pdf{
+        width:1122px;height:793px;padding:10px 12px 8px;background:#fff;
+        display:flex;flex-direction:column;overflow:hidden;
       }
-      .grid thead th{font-weight:700}
-      .grid .nm{text-align:left;padding-left:5px;font-size:${partial ? "11px" : "9.5px"};overflow:hidden}
-      .grid .roll{white-space:nowrap;font-weight:700;width:58px}
-      .h-q{background:#d9d9d9}.h-a{background:#bdd7ee}.h-m{background:#c6efce}.h-f{background:#ffe699}.h-r{background:#f8cbad}
-      .avg{background:#eee;font-weight:700}.pct{background:#e2efda}.grand{background:#ddebf7;font-weight:700}.rnd{background:#fce4d6;font-weight:700}
+      .pdf-title{
+        text-align:center;font-size:16px;font-weight:700;letter-spacing:.05em;
+        margin:0;line-height:1.2;text-transform:uppercase;
+        border:2.5px solid #000;padding:5px 10px;
+      }
+      .pdf-badge{
+        text-align:center;font-weight:700;border:1.5px solid #000;
+        padding:1px 32px;margin:5px auto 6px;display:block;width:fit-content;
+        font-size:11.5px;letter-spacing:.08em;
+      }
+      .pdf-page{display:none}
+      .meta-lines{width:100%;margin:0 0 6px;font-size:9px;line-height:1.55}
+      .meta-lines .row{display:flex;flex-wrap:nowrap;gap:10px;margin-bottom:2px;align-items:baseline}
+      .meta-lines .field{white-space:nowrap}
+      .meta-lines .field.grow{flex:1;min-width:0}
+      .meta-lines .lab{font-weight:700}
+      .meta-lines .val{
+        display:inline-block;min-width:3.2em;border-bottom:1px solid #000;
+        padding:0 4px 0 2px;font-weight:400;vertical-align:baseline;
+      }
+      .meta-lines .val.wide{min-width:9em}
+      .meta-lines .val.mid{min-width:5.5em}
+      .grid-wrap{flex:1;min-height:0}
+      .grid{
+        width:100%;height:100%;border-collapse:collapse;table-layout:fixed;
+        border:2px solid #000;
+      }
+      .grid th,.grid td{
+        border:1px solid #000;text-align:center;vertical-align:middle;
+        padding:0 1px;line-height:1.05;overflow:hidden;
+      }
+      .grid thead th{
+        font-size:6.2px;font-weight:700;padding:1px 0;height:auto;
+      }
+      .grid thead .top{font-size:7.5px;letter-spacing:.03em}
+      .grid thead .sub{font-size:6.4px}
+      .grid tbody td{
+        font-size:7px;height:22px;max-height:22px;
+      }
+      .grid col.roll,.grid .roll{
+        width:3.2%;font-weight:700;white-space:nowrap;font-size:7px;padding:0 2px;
+      }
+      .grid col.nm,.grid .nm{
+        width:12.5%;text-align:left;padding-left:3px;font-size:6.6px;
+        font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:clip;
+      }
+      .grid col.c-q{width:2.55%}
+      .grid col.c-qa{width:3.4%}
+      .grid col.c-a{width:2.7%}
+      .grid col.c-aa{width:2.9%}
+      .grid col.c-m{width:3.15%}
+      .grid col.c-f{width:3.15%}
+      .grid col.c-g{width:3.6%}
+      .grid col.c-r{width:3.3%}
+      .grid col.c-gr{width:2.4%}
+      .grid col.c-gp{width:2.3%}
+      .grid col.c-rm{width:4.2%}
+      .h-q{background:#d9d9d9}
+      .h-a{background:#bdd7ee}
+      .h-m{background:#c6efce}
+      .h-f{background:#ffe699}
+      .h-r{background:#f8cbad}
+      /* Calculated columns — same tint as official sheet */
+      .avg{background:#d0d7de;font-weight:700}
+      .avg-a{background:#d0d7de;font-weight:700}
+      .obt{background:#fff}
+      .pct{background:#d0d7de}
+      .pct-f{background:#d0d7de}
+      .grand{background:#fff;font-weight:700}
+      .rnd{background:#fce4d6;font-weight:700}
+      .grd{background:#fff}
+      .gp{background:#fce4d6;font-weight:700}
+      .rem{background:#fff}
     `;
   }
 
@@ -1293,74 +1380,115 @@
     const list = Array.isArray(students) ? students : c.students;
     sortStudentsByRoll(list);
     const teacher = st.officialName || "";
-    const rows = list.map((s) => {
-      const m = c.marks[s.roll] || emptyMarks();
-      const r = calcStudent(m);
-      return `<tr>
-        <td class="roll">${esc(s.roll)}</td><td class="nm">${esc(s.name)}</td>
-        <td>${(+m.q1 || 0).toFixed(1)}</td><td>${(+m.q2 || 0).toFixed(1)}</td><td>${(+m.q3 || 0).toFixed(1)}</td><td>${(+m.q4 || 0).toFixed(1)}</td><td>${(+m.q5 || 0).toFixed(1)}</td>
+    const rows = list
+      .map((s) => {
+        const m = c.marks[s.roll] || emptyMarks();
+        const r = calcStudent(m);
+        return `<tr>
+        <td class="roll">${esc(s.roll)}</td>
+        <td class="nm">${esc(String(s.name || "").toUpperCase())}</td>
+        <td>${(+m.q1 || 0).toFixed(1)}</td>
+        <td>${(+m.q2 || 0).toFixed(1)}</td>
+        <td>${(+m.q3 || 0).toFixed(1)}</td>
+        <td>${(+m.q4 || 0).toFixed(1)}</td>
+        <td>${(+m.q5 || 0).toFixed(1)}</td>
         <td class="avg">${r.quiz.toFixed(1)}</td>
-        <td>${(+m.a1 || 0).toFixed(1)}</td><td>${(+m.a2 || 0).toFixed(1)}</td>
-        <td class="avg">${r.assn.toFixed(1)}</td>
-        <td>${(+m.mid_obj || 0).toFixed(1)}</td><td>${(+m.mid_sub || 0).toFixed(1)}</td><td>${r.midObt.toFixed(2)}</td><td class="pct">${r.mid30.toFixed(2)}</td>
-        <td>${(+m.fin_obj || 0).toFixed(1)}</td><td>${(+m.fin_sub || 0).toFixed(1)}</td><td>${r.finObt.toFixed(2)}</td><td class="pct">${r.fin40.toFixed(2)}</td>
-        <td class="grand">${r.grand.toFixed(2)}</td><td class="rnd">${r.rounded}</td><td>${r.grade}</td><td>${r.gp.toFixed(2)}</td><td></td>
+        <td>${(+m.a1 || 0).toFixed(1)}</td>
+        <td>${(+m.a2 || 0).toFixed(1)}</td>
+        <td class="avg-a">${r.assn.toFixed(1)}</td>
+        <td>${(+m.mid_obj || 0).toFixed(1)}</td>
+        <td>${(+m.mid_sub || 0).toFixed(1)}</td>
+        <td class="obt">${r.midObt.toFixed(2)}</td>
+        <td class="pct">${r.mid30.toFixed(2)}</td>
+        <td>${(+m.fin_obj || 0).toFixed(1)}</td>
+        <td>${(+m.fin_sub || 0).toFixed(1)}</td>
+        <td class="obt">${r.finObt.toFixed(2)}</td>
+        <td class="pct-f">${r.fin40.toFixed(2)}</td>
+        <td class="grand">${r.grand.toFixed(2)}</td>
+        <td class="rnd">${r.rounded}</td>
+        <td class="grd">${esc(r.grade)}</td>
+        <td class="gp">${r.gp.toFixed(2)}</td>
+        <td class="rem"></td>
       </tr>`;
-    }).join("");
+      })
+      .join("");
 
-    const pageLabel = pageInfo
-      ? `<div class="pdf-page">Page ${pageInfo.page} of ${pageInfo.pages}</div>`
-      : "";
+    /* Pad empty rows so row height matches official sheet density on the page */
+    const targetRows = 25;
+    let pad = "";
+    for (let i = list.length; i < targetRows; i++) {
+      pad += `<tr>${'<td>&nbsp;</td>'.repeat(24)}</tr>`;
+    }
 
     return `<div class="award-pdf" id="awardPdfSheet">
       <div class="pdf-title">UNIVERSITY LAW COLLEGE, QUETTA</div>
       <div class="pdf-badge">AWARD LIST</div>
-      ${pageLabel}
-      <table class="meta">
-        <tr>
-          <td><b>Program Title:</b> LL.B. (Five Years) Degree Program</td>
-          <td><b>Session:</b> ${esc(c.session || "")}</td>
-          <td><b>Semester:</b> ${c.semester}</td>
-        </tr>
-        <tr>
-          <td><b>Course Code:</b> ${esc(c.subjectCode || "")}</td>
-          <td><b>Credit Hours:</b> ${(+c.creditHours || 3).toFixed(2)}</td>
-          <td><b>Course Title:</b> ${esc(c.subject)}</td>
-        </tr>
-        <tr>
-          <td><b>Teacher:</b> ${esc(teacher)}</td>
-          <td><b>Mid Exam Date:</b> ${esc(c.midExamDate || "")}</td>
-          <td><b>Fin. Exam Date:</b> ${esc(c.finExamDate || "")}</td>
-        </tr>
-      </table>
+      <div class="meta-lines">
+        <div class="row">
+          <span class="field grow"><span class="lab">Program Title:</span> <span class="val wide">LL.B. (Five Years) Degree Program</span></span>
+          <span class="field"><span class="lab">Session:</span> <span class="val mid">${esc(c.session || "")}</span></span>
+          <span class="field"><span class="lab">Semester:</span> <span class="val">${esc(semOrdinal(c.semester))}</span></span>
+          <span class="field"><span class="lab">Course Code:</span> <span class="val mid">${esc(c.subjectCode || "")}</span></span>
+          <span class="field"><span class="lab">Credit Hours:</span> <span class="val">${esc(String((+c.creditHours || 3).toFixed(0)))}</span></span>
+        </div>
+        <div class="row">
+          <span class="field grow"><span class="lab">Course Title:</span> <span class="val wide">${esc(c.subject || "")}</span></span>
+          <span class="field grow"><span class="lab">Teacher:</span> <span class="val wide">${esc(teacher)}</span></span>
+          <span class="field"><span class="lab">Mid Exam Date:</span> <span class="val mid">${esc(c.midExamDate || "")}</span></span>
+          <span class="field"><span class="lab">Fin. Exam Date:</span> <span class="val mid">${esc(c.finExamDate || "")}</span></span>
+        </div>
+      </div>
+      <div class="grid-wrap">
       <table class="grid">
+        <colgroup>
+          <col class="roll"><col class="nm">
+          <col class="c-q"><col class="c-q"><col class="c-q"><col class="c-q"><col class="c-q"><col class="c-qa">
+          <col class="c-a"><col class="c-a"><col class="c-aa">
+          <col class="c-m"><col class="c-m"><col class="c-m"><col class="c-m">
+          <col class="c-f"><col class="c-f"><col class="c-f"><col class="c-f">
+          <col class="c-g"><col class="c-r"><col class="c-gr"><col class="c-gp"><col class="c-rm">
+        </colgroup>
         <thead>
           <tr>
             <th rowspan="3" class="roll">Roll #</th>
-            <th rowspan="3">Name of Student</th>
-            <th colspan="17">ASSESSMENT</th>
-            <th colspan="5">FINAL RESULT</th>
+            <th rowspan="3" class="nm">Name of Student</th>
+            <th colspan="17" class="top">ASSESSMENT</th>
+            <th colspan="5" class="top">FINAL RESULT</th>
           </tr>
           <tr>
-            <th colspan="6" class="h-q">QUIZZES (15%)</th>
-            <th colspan="3" class="h-a">ASSIGNMENTS (15%)</th>
-            <th colspan="4" class="h-m">MID SEMESTER (30%)</th>
-            <th colspan="4" class="h-f">FINAL SEMESTER (40%)</th>
+            <th colspan="6" class="h-q sub">QUIZZES (15%)</th>
+            <th colspan="3" class="h-a sub">ASSIGNMENTS (15%)</th>
+            <th colspan="4" class="h-m sub">MID SEMESTER (30%)</th>
+            <th colspan="4" class="h-f sub">FINAL SEMESTER (40%)</th>
             <th rowspan="2" class="h-r">Grand Marks<br>(Out of 100)</th>
-            <th rowspan="2" class="h-r">Rounded<br>Marks</th>
+            <th rowspan="2" class="h-r">Rounded up<br>Marks</th>
             <th rowspan="2" class="h-r">Grade</th>
             <th rowspan="2" class="h-r">GP</th>
             <th rowspan="2" class="h-r">Remarks</th>
           </tr>
           <tr>
-            <th class="h-q">Q#01<br>/15</th><th class="h-q">Q#02<br>/15</th><th class="h-q">Q#03<br>/15</th><th class="h-q">Q#04<br>/15</th><th class="h-q">Q#05<br>/15</th><th class="h-q">Average<br>(Best 3)</th>
-            <th class="h-a">A#01<br>/15</th><th class="h-a">A#02<br>/15</th><th class="h-a">Average</th>
-            <th class="h-m">Obj</th><th class="h-m">Sub</th><th class="h-m">Marks Obt<br>/100</th><th class="h-m">30%</th>
-            <th class="h-f">Obj</th><th class="h-f">Sub</th><th class="h-f">Marks Obt<br>/100</th><th class="h-f">40%</th>
+            <th class="h-q">Q. 01<br>Marks 15</th>
+            <th class="h-q">Q. 02<br>Marks 15</th>
+            <th class="h-q">Q. 03<br>Marks 15</th>
+            <th class="h-q">Q. 04<br>Marks 15</th>
+            <th class="h-q">Q. 05<br>Marks 15</th>
+            <th class="h-q">Average<br>(Of Best Three)</th>
+            <th class="h-a">A.# 01<br>Marks 15</th>
+            <th class="h-a">A.# 02<br>Marks 15</th>
+            <th class="h-a">Average</th>
+            <th class="h-m">Obj<br>Marks</th>
+            <th class="h-m">Sub<br>Marks</th>
+            <th class="h-m">Marks Obt.<br>(Out of 100)</th>
+            <th class="h-m">30%<br>Marks</th>
+            <th class="h-f">Obj<br>Marks</th>
+            <th class="h-f">Sub<br>Marks</th>
+            <th class="h-f">Marks Obt.<br>(Out of 100)</th>
+            <th class="h-f">40%<br>Marks</th>
           </tr>
         </thead>
-        <tbody>${rows}</tbody>
+        <tbody>${rows}${pad}</tbody>
       </table>
+      </div>
     </div>`;
   }
 
@@ -1423,22 +1551,46 @@
 
   async function renderSheetToCanvas(html, partial) {
     const host = document.getElementById("teacherPdfHost");
-    const widthPx = 1600;
+    /* Official sheet = A4 landscape at 96dpi (297×210mm → 1122×793px) */
+    const widthPx = 1122;
+    const heightPx = partial ? undefined : 793;
     host.innerHTML = `<style>${awardPdfCss(partial)}</style>` + html;
     host.style.cssText =
       "position:fixed;left:-99999px;top:0;width:" + widthPx + "px;background:#fff;";
     const sheet = document.getElementById("awardPdfSheet");
     if (!sheet) throw new Error("sheet missing");
-    const canvas = await html2canvas(sheet, {
-      scale: 2,
+    const opts = {
+      scale: 2.5,
       backgroundColor: "#ffffff",
       logging: false,
       width: widthPx,
       windowWidth: widthPx,
       scrollX: 0,
       scrollY: 0,
-    });
-    return canvas;
+    };
+    if (heightPx) {
+      opts.height = heightPx;
+      opts.windowHeight = heightPx;
+    }
+    return html2canvas(sheet, opts);
+  }
+
+  function placeCanvasOnA4Landscape(pdf, canvas, marginMm) {
+    const pageW = pdf.internal.pageSize.getWidth();
+    const pageH = pdf.internal.pageSize.getHeight();
+    const m = marginMm == null ? 8 : marginMm;
+    const usableW = pageW - m * 2;
+    const usableH = pageH - m * 2;
+    const ar = canvas.width / canvas.height;
+    let imgW = usableW;
+    let imgH = imgW / ar;
+    if (imgH > usableH) {
+      imgH = usableH;
+      imgW = imgH * ar;
+    }
+    const x = (pageW - imgW) / 2;
+    const y = (pageH - imgH) / 2;
+    pdf.addImage(canvas.toDataURL("image/jpeg", 0.95), "JPEG", x, y, imgW, imgH);
   }
 
   async function exportAwardPdf() {
@@ -1465,9 +1617,9 @@
         throw new Error("libs");
       }
       const { jsPDF } = window.jspdf || global.jspdf;
-      /* Always A4 landscape — clear print, no squeezed columns */
+      /* A4 landscape — one official sheet ≈ 25 students per page */
       const pdf = new jsPDF({ orientation: "landscape", unit: "mm", format: "a4" });
-      const rowsPerPage = partial ? 22 : 12;
+      const rowsPerPage = partial ? 28 : 25;
       const chunks = chunkStudents(c.students, rowsPerPage);
       const pages = chunks.length;
 
@@ -1479,18 +1631,22 @@
           : buildAwardHtml(chunks[i], pageInfo);
         const canvas = await renderSheetToCanvas(html, partial);
         if (i > 0) pdf.addPage();
-        /* Width-fit on A4 landscape; keep aspect ratio — never squash rows/columns */
-        const margin = 7;
-        const pageW = pdf.internal.pageSize.getWidth();
-        const pageH = pdf.internal.pageSize.getHeight();
-        const usableW = pageW - margin * 2;
-        const usableH = pageH - margin * 2;
-        const imgW = usableW;
-        const imgH = (canvas.height * imgW) / canvas.width;
-        if (imgH <= usableH) {
-          pdf.addImage(canvas.toDataURL("image/jpeg", 0.94), "JPEG", margin, margin, imgW, imgH);
+        if (partial) {
+          const margin = 8;
+          const pageW = pdf.internal.pageSize.getWidth();
+          const pageH = pdf.internal.pageSize.getHeight();
+          const usableW = pageW - margin * 2;
+          const usableH = pageH - margin * 2;
+          const imgW = usableW;
+          const imgH = (canvas.height * imgW) / canvas.width;
+          if (imgH <= usableH) {
+            pdf.addImage(canvas.toDataURL("image/jpeg", 0.94), "JPEG", margin, margin, imgW, imgH);
+          } else {
+            addCanvasToPdfPages(pdf, canvas, margin);
+          }
         } else {
-          addCanvasToPdfPages(pdf, canvas, margin);
+          /* Full award list: fit one sheet per page, never stretch */
+          placeCanvasOnA4Landscape(pdf, canvas, 8);
         }
       }
 
@@ -1502,8 +1658,11 @@
       if (w) {
         w.document.write(
           `<html><head><title>Award List</title><style>${awardPdfCss(partial)}
-          @page{size:A4 landscape;margin:10mm}
-          @media print{.award-pdf{width:100%!important;max-width:none}}
+          @page{size:A4 landscape;margin:8mm}
+          @media print{
+            html,body{margin:0;padding:0}
+            .award-pdf{width:100%!important;height:auto!important;max-width:none}
+          }
           </style></head><body>${html}</body></html>`
         );
         w.document.close();
