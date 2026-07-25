@@ -1,7 +1,7 @@
 {
   "name": "ULC Portal — University Law College, Quetta",
   "short_name": "ULC Portal",
-  "description": "Student toolkit for University Law College, Quetta: assignment cover generator, admission aggregate calculator, and LLB 5-year syllabus.",
+  "description": "Student toolkit for University Law College, Quetta: covers, aggregate, GPA, timetable, and LLB syllabus.",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",

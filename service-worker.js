@@ -1,13 +1,16 @@
 /* ULC Portal service worker — offline app shell */
-const CACHE = "ulc-portal-v1";
+const CACHE = "ulc-portal-v4";
 const ASSETS = [
   "./",
   "./index.html",
   "./manifest.webmanifest",
   "./favicon.png",
   "./logo.js",
+  "./js/config.js",
+  "./icons/ulc-logo.png",
   "./icons/icon-192.png",
   "./icons/icon-512.png",
+  "./icons/icon-maskable-512.png",
   "./icons/apple-touch-icon.png"
 ];
 

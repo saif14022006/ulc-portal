@@ -1,47 +1,45 @@
 # ULC Portal
 
-Mobile-first web app (PWA) for **University Law College, Quetta**.
+Mobile-first PWA for **University Law College, Quetta**.
 
-Works as a website on desktop and phone, and can be installed to the home screen like an app. Same codebase — responsive layout adapts: bottom tabs on mobile, sidebar on desktop.
+## Features
 
-## What’s live (Phase 1)
+| Area | Tools |
+|------|--------|
+| **Documents** | Assignment Cover Page (4 templates · Print / PDF) |
+| **My academics** | Student Account · Award List (2 assignments, best 3 of 5 quizzes, paper, result) |
+| **Study tools** | Collapsible 10-semester syllabus · Aggregate · GPA · Timetable |
 
-| Tool | What it does |
-|------|----------------|
-| **Cover Page** | 4 ULC templates · live A4 preview · Print / Download PDF |
-| **Aggregate** | Admission merit: Matric 20% + Intermediate 50% + LAT 30% |
-| **Syllabus** | Full HEC LLB (5-Year) scheme · 10 semesters · 166 CH |
+## Accounts
 
-More tools (accounts, GPA, timetable, study assistant) will be decided and added later.
+Signup fields: **full name**, **roll number**, **contact**, **password**.
 
-## Preview
+Until Supabase is connected, accounts and award lists are stored in the browser (password hashed with SHA-256).
 
-- **Mobile** — phone-width layout, bottom navigation, installable PWA  
-- **Desktop** (≥900px) — left sidebar, two-column cover editor with sticky preview  
+### Connect Supabase later
+
+1. Create a Supabase project  
+2. Run `supabase/schema.sql` in the SQL editor  
+3. Paste URL + anon key into `js/config.js`
+
+## Award list formula (official ULC sheet)
+
+```
+Quizzes (15%)       = average of best 3 of 5 quizzes (each /15)
+Assignments (15%)   = average of A1 & A2 (each /15)
+Mid semester (30%)  = (marks out of 100) × 0.30
+Final semester (40%)= (marks out of 100) × 0.40
+Grand marks         = Quiz + Assn + Mid30 + Final40   (out of 100)
+Rounded → Grade → GP
+```
 
 ## Run locally
 
-PWA install + offline need `http://`, not `file://`.
-
 ```bash
-# from this folder
-python -m http.server 8080
-# open http://localhost:8080
-```
-
-Or open the folder on [GitHub Pages](https://pages.github.com) / [Vercel](https://vercel.com) after deploy.
-
-## Project files
-
-```
-index.html              → app (HTML + CSS + JS)
-manifest.webmanifest    → installable app metadata
-service-worker.js       → offline cache
-icons/                  → app icons + ULC crest
-logo.js                 → crest for PDF export
-favicon.png
+npx --yes serve -p 8080
+# http://localhost:8080
 ```
 
 ## Brand
 
-Navy `#0b3a6b` · Gold `#c6a13c` · Paper `#f5f2ea` · University of Balochistan affiliation.
+ULC crest · Navy `#0b3a6b` · Gold `#c6a13c` · Paper `#f5f2ea`
