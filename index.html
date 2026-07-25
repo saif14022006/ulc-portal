@@ -148,6 +148,8 @@ main{flex:1;padding:18px 16px 36px;width:100%}
 #v-teacher .roster-drop{
   border:1.5px dashed rgba(198,161,60,.55);border-radius:14px;padding:14px;background:rgba(255,255,255,.65);
 }
+#v-teacher #tr-analyze-btn{width:100%;margin-top:4px;font-weight:700}
+#v-teacher #tr-analyze-btn:disabled{opacity:.55;cursor:not-allowed}
 @keyframes tHeroIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
 @media (max-width:420px){
   #v-teacher .teacher-modes{grid-template-columns:repeat(3,minmax(0,1fr))}
@@ -1401,12 +1403,14 @@ body.landing-open .app{visibility:hidden;pointer-events:none}
         <div class="t-panel" id="tp-roster">
           <div class="card">
             <h3>Import students</h3>
-            <p class="hint">Upload a <b>PDF</b> or <b>photo</b> of the official list (Session 2025–2029 style: Roll, Name, Father Name…). Review before saving. Shared with other teachers of the same semester.</p>
+            <p class="hint">Choose a <b>PDF</b> or <b>image</b> of the student list, then tap <b>Analyze file</b>. The app reads the <b>roll number</b> column and the <b>name</b> next to each roll. Review the list, then add.</p>
             <div class="roster-drop">
-              <div class="field" style="margin-bottom:0">
+              <div class="field">
                 <label>PDF or photo of student list</label>
-                <input id="tr-photo" type="file" accept="application/pdf,image/*,.pdf" capture="environment" onchange="TeacherApp.uploadRosterFile(this.files[0])">
+                <input id="tr-photo" type="file" accept="application/pdf,image/*,.pdf" capture="environment" onchange="TeacherApp.onRosterFileChosen(this.files[0])">
               </div>
+              <p class="hint" id="tr-file-name" style="margin:6px 0 10px">No file selected yet.</p>
+              <button class="btn btn-gold" type="button" id="tr-analyze-btn" onclick="TeacherApp.analyzeRosterFile()" disabled>Analyze file — extract roll &amp; names</button>
             </div>
             <p class="hint" id="tr-ocr-status" style="margin-top:10px"></p>
             <div id="tr-ocr-preview"></div>

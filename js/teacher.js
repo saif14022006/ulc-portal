@@ -11,6 +11,7 @@
 
   let pendingOcr = [];
   let editingStudentRoll = null;
+  let pendingRosterFile = null;
 
   function loadJSON(k, fb) {
     try { return JSON.parse(localStorage.getItem(k)) ?? fb; } catch { return fb; }
@@ -576,12 +577,61 @@
   function applyParsedRoster(list, statusMsg) {
     const status = document.getElementById("tr-ocr-status");
     if (!list.length) {
-      if (status) status.textContent = "Could not detect roll/name. Try a clearer photo or PDF, or add manually.";
+      if (status) status.textContent = "Could not detect roll numbers and names. Try a clearer photo or PDF, or add manually.";
       return;
     }
     pendingOcr = list;
-    if (status) status.textContent = statusMsg || `Detected ${list.length} student(s). Untick mistakes, then add.`;
+    if (status) {
+      status.textContent =
+        statusMsg ||
+        `Found ${list.length} student(s): roll number + name. Untick any mistakes, then tap Add selected students.`;
+    }
     renderOcrPreview(list);
+  }
+
+  function onRosterFileChosen(file) {
+    pendingRosterFile = file || null;
+    const nameEl = document.getElementById("tr-file-name");
+    const btn = document.getElementById("tr-analyze-btn");
+    const status = document.getElementById("tr-ocr-status");
+    clearOcrPreview();
+    if (!file) {
+      if (nameEl) nameEl.textContent = "No file selected yet.";
+      if (btn) btn.disabled = true;
+      if (status) status.textContent = "";
+      return;
+    }
+    const kb = Math.max(1, Math.round(file.size / 1024));
+    if (nameEl) nameEl.textContent = `Selected: ${file.name} (${kb} KB) — tap Analyze file.`;
+    if (btn) btn.disabled = false;
+    if (status) status.textContent = "File ready. Tap Analyze file to extract roll numbers and names.";
+  }
+
+  async function analyzeRosterFile() {
+    const input = document.getElementById("tr-photo");
+    const file = pendingRosterFile || (input && input.files && input.files[0]) || null;
+    if (!file) {
+      alert("Choose a PDF or image of the student list first.");
+      return;
+    }
+    if (!activeClass()) {
+      alert("Create / select a class first, then analyze the list.");
+      return;
+    }
+    const btn = document.getElementById("tr-analyze-btn");
+    const label = "Analyze file — extract roll & names";
+    if (btn) {
+      btn.disabled = true;
+      btn.textContent = "Analyzing…";
+    }
+    try {
+      await uploadRosterFile(file);
+    } finally {
+      if (btn) {
+        btn.disabled = !pendingRosterFile;
+        btn.textContent = label;
+      }
+    }
   }
 
   async function uploadRosterFile(file) {
@@ -1420,6 +1470,8 @@
     removeStudent,
     ocrAttendancePhoto,
     uploadRosterFile,
+    onRosterFileChosen,
+    analyzeRosterFile,
     confirmOcrStudents,
     clearOcrPreview,
     setAttMode,
