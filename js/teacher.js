@@ -1101,46 +1101,74 @@
       *{box-sizing:border-box}
       body{font-family:"Times New Roman",Times,serif;color:#000;margin:0;background:#fff}
       .award-pdf{
-        width:1122px;height:793px;padding:6px 10px 5px;background:#fff;
+        width:1122px;height:793px;padding:8px 10px 6px;background:#fff;
         display:flex;flex-direction:column;overflow:hidden;
       }
       .pdf-title{
-        text-align:center;font-size:15px;font-weight:700;letter-spacing:.04em;
-        margin:0;line-height:1.15;text-transform:uppercase;
-        border:2px solid #000;padding:3px 8px;
+        text-align:center;font-size:16px;font-weight:700;letter-spacing:.03em;
+        margin:0;line-height:1.25;text-transform:uppercase;
+        border:2.5px solid #000;padding:4px 8px;
       }
       .pdf-badge{
         text-align:center;font-weight:700;border:1.5px solid #000;
-        padding:0 28px;margin:3px auto 4px;display:block;width:fit-content;
-        font-size:10.5px;letter-spacing:.06em;line-height:1.35;
+        padding:1px 36px;margin:4px auto 5px;display:block;width:fit-content;
+        font-size:11px;letter-spacing:.08em;line-height:1.4;
       }
       .pdf-page{display:none}
-      .meta-lines{width:100%;margin:0 0 4px;font-size:8.5px;line-height:1.35}
-      .meta-lines .row{display:flex;flex-wrap:nowrap;gap:8px;margin-bottom:1px;align-items:baseline}
+      .meta-lines{width:100%;margin:0 0 5px;font-size:8.5px;line-height:1.45}
+      .meta-lines .row{display:flex;flex-wrap:nowrap;gap:12px;margin-bottom:2px;align-items:baseline}
       .meta-lines .field{white-space:nowrap}
-      .meta-lines .field.grow{flex:1;min-width:0}
+      .meta-lines .field.grow{flex:1 1 auto;min-width:0}
       .meta-lines .lab{font-weight:700}
       .meta-lines .val{
-        display:inline-block;min-width:3.2em;border-bottom:1px solid #000;
-        padding:0 4px 0 2px;font-weight:400;vertical-align:baseline;
+        display:inline-block;min-width:3em;border-bottom:1px solid #000;
+        padding:0 3px 0 2px;font-weight:400;vertical-align:baseline;
       }
-      .meta-lines .val.wide{min-width:9em}
-      .meta-lines .val.mid{min-width:5.5em}
-      .grid-wrap{flex:0 0 auto}
+      .meta-lines .val.wide{min-width:8em}
+      .meta-lines .val.mid{min-width:5em}
+      .grid-wrap{flex:0 0 auto;width:100%}
       .grid{
         width:100%;height:auto;border-collapse:collapse;table-layout:fixed;
         border:2px solid #000;
       }
+      /* Column widths sum to 100% so header borders line up with data cols */
+      .grid col.roll{width:3.8%}
+      .grid col.nm{width:11.8%}
+      .grid col.c-q{width:3.3%}
+      .grid col.c-qa{width:4.5%}
+      .grid col.c-a{width:3.5%}
+      .grid col.c-aa{width:3.8%}
+      .grid col.c-m{width:4%}
+      .grid col.c-f{width:4%}
+      .grid col.c-g{width:4.5%}
+      .grid col.c-r{width:4.2%}
+      .grid col.c-gr{width:3.2%}
+      .grid col.c-gp{width:3%}
+      .grid col.c-rm{width:5.7%}
       .grid th,.grid td{
         border:1px solid #000;text-align:center;vertical-align:middle;
-        padding:0;line-height:1;overflow:hidden;
+        padding:0;line-height:1.05;overflow:hidden;
       }
       .grid thead th{
-        font-size:5.8px;font-weight:700;padding:0;height:auto;line-height:1.05;
+        font-size:6px;font-weight:700;padding:1px 0;line-height:1.1;
       }
-      .grid thead .top{font-size:7px;letter-spacing:.02em;padding:1px 0}
-      .grid thead .sub{font-size:5.9px;padding:1px 0}
-      /* Official sheet: data rows are razor-thin — text nearly touches borders */
+      .grid thead th.roll,.grid thead th.nm{
+        font-size:7.5px;line-height:1.15;padding:2px;
+      }
+      .grid thead th.nm{text-align:center}
+      .grid thead .top{
+        font-size:8px;letter-spacing:.04em;padding:2px 0;height:16px;
+      }
+      .grid thead .sub{
+        font-size:6.2px;padding:2px 1px;height:14px;white-space:nowrap;
+      }
+      .grid thead .leaf{
+        font-size:5.6px;padding:1px 0;height:22px;line-height:1.08;vertical-align:middle;
+      }
+      .grid thead .h-r{
+        font-size:5.8px;padding:1px;line-height:1.1;vertical-align:middle;
+      }
+      /* Data rows — keep compact height (confirmed matching sample) */
       .grid tbody tr{height:15px}
       .grid tbody td{
         font-size:6.8px;height:15px;max-height:15px;min-height:15px;
@@ -1153,30 +1181,18 @@
       .grid tbody tr:nth-child(even) td.pct-f{background:#c8d2dc}
       .grid tbody tr:nth-child(even) td.rnd,
       .grid tbody tr:nth-child(even) td.gp{background:#f5d9c8}
-      .grid col.roll,.grid .roll{
-        width:3.2%;font-weight:700;white-space:nowrap;font-size:6.8px;padding:0 1px;
+      .grid tbody td.roll{
+        font-weight:700;white-space:nowrap;font-size:6.8px;padding:0 1px;text-align:center;
       }
-      .grid col.nm,.grid .nm{
-        width:12.5%;text-align:left;padding-left:2px;font-size:6.4px;
+      .grid tbody td.nm{
+        text-align:left;padding-left:2px;font-size:6.4px;
         font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:clip;
       }
-      .grid col.c-q{width:2.55%}
-      .grid col.c-qa{width:3.4%}
-      .grid col.c-a{width:2.7%}
-      .grid col.c-aa{width:2.9%}
-      .grid col.c-m{width:3.15%}
-      .grid col.c-f{width:3.15%}
-      .grid col.c-g{width:3.6%}
-      .grid col.c-r{width:3.3%}
-      .grid col.c-gr{width:2.4%}
-      .grid col.c-gp{width:2.3%}
-      .grid col.c-rm{width:4.2%}
       .h-q{background:#d9d9d9}
       .h-a{background:#bdd7ee}
       .h-m{background:#c6efce}
       .h-f{background:#ffe699}
       .h-r{background:#f8cbad}
-      /* Calculated columns — same tint as official sheet */
       .avg{background:#d0d7de;font-weight:700}
       .avg-a{background:#d0d7de;font-weight:700}
       .obt{background:#fff}
@@ -1550,23 +1566,23 @@
             <th rowspan="2" class="h-r">Remarks</th>
           </tr>
           <tr>
-            <th class="h-q">Q. 01<br>Marks 15</th>
-            <th class="h-q">Q. 02<br>Marks 15</th>
-            <th class="h-q">Q. 03<br>Marks 15</th>
-            <th class="h-q">Q. 04<br>Marks 15</th>
-            <th class="h-q">Q. 05<br>Marks 15</th>
-            <th class="h-q">Average<br>(Of Best Three)</th>
-            <th class="h-a">A.# 01<br>Marks 15</th>
-            <th class="h-a">A.# 02<br>Marks 15</th>
-            <th class="h-a">Average</th>
-            <th class="h-m">Obj<br>Marks</th>
-            <th class="h-m">Sub<br>Marks</th>
-            <th class="h-m">Marks Obt.<br>(Out of 100)</th>
-            <th class="h-m">30%<br>Marks</th>
-            <th class="h-f">Obj<br>Marks</th>
-            <th class="h-f">Sub<br>Marks</th>
-            <th class="h-f">Marks Obt.<br>(Out of 100)</th>
-            <th class="h-f">40%<br>Marks</th>
+            <th class="h-q leaf">Q. 01<br>Marks 15</th>
+            <th class="h-q leaf">Q. 02<br>Marks 15</th>
+            <th class="h-q leaf">Q. 03<br>Marks 15</th>
+            <th class="h-q leaf">Q. 04<br>Marks 15</th>
+            <th class="h-q leaf">Q. 05<br>Marks 15</th>
+            <th class="h-q leaf">Average<br>(Of Best Three)</th>
+            <th class="h-a leaf">A.# 01<br>Marks 15</th>
+            <th class="h-a leaf">A.# 02<br>Marks 15</th>
+            <th class="h-a leaf">Average</th>
+            <th class="h-m leaf">Obj<br>Marks</th>
+            <th class="h-m leaf">Sub<br>Marks</th>
+            <th class="h-m leaf">Marks Obt.<br>(Out of 100)</th>
+            <th class="h-m leaf">30%<br>Marks</th>
+            <th class="h-f leaf">Obj<br>Marks</th>
+            <th class="h-f leaf">Sub<br>Marks</th>
+            <th class="h-f leaf">Marks Obt.<br>(Out of 100)</th>
+            <th class="h-f leaf">40%<br>Marks</th>
           </tr>
         </thead>
         <tbody>${rows}${pad}</tbody>
