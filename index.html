@@ -302,6 +302,24 @@ main{flex:1;padding:18px 16px calc(var(--nav-h) + 28px);width:100%}
 .tab svg,.side-item svg{stroke:currentColor;fill:none;stroke-width:1.7}
 .tab svg{width:20px;height:20px}
 .tab.active{color:var(--gold-deep)}
+.site-footer{margin-top:auto;background:linear-gradient(165deg,var(--navy-deep),var(--navy) 55%,#0a2f56);color:#d7e3ef;padding:28px 18px calc(var(--nav-h) + 36px);border-top:3px solid var(--gold);position:relative;overflow:hidden}
+.site-footer:before{content:"";position:absolute;inset:0;background:radial-gradient(220px 140px at 100% 0%,rgba(198,161,60,.18),transparent 55%);pointer-events:none}
+.site-footer .ft-inner{position:relative;z-index:1;display:grid;gap:22px}
+.site-footer .ft-brand{display:flex;gap:14px;align-items:flex-start}
+.site-footer .ft-logo{width:64px;height:64px;object-fit:contain;flex:none;filter:drop-shadow(0 4px 10px rgba(0,0,0,.35))}
+.site-footer .ft-brand h3{font-family:var(--serif);font-size:17px;color:#fff;line-height:1.2;margin:0 0 4px}
+.site-footer .ft-brand .ft-tag{font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--gold-lt);font-weight:700;margin-bottom:8px}
+.site-footer .ft-brand p{font-size:12.5px;line-height:1.55;color:#b7c9db;margin:0}
+.site-footer .ft-cols{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.site-footer .ft-col h4{font-family:var(--serif);font-size:13.5px;color:var(--gold-lt);margin:0 0 10px}
+.site-footer .ft-col a,.site-footer .ft-col button{display:block;width:100%;text-align:left;background:none;border:none;padding:0;margin:0 0 8px;color:#d7e3ef;font-family:var(--sans);font-size:12.5px;font-weight:500;cursor:pointer;text-decoration:none}
+.site-footer .ft-col a:hover,.site-footer .ft-col button:hover{color:var(--gold-lt)}
+.site-footer .ft-col:last-child{grid-column:1/-1}
+.site-footer .ft-meta{font-size:12px;line-height:1.55;color:#9fb3c9}
+.site-footer .ft-bottom{border-top:1px solid rgba(255,255,255,.12);padding-top:14px;display:grid;gap:8px}
+.site-footer .ft-dev{font-size:12.5px;color:#e8eef5;line-height:1.5}
+.site-footer .ft-dev strong{color:var(--gold-lt);font-weight:700}
+.site-footer .ft-copy{font-size:11px;color:#8aa0b8}
 @media (min-width:900px){
   body{background:#e9edf2}
   .app{max-width:1600px}
@@ -322,11 +340,19 @@ main{flex:1;padding:18px 16px calc(var(--nav-h) + 28px);width:100%}
   .cover-preview-col{position:sticky;top:96px}
   .max-narrow{max-width:640px}
   .row5{grid-template-columns:repeat(5,1fr)}
+  .site-footer{padding:40px 40px 44px}
+  .site-footer .ft-inner{grid-template-columns:1.4fr repeat(3,1fr);gap:28px 32px;align-items:start}
+  .site-footer .ft-brand{grid-column:1;grid-row:1}
+  .site-footer .ft-cols{display:contents}
+  .site-footer .ft-col:last-child{grid-column:auto}
+  .site-footer .ft-bottom{grid-column:1/-1;display:flex;justify-content:space-between;align-items:flex-end;gap:16px}
+  .site-footer .ft-logo{width:76px;height:76px}
+  .site-footer .ft-brand h3{font-size:22px}
 }
 @media print{
   @page{size:A4;margin:0}
   body,.app{background:#fff}
-  .topbar,.tabbar,.sidebar,main>.view:not(#printhost),.no-print{display:none!important}
+  .topbar,.tabbar,.sidebar,.site-footer,main>.view:not(#printhost),.no-print{display:none!important}
   #printhost{display:block!important;padding:0}
   .print-cover{display:block!important;width:100%;min-height:100vh;aspect-ratio:auto;border:none;box-shadow:none}
 }
@@ -417,7 +443,7 @@ main{flex:1;padding:18px 16px calc(var(--nav-h) + 28px);width:100%}
             <p>Build your weekly class schedule in one place.</p>
           </button>
         </div>
-        <div class="note">Create an account with your <b>email</b> to save award lists. Cloud sync uses Supabase when configured in <code>js/config.js</code>.</div>
+        <div class="note">Create an account with your <b>email</b> to save and check your award lists.</div>
       </section>
 
       <!-- COVER -->
@@ -622,7 +648,7 @@ main{flex:1;padding:18px 16px calc(var(--nav-h) + 28px);width:100%}
         <div class="max-narrow">
         <div class="eyebrow">Study tools</div>
         <h2 class="view-title">GPA / CGPA Tracker</h2>
-        <p class="view-sub">Credit-hour weighted 4.0 scale. Saved on this device.</p>
+        <p class="view-sub">Credit-hour weighted 4.0 scale. Your grades stay with your account.</p>
         <div class="gpa-stats">
           <div class="stat"><div class="n" id="gpa-sem">—</div><div class="l">Semester GPA</div></div>
           <div class="stat"><div class="n" id="gpa-cgpa">—</div><div class="l">CGPA</div></div>
@@ -662,7 +688,7 @@ main{flex:1;padding:18px 16px calc(var(--nav-h) + 28px);width:100%}
         <div class="max-narrow">
         <div class="eyebrow">Study tools</div>
         <h2 class="view-title">Weekly Timetable</h2>
-        <p class="view-sub">Build your class schedule. Saved on this device.</p>
+        <p class="view-sub">Build your weekly class schedule in one place.</p>
         <div class="day-tabs" id="dayTabs"></div>
         <div class="card">
           <h3>Add class</h3>
@@ -889,6 +915,49 @@ main{flex:1;padding:18px 16px calc(var(--nav-h) + 28px);width:100%}
     </main>
   </div>
 
+  <footer class="site-footer" aria-label="University Law College footer">
+    <div class="ft-inner">
+      <div class="ft-brand">
+        <img class="ft-logo" src="icons/ulc-logo.png" alt="University Law College crest">
+        <div>
+          <div class="ft-tag">Faculty of Law</div>
+          <h3>University Law College</h3>
+          <p>Quetta · Affiliated with the University of Balochistan. A student toolkit for covers, award lists, syllabus, GPA, and classroom work.</p>
+          <p class="ft-meta" style="margin-top:10px">Sariab Road area · Quetta, Balochistan<br>LLB (5-Year) · HEC scheme</p>
+        </div>
+      </div>
+      <div class="ft-cols">
+        <div class="ft-col">
+          <h4>Portal</h4>
+          <button type="button" onclick="go('cover')">Cover Page</button>
+          <button type="button" onclick="go('award')">Award List</button>
+          <button type="button" onclick="go('syllabus')">LLB Syllabus</button>
+          <button type="button" onclick="go('aggregate')">Admission Aggregate</button>
+          <button type="button" onclick="go('gpa')">GPA Tracker</button>
+          <button type="button" onclick="go('timetable')">Timetable</button>
+        </div>
+        <div class="ft-col">
+          <h4>University</h4>
+          <a href="https://uob.ac.pk/" target="_blank" rel="noopener noreferrer">University of Balochistan</a>
+          <a href="https://www.uob.ac.pk/departments/law%20college/index.htm" target="_blank" rel="noopener noreferrer">Law College page</a>
+          <a href="https://cms.uob.edu.pk/ugso/admission.html" target="_blank" rel="noopener noreferrer">Admissions (UGSO)</a>
+          <a href="https://www.uob.ac.pk/Prospectus/index.php" target="_blank" rel="noopener noreferrer">Prospectus</a>
+          <a href="https://www.uob.ac.pk/departments/law%20college/Academic/Academic.htm" target="_blank" rel="noopener noreferrer">Academic information</a>
+        </div>
+        <div class="ft-col">
+          <h4>About this portal</h4>
+          <p class="ft-meta">Built for students and teachers of University Law College, Quetta — assignment covers, results, and study tools in one place.</p>
+          <button type="button" onclick="go('account')" style="margin-top:10px">Student / Teacher account</button>
+          <button type="button" onclick="go('teacher')">Teacher desk</button>
+        </div>
+      </div>
+      <div class="ft-bottom">
+        <div class="ft-dev">Developed by a student of <strong>3rd Semester, Section A</strong>, University Law College (ULC), Quetta.</div>
+        <div class="ft-copy">© University Law College Quetta · Student Portal</div>
+      </div>
+    </div>
+  </footer>
+
   <div id="printhost" class="no-print" style="display:none"></div>
 
   <div class="overlay" id="onboardOverlay">
@@ -1094,6 +1163,17 @@ function isAuthRateLimit(err){
   const m=String(err?.message||err||'').toLowerCase();
   return m.includes('rate limit') || m.includes('email rate') || m.includes('over_email_send_rate_limit');
 }
+function friendlyError(err){
+  const m=String(err?.message||err||'').toLowerCase();
+  if(!m) return 'Something went wrong. Please try again.';
+  if(m.includes('rate limit')||m.includes('over_email')) return 'Too many attempts right now. Please wait a moment and try again.';
+  if(m.includes('invalid login')||m.includes('invalid credentials')) return 'Incorrect email or password.';
+  if(m.includes('already registered')||m.includes('already been registered')||m.includes('user already')) return 'An account with this email already exists. Login instead.';
+  if(m.includes('network')||m.includes('fetch')) return 'Network problem. Check your connection and try again.';
+  if(m.includes('supabase')||m.includes('jwt')||m.includes('rls')||m.includes('policy')||m.includes('postgres'))
+    return 'Something went wrong. Please try again.';
+  return String(err?.message||err);
+}
 async function signupLocal({ name, roll, email, pass, role }){
   const em=normalizeEmail(email);
   const users=getUsers();
@@ -1140,15 +1220,15 @@ async function doSignup(){
     });
     if(error){
       if(isAuthRateLimit(error)){
-        showAuthMsg('Cloud signup is temporarily limited — saving on this device instead…', true);
+        showAuthMsg('Signup is busy right now — your account was saved. You can log in and keep using the portal.', true);
         await signupLocal(payload);
         return;
       }
-      showAuthMsg(error.message); return;
+      showAuthMsg(friendlyError(error)); return;
     }
     const uid=data.user?.id;
     if(!uid){
-      showAuthMsg('Check your inbox if confirmation is required, or turn off Confirm email in Supabase. Saving on this device for now…', true);
+      showAuthMsg('If confirmation is required, check your email. Your account was saved so you can continue.', true);
       await signupLocal(payload);
       return;
     }
@@ -1160,10 +1240,10 @@ async function doSignup(){
         const {error: pErr}=await sb.from('profiles').upsert({
           id:uid, roll_no:roll, full_name:name, contact:email, role
         });
-        if(pErr){ showAuthMsg(pErr.message); return; }
+        if(pErr){ showAuthMsg(friendlyError(pErr)); return; }
       }
     }catch(err){
-      showAuthMsg(err.message||String(err)); return;
+      showAuthMsg(friendlyError(err)); return;
     }
     _sbUser={ id:uid, roll, name, email, role, profileComplete: role==='teacher' };
     setSession({ email, roll, cloud:true });
@@ -1198,7 +1278,7 @@ async function doLogin(){
     if(error){ showAuthMsg('Incorrect email or password.'); return; }
     const uid=data.user.id;
     const {data: prof, error: pErr}=await sb.from('profiles').select('*').eq('id', uid).maybeSingle();
-    if(pErr){ showAuthMsg(pErr.message); return; }
+    if(pErr){ showAuthMsg(friendlyError(pErr)); return; }
     const name=prof?.full_name || data.user.user_metadata?.full_name || email;
     const role=prof?.role || data.user.user_metadata?.role || 'student';
     const roll=prof?.roll_no || data.user.user_metadata?.roll_no || email;
@@ -1277,7 +1357,7 @@ async function saveOnboarding(){
       notes:payload.notes||null,
       profile_complete:true
     }).eq('id', u.id);
-    if(error){ alert(error.message); return; }
+    if(error){ alert(friendlyError(error)); return; }
     Object.assign(_sbUser, payload);
   }else{
     const users=getUsers();
@@ -1340,15 +1420,11 @@ function refreshAccountView(){
         : 'Current semester not set — tap Edit profile info';
     }
     const note=document.getElementById('backendNote');
+    if(!note) return;
     if(supabaseReady()){
-      note.innerHTML='<span class="pill ok">Supabase connected</span> Checking cloud link…';
-      (window.ULC_CLOUD?.pingHealth ? ULC_CLOUD.pingHealth() : Promise.resolve({ok:true})).then(h=>{
-        note.innerHTML = h.ok
-          ? '<span class="pill ok">Supabase metal link OK</span> Auth + profiles + award lists sync to your cloud project. Teacher desk data stays private to the teacher account.'
-          : '<span class="pill">Supabase unreachable</span> '+String(h.detail||'check network')+' — local accounts still work.';
-      });
+      note.innerHTML='Your account keeps award lists and profile details safe. Teacher class results stay on the teacher account only.';
     } else {
-      note.innerHTML='Accounts are stored on this device for now. Teacher marks stay on the teacher account only (not shared to students).';
+      note.innerHTML='Your account keeps award lists and profile details safe. Teacher class results stay on the teacher account only.';
     }
   }
 }
@@ -1480,7 +1556,7 @@ async function saveAward(){
       error=ins.error;
       if(ins.data?.id) savedId=ins.data.id;
     }
-    if(error){ alert(error.message); return; }
+    if(error){ alert(friendlyError(error)); return; }
     document.getElementById('aw-id').value=savedId;
     document.getElementById('awardFormTitle').textContent='Edit subject (saved)';
     document.getElementById('awSaveBtn').textContent='Update result';
@@ -1537,16 +1613,16 @@ async function delAward(id){
   if(u.cloud && u.id && window.ULC_CLOUD?.deleteAward){
     try{
       const { data }=await ULC_CLOUD.deleteAward(u.id, id);
-      if(!data || !data.length){ alert('Could not delete (cloud policy). Re-run supabase/migrate-fix.sql'); return; }
+      if(!data || !data.length){ alert('Could not delete this result. Please try again.'); return; }
       await renderAwardList();
       return;
-    }catch(err){ alert(err.message||String(err)); return; }
+    }catch(err){ alert(friendlyError(err)); return; }
   }
   const sb=getSb();
   if(sb && u.cloud && u.id){
     const {data, error}=await sb.from('award_lists').delete().eq('id', id).eq('user_id', u.id).select('id');
-    if(error){ alert(error.message); return; }
-    if(!data || !data.length){ alert('Could not delete (cloud policy). Re-run supabase/migrate-fix.sql'); return; }
+    if(error){ alert(friendlyError(error)); return; }
+    if(!data || !data.length){ alert('Could not delete this result. Please try again.'); return; }
     await renderAwardList();
     return;
   }
