@@ -16,9 +16,11 @@
 <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Cormorant+Garamond:wght@600;700&family=Source+Sans+3:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="logo.js"></script>
 <script src="js/config.js"></script>
+<script src="js/teacher.js"></script>
 <style>
 :root{
   --navy:#0b3a6b; --navy-2:#12508f; --navy-deep:#082744;
@@ -78,7 +80,14 @@ main{flex:1;padding:18px 16px calc(var(--nav-h) + 28px);width:100%}
 .ic-gpa{background:linear-gradient(145deg,#1a4f6e,#2a7aa8)}
 .ic-time{background:linear-gradient(145deg,#8a3a1f,#c45a2e)}
 .ic-account{background:linear-gradient(145deg,#0b3a6b,#c6a13c)}
+.ic-teacher{background:linear-gradient(145deg,#1e4d3a,#3d8f6a)}
 .note{background:#fff;border:1px solid var(--line);border-left:3px solid var(--gold);border-radius:10px;padding:12px 14px;font-size:12px;color:var(--slate);margin-top:14px;line-height:1.55}
+.teacher-modes{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:12px 0}
+.t-panel{display:none}.t-panel.active{display:block}
+.t-mode-btn.active{background:var(--navy)!important;color:#fff!important;border-color:var(--navy)!important}
+.pdf-cols{display:flex;flex-wrap:wrap;gap:8px}
+.pdf-cols .chk{display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:600;color:var(--navy);background:#fff;border:1px solid var(--line);border-radius:9px;padding:8px 10px;cursor:pointer}
+.pdf-cols .chk input{accent-color:var(--navy)}
 .field{margin-bottom:12px}
 .field label{display:block;font-size:12px;font-weight:600;color:var(--navy);margin-bottom:5px}
 .field input,.field select,textarea{width:100%;font-family:var(--sans);font-size:14px;color:var(--ink);background:var(--white);border:1px solid var(--line);border-radius:10px;padding:11px 12px}
@@ -318,6 +327,7 @@ main{flex:1;padding:18px 16px calc(var(--nav-h) + 28px);width:100%}
       <button class="side-item" data-t="aggregate" onclick="go('aggregate')"><svg viewBox="0 0 24 24"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 7h8M8 11h8M8 15h4"/></svg>Admission Aggregate</button>
       <button class="side-item" data-t="gpa" onclick="go('gpa')"><svg viewBox="0 0 24 24"><path d="M4 19V5"/><path d="M4 19h16"/><path d="M8 15l3-4 3 2 4-6"/></svg>GPA Tracker</button>
       <button class="side-item" data-t="timetable" onclick="go('timetable')"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>Timetable</button>
+      <button class="side-item" data-t="teacher" onclick="go('teacher')"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>Teacher desk</button>
       <button class="side-item" data-t="account" onclick="go('account')"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c1.5-3.5 4-5 8-5s6.5 1.5 8 5"/></svg>Account</button>
     </aside>
 
@@ -350,8 +360,13 @@ main{flex:1;padding:18px 16px calc(var(--nav-h) + 28px);width:100%}
           </button>
           <button class="tool-card" onclick="go('account')">
             <div class="ic ic-account"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c1.5-3.5 4-5 8-5s6.5 1.5 8 5"/></svg></div>
-            <h4>Student Account</h4>
-            <p>Sign in once — your marks and lists stay with you.</p>
+            <h4>Account</h4>
+            <p>Student or teacher — sign in once; your data stays with your account.</p>
+          </button>
+          <button class="tool-card" onclick="go('teacher')">
+            <div class="ic ic-teacher"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>
+            <h4>Teacher desk</h4>
+            <p>Classes, attendance, marks &amp; official award-list PDF — stays on your teacher account only.</p>
           </button>
         </div>
 
@@ -399,13 +414,21 @@ main{flex:1;padding:18px 16px calc(var(--nav-h) + 28px);width:100%}
               <div class="field"><label>Semester</label><select id="f-sem" onchange="onSemChange()"></select></div>
             </div>
             <div class="field"><label>Assignment / Topic title</label><input id="f-topic" placeholder="Topic title" oninput="drawCover()"></div>
-            <div class="field"><label>Subject</label><input id="f-subject" list="subj-list" placeholder="Choose or type" oninput="drawCover()"><datalist id="subj-list"></datalist></div>
+            <div class="field"><label>Subject</label>
+              <select id="f-subject" onchange="drawCover()">
+                <option value="">Select semester first</option>
+              </select>
+            </div>
             <div class="row2">
               <div class="field"><label>Submitted by</label><input id="f-name" placeholder="Student name" oninput="drawCover()"></div>
               <div class="field"><label>Roll No.</label><input id="f-roll" placeholder="e.g. 1027" oninput="drawCover()"></div>
             </div>
             <div class="row2">
-              <div class="field"><label>Submitted to</label><input id="f-teacher" placeholder="Instructor" oninput="drawCover()"></div>
+              <div class="field"><label>Submitted to</label>
+                <input id="f-teacher" list="teacher-list" placeholder="Select or type instructor" oninput="drawCover()">
+                <datalist id="teacher-list"></datalist>
+                <p class="hint">Official teacher names from Teacher desk appear here for students to pick.</p>
+              </div>
               <div class="field"><label>Session</label><input id="f-session" placeholder="2024–2029" oninput="drawCover()"></div>
             </div>
             <div class="field"><label>Submission date</label><input id="f-date" type="date" oninput="drawCover()"></div>
@@ -446,11 +469,17 @@ main{flex:1;padding:18px 16px calc(var(--nav-h) + 28px);width:100%}
             <input type="hidden" id="aw-id">
             <div class="row2">
               <div class="field"><label>Semester</label><select id="aw-sem" onchange="fillAwardSubjects()"></select></div>
-              <div class="field"><label>Subject</label><input id="aw-subj" list="aw-subj-list" placeholder="e.g. Law of Contract-I"><datalist id="aw-subj-list"></datalist></div>
+              <div class="field"><label>Subject</label>
+                <select id="aw-subj" onchange="onAwardSubjChange()">
+                  <option value="">Select</option>
+                </select>
+              </div>
             </div>
             <div class="row2">
               <div class="field"><label>Course code</label><input id="aw-code" placeholder="e.g. LLB 215"></div>
-              <div class="field"><label>Teacher</label><input id="aw-teacher" placeholder="Optional"></div>
+              <div class="field"><label>Teacher</label>
+                <input id="aw-teacher" list="teacher-list" placeholder="Select or type instructor">
+              </div>
             </div>
 
             <div class="subhead">Quizzes <span class="pill">15%</span></div>
@@ -576,8 +605,12 @@ main{flex:1;padding:18px 16px calc(var(--nav-h) + 28px);width:100%}
         </div>
         <div class="card">
           <h3>Add course</h3>
-          <div class="field"><label>Semester</label><select id="g-sem"></select></div>
-          <div class="field"><label>Course</label><input id="g-course" list="g-subj-list" placeholder="Subject"><datalist id="g-subj-list"></datalist></div>
+          <div class="field"><label>Semester</label><select id="g-sem" onchange="onGpaSemChange()"></select></div>
+          <div class="field"><label>Course</label>
+            <select id="g-course">
+              <option value="">Select semester first</option>
+            </select>
+          </div>
           <div class="row3">
             <div class="field"><label>Credits</label><input id="g-ch" type="number" min="1" max="6" value="3"></div>
             <div class="field"><label>Grade</label>
@@ -627,8 +660,8 @@ main{flex:1;padding:18px 16px calc(var(--nav-h) + 28px);width:100%}
       <section class="view" id="v-account">
         <div class="max-narrow">
         <div class="eyebrow">Account</div>
-        <h2 class="view-title">Student Account</h2>
-        <p class="view-sub">Roll number + password. Your award lists stay with your account.</p>
+        <h2 class="view-title">Sign in</h2>
+        <p class="view-sub">Students use roll number · Teachers use staff ID. Choose your role when creating an account.</p>
 
         <div id="accountLoggedOut">
           <div class="tabs-mini">
@@ -639,20 +672,26 @@ main{flex:1;padding:18px 16px calc(var(--nav-h) + 28px);width:100%}
 
           <div class="card" id="loginCard">
             <h3>Login</h3>
-            <div class="field"><label>Roll number</label><input id="login-roll" autocomplete="username" placeholder="Your college roll no."></div>
+            <div class="field"><label>Roll number / Staff ID</label><input id="login-roll" autocomplete="username" placeholder="Student roll or teacher staff ID"></div>
             <div class="field"><label>Password</label><input id="login-pass" type="password" autocomplete="current-password" placeholder="Password"></div>
             <button class="btn btn-primary" onclick="doLogin()">Login</button>
           </div>
 
           <div class="card" id="signupCard" style="display:none">
             <h3>Create account</h3>
-            <div class="field"><label>Full name</label><input id="su-name" placeholder="As on college records"></div>
-            <div class="field"><label>Roll number</label><input id="su-roll" placeholder="Unique roll number"></div>
+            <div class="field"><label>I am a</label>
+              <select id="su-role" onchange="onSignupRoleChange()">
+                <option value="student">Student</option>
+                <option value="teacher">Teacher / Instructor</option>
+              </select>
+            </div>
+            <div class="field"><label>Full official name</label><input id="su-name" placeholder="As on college records"></div>
+            <div class="field"><label id="su-id-label">Roll number</label><input id="su-roll" placeholder="Unique ID"></div>
             <div class="field"><label>Contact number</label><input id="su-contact" type="tel" placeholder="03xx-xxxxxxx"></div>
             <div class="field"><label>Password</label><input id="su-pass" type="password" autocomplete="new-password" placeholder="Min. 6 characters"></div>
             <div class="field"><label>Confirm password</label><input id="su-pass2" type="password" autocomplete="new-password"></div>
             <button class="btn btn-gold" onclick="doSignup()">Create account</button>
-            <p class="hint">When you connect Supabase, these accounts can sync across devices. Until then they are stored securely (hashed) in this browser.</p>
+            <p class="hint">Teachers keep class results on their account only (not shared to student award lists).</p>
           </div>
         </div>
 
@@ -668,14 +707,20 @@ main{flex:1;padding:18px 16px calc(var(--nav-h) + 28px);width:100%}
             <div class="stat"><div class="n" id="accPrevGpa">—</div><div class="l">Prev. GPA</div></div>
             <div class="stat"><div class="n" id="accCgpa">—</div><div class="l">CGPA</div></div>
           </div>
-          <div class="card">
+          <div class="card" id="accStudentCard">
             <h3>Academic profile</h3>
             <p class="hint" id="accSemLine" style="margin-bottom:10px">Current semester —</p>
             <button class="btn btn-ghost" type="button" onclick="openOnboarding(true)">Edit profile info</button>
           </div>
+          <div class="card" id="accTeacherCard" style="display:none">
+            <h3>Teacher desk</h3>
+            <p class="hint" style="margin-bottom:10px">Manage classes, attendance, marks, and award-list PDFs.</p>
+            <button class="btn btn-primary" type="button" onclick="go('teacher')">Open Teacher desk</button>
+            <button class="btn btn-ghost" type="button" style="margin-top:8px" onclick="TeacherApp.addAnotherClass()">Add another class</button>
+          </div>
           <div class="card">
             <h3>Quick actions</h3>
-            <div class="btn-row">
+            <div class="btn-row" id="accQuickStudent">
               <button class="btn btn-primary" onclick="go('award')">My award lists</button>
               <button class="btn btn-ghost" onclick="prefillCoverFromAccount()">Fill cover form</button>
             </div>
@@ -685,6 +730,120 @@ main{flex:1;padding:18px 16px calc(var(--nav-h) + 28px);width:100%}
         </div>
         </div>
       </section>
+
+      <!-- TEACHER -->
+      <section class="view" id="v-teacher">
+        <div class="max-narrow" style="max-width:100%">
+        <div class="eyebrow">Instructor</div>
+        <h2 class="view-title" id="t-welcome">Teacher desk</h2>
+        <p class="view-sub" id="t-class-meta">Your classes stay on your account only.</p>
+
+        <div class="card">
+          <div class="row2">
+            <div class="field"><label>Active class</label><select id="t-class-sel" onchange="TeacherApp.onClassChange()"></select></div>
+            <div class="field" style="display:flex;align-items:flex-end;gap:8px">
+              <button class="btn btn-ghost" type="button" onclick="TeacherApp.addAnotherClass()">+ Class</button>
+            </div>
+          </div>
+          <div class="row2">
+            <div class="field"><label>Mid exam date</label><input id="tr-mid-date" type="date" onchange="TeacherApp.saveClassDates()"></div>
+            <div class="field"><label>Final exam date</label><input id="tr-fin-date" type="date" onchange="TeacherApp.saveClassDates()"></div>
+          </div>
+        </div>
+
+        <div class="teacher-modes">
+          <button type="button" class="btn btn-ghost t-mode-btn active" data-panel="roster" onclick="TeacherApp.showTeacherPanel('roster')">Students / Roster</button>
+          <button type="button" class="btn btn-ghost t-mode-btn" data-panel="attendance" onclick="TeacherApp.showTeacherPanel('attendance')">Attendance</button>
+          <button type="button" class="btn btn-ghost t-mode-btn" data-panel="marks" onclick="TeacherApp.showTeacherPanel('marks')">Upload marks</button>
+          <button type="button" class="btn btn-ghost t-mode-btn" data-panel="pdf" onclick="TeacherApp.showTeacherPanel('pdf')">Award list PDF</button>
+        </div>
+
+        <div class="t-panel active" id="tp-roster">
+          <div class="card">
+            <h3>Add students from attendance list</h3>
+            <p class="hint">Photograph the official attendance sheet (roll + name). The app extracts them — then review for OCR mistakes.</p>
+            <div class="field"><label>Upload photo</label><input id="tr-photo" type="file" accept="image/*" capture="environment" onchange="TeacherApp.ocrAttendancePhoto(this.files[0])"></div>
+            <p class="hint" id="tr-ocr-status"></p>
+          </div>
+          <div class="card">
+            <h3>Or add manually</h3>
+            <div class="row2">
+              <div class="field"><label>Roll #</label><input id="tr-roll" placeholder="1001"></div>
+              <div class="field"><label>Name</label><input id="tr-name" placeholder="STUDENT NAME"></div>
+            </div>
+            <button class="btn btn-primary" type="button" onclick="TeacherApp.addStudentManual()">Add student</button>
+          </div>
+          <div class="card"><h3>Class roster</h3><div id="tr-roster"></div></div>
+        </div>
+
+        <div class="t-panel" id="tp-attendance">
+          <div class="card">
+            <h3>Weekly attendance</h3>
+            <p class="hint">Mark Present / Absent / Leave for each week.</p>
+            <div id="tr-att-table"></div>
+          </div>
+        </div>
+
+        <div class="t-panel" id="tp-marks">
+          <div class="card">
+            <h3>Upload marks</h3>
+            <div class="field"><label>Show fields for</label>
+              <select id="tr-marks-mode" onchange="TeacherApp.renderMarks(this.value)">
+                <option value="all">Full award list (all columns)</option>
+                <option value="quiz">Quizzes only (Q1–Q5)</option>
+                <option value="assn">Assignments only (A1–A2)</option>
+                <option value="mid">Mid exam only</option>
+                <option value="final">Final exam only</option>
+                <option value="overall">Mid + Final (overall papers)</option>
+              </select>
+            </div>
+            <div id="tr-marks-table"></div>
+          </div>
+        </div>
+
+        <div class="t-panel" id="tp-pdf">
+          <div class="card">
+            <h3>Download PDF</h3>
+            <p class="hint">Download the full official award list, or only the marks you choose (e.g. Quiz 1 only).</p>
+            <div class="field"><label>What to include</label>
+              <select id="tr-pdf-mode" onchange="TeacherApp.onPdfModeChange()">
+                <option value="full">Full official award list</option>
+                <option value="q1">Quiz 1 only</option>
+                <option value="q2">Quiz 2 only</option>
+                <option value="q3">Quiz 3 only</option>
+                <option value="q4">Quiz 4 only</option>
+                <option value="q5">Quiz 5 only</option>
+                <option value="quizzes">All quizzes (Q1–Q5)</option>
+                <option value="a1">Assignment 1 only</option>
+                <option value="a2">Assignment 2 only</option>
+                <option value="assn">Both assignments</option>
+                <option value="mid">Mid exam only</option>
+                <option value="final">Final exam only</option>
+                <option value="papers">Mid + Final only</option>
+                <option value="custom">Custom selection…</option>
+              </select>
+            </div>
+            <div id="tr-pdf-custom" style="display:none;margin-bottom:12px">
+              <label style="display:block;font-size:12px;font-weight:600;color:var(--navy);margin-bottom:8px">Tick the columns to include</label>
+              <div class="pdf-cols">
+                <label class="chk"><input type="checkbox" value="q1" checked> Q1</label>
+                <label class="chk"><input type="checkbox" value="q2"> Q2</label>
+                <label class="chk"><input type="checkbox" value="q3"> Q3</label>
+                <label class="chk"><input type="checkbox" value="q4"> Q4</label>
+                <label class="chk"><input type="checkbox" value="q5"> Q5</label>
+                <label class="chk"><input type="checkbox" value="a1"> A1</label>
+                <label class="chk"><input type="checkbox" value="a2"> A2</label>
+                <label class="chk"><input type="checkbox" value="mid"> Mid</label>
+                <label class="chk"><input type="checkbox" value="final"> Final</label>
+              </div>
+            </div>
+            <button class="btn btn-gold" type="button" id="tr-pdf-btn" onclick="TeacherApp.exportAwardPdf()">Download PDF</button>
+          </div>
+          <div class="note">Teacher results stay on this teacher account only. They are not pushed into student award lists.</div>
+        </div>
+        </div>
+      </section>
+
     </main>
   </div>
 
@@ -706,10 +865,33 @@ main{flex:1;padding:18px 16px calc(var(--nav-h) + 28px);width:100%}
     </div>
   </div>
 
+  <div class="overlay" id="teacherSetupOverlay">
+    <div class="sheet">
+      <h2>Set up your class</h2>
+      <p class="lead">Enter your official instructor name and the subject you teach. Most teachers have one class — you can add more later. Results stay on your teacher account only.</p>
+      <div class="field"><label>Official instructor name</label><input id="ob-t-name" placeholder="As on award list"></div>
+      <div class="field"><label>Semester</label><select id="ob-t-sem" onchange="TeacherApp.fillTeacherSubjList()"></select></div>
+      <div class="field"><label>Subject</label>
+        <input id="ob-t-subj" list="ob-t-subj-list" placeholder="Select or type subject name">
+        <datalist id="ob-t-subj-list"></datalist>
+      </div>
+      <div class="row2">
+        <div class="field"><label>Subject code</label><input id="ob-t-code" placeholder="e.g. LLB 211"></div>
+        <div class="field"><label>Credit hours</label><input id="ob-t-ch" type="number" min="1" max="6" step="1" value="3"></div>
+      </div>
+      <div class="field"><label>Session</label><input id="ob-t-session" placeholder="2025-2029"></div>
+      <button class="btn btn-primary" type="button" onclick="TeacherApp.saveTeacherSetup()">Save class</button>
+      <button class="btn btn-ghost" type="button" style="margin-top:8px" onclick="TeacherApp.closeTeacherSetup()">Cancel</button>
+    </div>
+  </div>
+
+  <div id="teacherPdfHost" aria-hidden="true"></div>
+
   <nav class="tabbar">
     <button class="tab active" data-t="home" onclick="go('home')"><svg viewBox="0 0 24 24"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/></svg>Home</button>
     <button class="tab" data-t="cover" onclick="go('cover')"><svg viewBox="0 0 24 24"><path d="M6 2h9l3 3v17H6z"/><path d="M15 2v4h4"/></svg>Cover</button>
-    <button class="tab" data-t="award" onclick="go('award')"><svg viewBox="0 0 24 24"><path d="M8 21h8"/><path d="M12 17v4"/><path d="M7 4h10v8a5 5 0 0 1-10 0V4z"/></svg>Awards</button>
+    <button class="tab" data-t="award" id="tabAward" onclick="go('award')"><svg viewBox="0 0 24 24"><path d="M8 21h8"/><path d="M12 17v4"/><path d="M7 4h10v8a5 5 0 0 1-10 0V4z"/></svg>Awards</button>
+    <button class="tab" data-t="teacher" id="tabTeacher" onclick="go('teacher')" style="display:none"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>Desk</button>
     <button class="tab" data-t="syllabus" onclick="go('syllabus')"><svg viewBox="0 0 24 24"><path d="M4 5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2z"/><path d="M4 19a2 2 0 0 1 2-2h13"/></svg>Syllabus</button>
     <button class="tab" data-t="account" onclick="go('account')"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c1.5-3.5 4-5 8-5s6.5 1.5 8 5"/></svg>Account</button>
   </nav>
@@ -729,7 +911,8 @@ const SYLLABUS={
  10:[["LLB 521","Administrative Law",3],["LLB 522","Interpretation of Statutes & Legislative Drafting",3],["LLB 523","Research Project / Dissertation",3],["Elective","Elective – III",3],["Elective","Elective – IV",3]]
 };
 const ELECTIVES=["Alternate Dispute Resolution","Banking Laws","Conflict of Laws","Consumer Protection Laws","Custom & Tariff Laws","e-Commerce Law","Election Laws","Environmental Laws","Gender and Law","Insurance Laws","Intellectual Property Laws","International Economic Law","International Humanitarian Law","International Institutions","International Trade Law","Islamic Commercial Laws","Labour Laws","Law and Development","Law and Energy","Law and Society in Pakistan","Local & Special Laws","Media Laws","Medical & Forensic Law","Mergers & Acquisitions","Islamic Legal Maxims","Public Interest Litigation","Securities Regulation","Shipping & Admiralty Laws","Taxation Laws","Telecommunication Laws"];
-const ORD=["","First","Second","Third","Fourth","Fifth","Sixth","Seventh","Eighth","Ninth","Tenth"];
+const ORD=["","1","2","3","4","5","6","7","8","9","10"];
+function semLabel(n){ return n ? ('Semester '+n) : '—'; }
 const DAYS=["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
 const YOUR_SEM=3;
 const LOGO=window.LOGO||"icons/ulc-logo.png";
@@ -737,18 +920,29 @@ const LS_USERS="ulc_users_v1";
 const LS_SESSION="ulc_session_v1";
 const LS_GRADES="ulc_grades_v1";
 const LS_SLOTS="ulc_slots_v1";
+window.SYLLABUS=SYLLABUS;
+
+function isTeacher(u){ return (u||currentUser())?.role==='teacher'; }
 
 function go(t){
+  if(t==='teacher'){
+    const u=currentUser();
+    if(!u){ go('account'); showAuthMsg('Login as a teacher to open Teacher desk.'); return; }
+    if(u.role!=='teacher'){ alert('Teacher desk is for teacher accounts only. Create a teacher account from Sign up.'); go('account'); return; }
+  }
+  if(t==='award' && isTeacher()){ go('teacher'); return; }
   document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
   document.getElementById('v-'+t).classList.add('active');
   document.querySelectorAll('.tab,.side-item').forEach(b=>b.classList.toggle('active',b.dataset.t===t));
   window.scrollTo({top:0,behavior:'instant'});
-  if(t==='award') refreshAwardView();
+  if(t==='award'){ fillInstructorList(); refreshAwardView(); }
   if(t==='account') refreshAccountView();
   if(t==='home') refreshHeroWelcome();
-  if(t==='gpa') renderGrades();
+  if(t==='gpa'){ onGpaSemChange(); renderGrades(); }
   if(t==='timetable'){ syncDayUi(); renderSlots(); }
   if(t==='syllabus') renderSyllabusAcc();
+  if(t==='cover'){ fillInstructorList(); onSemChange(); }
+  if(t==='teacher' && window.TeacherApp) TeacherApp.initTeacherView();
 }
 function esc(s){return String(s||'').replace(/[<>&]/g,c=>({'<':'&lt;','>':'&gt;','&':'&amp;'}[c]));}
 function val(id){return esc(document.getElementById(id).value);}
@@ -759,7 +953,7 @@ function saveJSON(k,v){ localStorage.setItem(k, JSON.stringify(v)); }
 
 /* -------- Auth: localStorage now, Supabase when js/config.js is filled -------- */
 let _sb=null;
-let _sbUser=null; // { id, roll, name, contact }
+let _sbUser=null; // { id, roll, name, contact, role }
 
 function supabaseReady(){
   const c=window.ULC_CONFIG||{};
@@ -770,7 +964,10 @@ function getSb(){
   if(!_sb) _sb=window.supabase.createClient(window.ULC_CONFIG.supabaseUrl, window.ULC_CONFIG.supabaseAnonKey);
   return _sb;
 }
-function rollEmail(roll){ return String(roll).trim().toLowerCase()+'@students.ulc.local'; }
+function rollEmail(roll, role){
+  const id=String(roll).trim().toLowerCase();
+  return role==='teacher' ? id+'@staff.ulc.local' : id+'@students.ulc.local';
+}
 
 async function hashPass(pass){
   const data=new TextEncoder().encode('ulc:'+pass);
@@ -785,6 +982,7 @@ function setSession(s){ if(s) saveJSON(LS_SESSION,s); else localStorage.removeIt
 function currentUser(){
   if(_sbUser) return {
     roll:_sbUser.roll, name:_sbUser.name, contact:_sbUser.contact, id:_sbUser.id, cloud:true,
+    role:_sbUser.role||'student',
     currentSemester:_sbUser.currentSemester, prevGpa:_sbUser.prevGpa, cgpa:_sbUser.cgpa,
     session:_sbUser.session, notes:_sbUser.notes, profileComplete:_sbUser.profileComplete
   };
@@ -793,10 +991,13 @@ function currentUser(){
   if(!u) return null;
   return {
     roll:s.roll, name:u.name, contact:u.contact, cloud:false,
+    role:u.role||'student',
     currentSemester:u.currentSemester, prevGpa:u.prevGpa, cgpa:u.cgpa,
     session:u.session, notes:u.notes, profileComplete:!!u.profileComplete
   };
 }
+window.currentUser=currentUser;
+
 function showAuthMsg(text, ok){
   const el=document.getElementById('authMsg');
   el.textContent=text; el.className='msg show '+(ok?'ok':'err');
@@ -808,12 +1009,29 @@ function setAuthTab(which){
   document.getElementById('signupCard').style.display=which==='signup'?'block':'none';
   document.getElementById('authMsg').className='msg';
 }
+function onSignupRoleChange(){
+  const role=document.getElementById('su-role').value;
+  document.getElementById('su-id-label').textContent=role==='teacher'?'Staff ID':'Roll number';
+  document.getElementById('su-roll').placeholder=role==='teacher'?'Unique staff ID':'Unique roll number';
+}
+function afterAuthLanding(){
+  const u=currentUser();
+  if(!u) return;
+  if(u.role==='teacher'){
+    go('teacher');
+  } else if(!u.profileComplete){
+    openOnboarding(false);
+  } else {
+    go('award');
+  }
+}
 async function doSignup(){
   const name=document.getElementById('su-name').value.trim();
   const roll=document.getElementById('su-roll').value.trim().toUpperCase();
   const contact=document.getElementById('su-contact').value.trim();
   const pass=document.getElementById('su-pass').value;
   const pass2=document.getElementById('su-pass2').value;
+  const role=document.getElementById('su-role').value==='teacher'?'teacher':'student';
   if(!name||!roll||!contact||!pass){ showAuthMsg('Fill all fields.'); return; }
   if(pass.length<6){ showAuthMsg('Password must be at least 6 characters.'); return; }
   if(pass!==pass2){ showAuthMsg('Passwords do not match.'); return; }
@@ -821,64 +1039,68 @@ async function doSignup(){
   const sb=getSb();
   if(sb){
     showAuthMsg('Creating cloud account…', true);
-    const email=rollEmail(roll);
-    const {data, error}=await sb.auth.signUp({ email, password: pass, options:{ data:{ roll_no:roll, full_name:name, contact } } });
+    const email=rollEmail(roll, role);
+    const {data, error}=await sb.auth.signUp({ email, password: pass, options:{ data:{ roll_no:roll, full_name:name, contact, role } } });
     if(error){ showAuthMsg(error.message); return; }
     const uid=data.user?.id;
     if(!uid){ showAuthMsg('Check your email to confirm, or disable email confirm in Supabase Auth settings.'); return; }
-    const {error: pErr}=await sb.from('profiles').upsert({ id:uid, roll_no:roll, full_name:name, contact });
+    const {error: pErr}=await sb.from('profiles').upsert({ id:uid, roll_no:roll, full_name:name, contact, role });
     if(pErr){ showAuthMsg(pErr.message); return; }
-    _sbUser={ id:uid, roll, name, contact, profileComplete:false };
+    _sbUser={ id:uid, roll, name, contact, role, profileComplete: role==='teacher' };
     setSession({roll, cloud:true});
     showAuthMsg('Cloud account created.', true);
     refreshAccountView(); refreshTopAcc();
-    openOnboarding(false);
+    afterAuthLanding();
     return;
   }
 
   const users=getUsers();
-  if(users[roll]){ showAuthMsg('This roll number already has an account. Login instead.'); return; }
-  users[roll]={name, contact, passHash: await hashPass(pass), createdAt: Date.now(), profileComplete:false};
+  if(users[roll]){ showAuthMsg('This ID already has an account. Login instead.'); return; }
+  users[roll]={name, contact, role, passHash: await hashPass(pass), createdAt: Date.now(), profileComplete: role==='teacher'};
   setUsers(users);
   setSession({roll});
   showAuthMsg('Account created.', true);
   refreshAccountView(); refreshTopAcc();
-  openOnboarding(false);
+  afterAuthLanding();
 }
 async function doLogin(){
   const roll=document.getElementById('login-roll').value.trim().toUpperCase();
   const pass=document.getElementById('login-pass').value;
-  if(!roll||!pass){ showAuthMsg('Enter roll number and password.'); return; }
+  if(!roll||!pass){ showAuthMsg('Enter ID and password.'); return; }
 
   const sb=getSb();
   if(sb){
     showAuthMsg('Signing in…', true);
-    const {data, error}=await sb.auth.signInWithPassword({ email: rollEmail(roll), password: pass });
+    // Try student email first, then staff
+    let data=null, error=null;
+    ({data, error}=await sb.auth.signInWithPassword({ email: rollEmail(roll, 'student'), password: pass }));
+    if(error){
+      ({data, error}=await sb.auth.signInWithPassword({ email: rollEmail(roll, 'teacher'), password: pass }));
+    }
     if(error){ showAuthMsg(error.message); return; }
     const uid=data.user.id;
     const {data: prof, error: pErr}=await sb.from('profiles').select('*').eq('id', uid).maybeSingle();
     if(pErr){ showAuthMsg(pErr.message); return; }
     const name=prof?.full_name || data.user.user_metadata?.full_name || roll;
     const contact=prof?.contact || data.user.user_metadata?.contact || '';
+    const role=prof?.role || data.user.user_metadata?.role || 'student';
     _sbUser={
-      id:uid, roll: prof?.roll_no || roll, name, contact,
+      id:uid, roll: prof?.roll_no || roll, name, contact, role,
       currentSemester:prof?.current_semester, prevGpa:prof?.prev_gpa, cgpa:prof?.cgpa,
-      session:prof?.session, notes:prof?.notes, profileComplete:!!prof?.profile_complete
+      session:prof?.session, notes:prof?.notes, profileComplete: role==='teacher' ? true : !!prof?.profile_complete
     };
     setSession({roll: _sbUser.roll, cloud:true});
     refreshAccountView(); refreshTopAcc();
-    if(!_sbUser.profileComplete) openOnboarding(false);
-    else go('award');
+    afterAuthLanding();
     return;
   }
 
   const u=getUsers()[roll];
-  if(!u){ showAuthMsg('No account for this roll number.'); return; }
+  if(!u){ showAuthMsg('No account for this ID.'); return; }
   if(u.passHash !== await hashPass(pass)){ showAuthMsg('Incorrect password.'); return; }
   setSession({roll});
   refreshAccountView(); refreshTopAcc();
-  if(!u.profileComplete) openOnboarding(false);
-  else go('award');
+  afterAuthLanding();
 }
 async function doLogout(){
   const sb=getSb();
@@ -895,18 +1117,20 @@ async function restoreCloudSession(){
   const uid=sess.user.id;
   const {data: prof}=await sb.from('profiles').select('*').eq('id', uid).maybeSingle();
   if(!prof){ _sbUser=null; return; }
+  const role=prof.role||'student';
   _sbUser={
-    id:uid, roll:prof.roll_no, name:prof.full_name, contact:prof.contact,
+    id:uid, roll:prof.roll_no, name:prof.full_name, contact:prof.contact, role,
     currentSemester:prof.current_semester, prevGpa:prof.prev_gpa, cgpa:prof.cgpa,
-    session:prof.session, notes:prof.notes, profileComplete:!!prof.profile_complete
+    session:prof.session, notes:prof.notes, profileComplete: role==='teacher' ? true : !!prof.profile_complete
   };
   setSession({roll:prof.roll_no, cloud:true});
 }
 function openOnboarding(forceEdit){
   const u=currentUser(); if(!u) return;
+  if(u.role==='teacher'){ if(window.TeacherApp) TeacherApp.openTeacherSetup(!!forceEdit); return; }
   if(!forceEdit && u.profileComplete) return;
   const sel=document.getElementById('ob-sem');
-  sel.innerHTML=Object.keys(SYLLABUS).map(n=>`<option value="${n}">${ORD[n]} Semester</option>`).join('');
+  sel.innerHTML=Object.keys(SYLLABUS).map(n=>`<option value="${n}">Semester ${n}</option>`).join('');
   sel.value=u.currentSemester || YOUR_SEM;
   document.getElementById('ob-session').value=u.session||'';
   document.getElementById('ob-gpa').value=u.prevGpa??'';
@@ -960,28 +1184,47 @@ function refreshHeroWelcome(){
   if(!title||!sub) return;
   if(u){
     title.textContent='Welcome '+u.name;
-    sub.textContent='Roll '+u.roll+' · Your law-study toolkit for University Law College, Quetta.';
+    if(u.role==='teacher'){
+      sub.textContent='Staff '+u.roll+' · Teacher desk for classes, attendance & award lists — private to your account.';
+    } else {
+      sub.textContent='Roll '+u.roll+' · Your law-study toolkit for University Law College, Quetta.';
+    }
   }else{
     title.textContent='Student toolkit';
     sub.textContent='Covers, award lists, syllabus, and more — built for University Law College, Quetta.';
   }
 }
+function syncRoleNav(){
+  const teacher=isTeacher();
+  const tabAward=document.getElementById('tabAward');
+  const tabTeacher=document.getElementById('tabTeacher');
+  if(tabAward) tabAward.style.display=teacher?'none':'';
+  if(tabTeacher) tabTeacher.style.display=teacher?'':'none';
+}
 function refreshAccountView(){
   const u=currentUser();
   document.getElementById('accountLoggedOut').style.display=u?'none':'block';
   document.getElementById('accountLoggedIn').style.display=u?'block':'none';
+  syncRoleNav();
   if(u){
+    const teacher=u.role==='teacher';
     document.getElementById('accAv').textContent=(u.name||'U').charAt(0).toUpperCase();
     document.getElementById('accName').textContent=u.name;
-    document.getElementById('accMeta').textContent=`Roll ${u.roll} · ${u.contact}`;
-    document.getElementById('accPrevGpa').textContent=u.prevGpa!=null?Number(u.prevGpa).toFixed(2):'—';
-    document.getElementById('accCgpa').textContent=u.cgpa!=null?Number(u.cgpa).toFixed(2):'—';
-    document.getElementById('accSemLine').textContent=u.currentSemester
-      ? `${ORD[u.currentSemester]} Semester${u.session?' · '+u.session:''}`
-      : 'Current semester not set — tap Edit profile info';
+    document.getElementById('accMeta').textContent=`${teacher?'Staff':'Roll'} ${u.roll} · ${u.contact}`;
+    document.getElementById('accAcadStats').style.display=teacher?'none':'grid';
+    document.getElementById('accStudentCard').style.display=teacher?'none':'block';
+    document.getElementById('accTeacherCard').style.display=teacher?'block':'none';
+    document.getElementById('accQuickStudent').style.display=teacher?'none':'grid';
+    if(!teacher){
+      document.getElementById('accPrevGpa').textContent=u.prevGpa!=null?Number(u.prevGpa).toFixed(2):'—';
+      document.getElementById('accCgpa').textContent=u.cgpa!=null?Number(u.cgpa).toFixed(2):'—';
+      document.getElementById('accSemLine').textContent=u.currentSemester
+        ? `Semester ${u.currentSemester}${u.session?' · '+u.session:''}`
+        : 'Current semester not set — tap Edit profile info';
+    }
     document.getElementById('backendNote').innerHTML=supabaseReady()
-      ? '<span class="pill ok">Supabase connected</span> Accounts and award lists sync to your cloud project.'
-      : 'Accounts are stored on this device for now. To connect Supabase: create a project → run <code>supabase/schema.sql</code> → paste URL &amp; anon key into <code>js/config.js</code>.';
+      ? '<span class="pill ok">Supabase connected</span> Accounts sync to your cloud project. Teacher class data stays private to the teacher account.'
+      : 'Accounts are stored on this device for now. Teacher marks stay on the teacher account only (not shared to students).';
   }
 }
 function prefillCoverFromAccount(){
@@ -1145,7 +1388,11 @@ async function editAward(id){
   document.getElementById('aw-id').value=row.id;
   document.getElementById('aw-sem').value=row.semester;
   fillAwardSubjects();
-  document.getElementById('aw-subj').value=row.subject_name||'';
+  const subSel=document.getElementById('aw-subj');
+  if(row.subject_name && ![...subSel.options].some(o=>o.value===row.subject_name)){
+    subSel.add(new Option(row.subject_name, row.subject_name));
+  }
+  subSel.value=row.subject_name||'';
   document.getElementById('aw-code').value=row.subject_code||'';
   document.getElementById('aw-teacher').value=row.teacher||'';
   const map={
@@ -1202,7 +1449,7 @@ async function renderAwardList(){
       <div style="display:flex;justify-content:space-between;gap:10px;align-items:flex-start">
         <div>
           <div class="t">${esc(row.subject_name)} ${row.subject_code?`<span class="pill">${esc(row.subject_code)}</span>`:''}</div>
-          <div class="m">${ORD[row.semester]}${row.teacher?' · '+esc(row.teacher):''}</div>
+          <div class="m">Semester ${row.semester}${row.teacher?' · '+esc(row.teacher):''}</div>
           <div class="m"><b>${r.grand.toFixed(2)}/100</b> → rounded ${r.rounded} · Grade <b>${r.grade}</b> · GP <b>${r.gp.toFixed(2)}</b></div>
           <div class="m">Quiz ${r.quiz.toFixed(2)} · Assn ${r.assn.toFixed(2)} · Mid ${r.mid30.toFixed(2)} · Final ${r.fin40.toFixed(2)}</div>
         </div>
@@ -1222,26 +1469,108 @@ async function refreshAwardView(){
 }
 function fillAwardSubjects(){
   const n=document.getElementById('aw-sem').value;
-  const opts=(SYLLABUS[n]||[]).map(x=>`<option value="${esc(x[1])}" data-code="${esc(x[0])}">`).join('');
-  document.getElementById('aw-subj-list').innerHTML=opts;
+  const sel=document.getElementById('aw-subj');
+  const prev=sel.value;
+  const list=SYLLABUS[n]||[];
+  sel.innerHTML='<option value="">Select subject</option>'+list.map(x=>`<option value="${esc(x[1])}" data-code="${esc(x[0])}">${esc(x[1])}</option>`).join('');
+  if(prev && list.some(x=>x[1]===prev)) sel.value=prev;
+  onAwardSubjChange();
+}
+function onAwardSubjChange(){
+  const sel=document.getElementById('aw-subj');
+  const opt=sel.options[sel.selectedIndex];
+  if(opt && opt.dataset.code) document.getElementById('aw-code').value=opt.dataset.code;
 }
 
 /* -------- Cover -------- */
 let currentTpl='classic';
+const LS_INSTRUCTORS='ulc_instructors_v1';
+function getInstructorNames(){
+  const names=new Set(loadJSON(LS_INSTRUCTORS, []));
+  const teacherData=loadJSON('ulc_teacher_data_v1', {});
+  Object.values(teacherData||{}).forEach(st=>{
+    if(st && st.officialName) names.add(String(st.officialName).trim());
+  });
+  Object.values(getUsers()).forEach(u=>{
+    if(u && u.role==='teacher' && u.name) names.add(String(u.name).trim());
+  });
+  return [...names].filter(Boolean).sort((a,b)=>a.localeCompare(b));
+}
+function publishInstructorName(name){
+  name=String(name||'').trim();
+  if(!name) return;
+  const list=loadJSON(LS_INSTRUCTORS, []);
+  if(!list.some(n=>n.toLowerCase()===name.toLowerCase())){
+    list.push(name);
+    saveJSON(LS_INSTRUCTORS, list);
+  }
+  fillInstructorList();
+  const sb=getSb();
+  if(sb){
+    sb.from('instructors').upsert({ official_name:name }, { onConflict:'official_name' }).then(()=>{}).catch(()=>{});
+  }
+}
+async function refreshInstructorsFromCloud(){
+  const sb=getSb(); if(!sb) return;
+  try{
+    const {data}=await sb.from('instructors').select('official_name').order('official_name');
+    if(!data||!data.length) return;
+    const list=loadJSON(LS_INSTRUCTORS, []);
+    data.forEach(r=>{
+      const n=String(r.official_name||'').trim();
+      if(n && !list.some(x=>x.toLowerCase()===n.toLowerCase())) list.push(n);
+    });
+    saveJSON(LS_INSTRUCTORS, list);
+    fillInstructorList();
+  }catch(e){}
+}
+function fillInstructorList(){
+  const opts=getInstructorNames().map(n=>`<option value="${esc(n)}">`).join('');
+  const dl=document.getElementById('teacher-list');
+  if(dl) dl.innerHTML=opts;
+}
 function fillSemDropdown(){
-  const opts='<option value="">Select</option>'+Object.keys(SYLLABUS).map(n=>`<option value="${n}">${ORD[n]} Semester</option>`).join('');
+  const opts='<option value="">Select</option>'+Object.keys(SYLLABUS).map(n=>`<option value="${n}">Semester ${n}</option>`).join('');
   document.getElementById('f-sem').innerHTML=opts;
-  document.getElementById('g-sem').innerHTML=Object.keys(SYLLABUS).map(n=>`<option value="${n}" ${n==YOUR_SEM?'selected':''}>${ORD[n]}</option>`).join('');
-  document.getElementById('g-filter').innerHTML='<option value="all">All</option>'+Object.keys(SYLLABUS).map(n=>`<option value="${n}">${ORD[n]}</option>`).join('');
-  document.getElementById('aw-sem').innerHTML=Object.keys(SYLLABUS).map(n=>`<option value="${n}" ${n==YOUR_SEM?'selected':''}>${ORD[n]}</option>`).join('');
+  document.getElementById('g-sem').innerHTML=Object.keys(SYLLABUS).map(n=>`<option value="${n}" ${n==YOUR_SEM?'selected':''}>Semester ${n}</option>`).join('');
+  document.getElementById('g-filter').innerHTML='<option value="all">All</option>'+Object.keys(SYLLABUS).map(n=>`<option value="${n}">Semester ${n}</option>`).join('');
+  document.getElementById('aw-sem').innerHTML=Object.keys(SYLLABUS).map(n=>`<option value="${n}" ${n==YOUR_SEM?'selected':''}>Semester ${n}</option>`).join('');
 }
-function allSubjects(){ return Object.values(SYLLABUS).flat().map(x=>x[1]); }
+function subjectsForSem(n){ return SYLLABUS[n]||[]; }
 function fillSubjectLists(){
-  const opts=allSubjects().map(s=>`<option value="${esc(s)}">`).join('');
-  document.getElementById('g-subj-list').innerHTML=opts;
-  document.getElementById('t-subj-list').innerHTML=opts;
+  onGpaSemChange();
+  const opts=Object.values(SYLLABUS).flat().map(x=>`<option value="${esc(x[1])}">`).join('');
+  const tl=document.getElementById('t-subj-list');
+  if(tl) tl.innerHTML=opts;
 }
-function onSemChange(){ const n=document.getElementById('f-sem').value; document.getElementById('subj-list').innerHTML=n?SYLLABUS[n].map(x=>`<option value="${x[1]}">`).join(''):''; drawCover(); }
+function onGpaSemChange(){
+  const n=document.getElementById('g-sem').value;
+  const sel=document.getElementById('g-course');
+  if(!sel) return;
+  const list=subjectsForSem(n);
+  const prev=sel.value;
+  sel.innerHTML='<option value="">Select course</option>'+list.map(x=>`<option value="${esc(x[1])}" data-ch="${x[2]}">${esc(x[1])}</option>`).join('');
+  if(prev && list.some(x=>x[1]===prev)) sel.value=prev;
+  const hit=list.find(x=>x[1]===sel.value);
+  if(hit) document.getElementById('g-ch').value=hit[2];
+  sel.onchange=()=>{
+    const h=(SYLLABUS[n]||[]).find(x=>x[1]===sel.value);
+    if(h) document.getElementById('g-ch').value=h[2];
+  };
+}
+function onSemChange(){
+  const n=document.getElementById('f-sem').value;
+  const sel=document.getElementById('f-subject');
+  const list=subjectsForSem(n);
+  const prev=sel.value;
+  if(!n){
+    sel.innerHTML='<option value="">Select semester first</option>';
+  }else{
+    sel.innerHTML='<option value="">Select subject</option>'+list.map(x=>`<option value="${esc(x[1])}">${esc(x[1])}</option>`).join('');
+    if(prev && list.some(x=>x[1]===prev)) sel.value=prev;
+  }
+  drawCover();
+}
 function setTpl(t){ currentTpl=t; document.querySelectorAll('.tpl-btn').forEach(b=>b.classList.toggle('active',b.dataset.tpl===t)); drawCover(); }
 function V(){ return {no:val('f-assignmentno'),topic:val('f-topic')||'Assignment Title',subject:val('f-subject')||'Subject',name:val('f-name')||'—',roll:val('f-roll')||'—',teacher:val('f-teacher')||'—',session:val('f-session')||'—',date:fmtDate(document.getElementById('f-date').value)}; }
 function tplClassic(v){ return `<div class="fr"></div><div class="ban">UNIVERSITY LAW COLLEGE</div><div class="top"><div class="uni"><b>University Law College</b>University of Balochistan, Quetta</div><img src="${LOGO}" alt=""></div><div class="mid"><svg class="doc" viewBox="0 0 48 48" fill="none" stroke="#12508f" stroke-width="2"><path d="M14 6h14l8 8v28H14z"/><path d="M28 6v8h8"/><path d="M19 24h12M19 30h12M19 36h8"/></svg><div class="kick">Assignment${v.no?' No. '+v.no:''}</div><div class="ttl">${v.topic}</div><div class="pill">${v.session}</div><div class="sub">${v.subject}</div></div><div class="foot"><div class="r"><b>Submitted by</b><span>${v.name}</span></div><div class="r"><b>Roll No.</b><span>${v.roll}</span></div><div class="r"><b>Submitted to</b><span>${v.teacher}</span></div><div class="r"><b>Subject</b><span>${v.subject}</span></div><div class="r"><b>Date</b><span>${v.date}</span></div></div>`; }
@@ -1307,7 +1636,7 @@ function renderGrades(){
   document.getElementById('gpa-sem').textContent=sg==null?'—':sg.toFixed(2);
   document.getElementById('gpa-cgpa').textContent=cg==null?'—':cg.toFixed(2);
   if(!list.length){ document.getElementById('gradeList').innerHTML='<div class="empty">No courses yet.</div>'; return; }
-  document.getElementById('gradeList').innerHTML=list.slice().reverse().map(x=>`<div class="item"><div><div class="t">${esc(x.course)}</div><div class="m">${ORD[x.sem]} · ${x.ch} CH · ${gradeLabel(x.gp)}</div></div><button type="button" onclick="delGrade('${x.id}')">Remove</button></div>`).join('');
+  document.getElementById('gradeList').innerHTML=list.slice().reverse().map(x=>`<div class="item"><div><div class="t">${esc(x.course)}</div><div class="m">Semester ${x.sem} · ${x.ch} CH · ${gradeLabel(x.gp)}</div></div><button type="button" onclick="delGrade('${x.id}')">Remove</button></div>`).join('');
 }
 let activeDay=DAYS[Math.min(Math.max(new Date().getDay()-1,0),5)]||'Monday';
 function getSlots(){ return loadJSON(LS_SLOTS, []); }
@@ -1345,7 +1674,7 @@ function renderSyllabusAcc(){
     return `<details${open}>
       <summary>
         <div class="sem-num">${n}</div>
-        <div class="sem-meta"><div class="ttl">${ORD[n]} Semester${n==YOUR_SEM?' · Current':''}</div><div class="sub">${subs.length} courses · ${cr} credit hours</div></div>
+        <div class="sem-meta"><div class="ttl">Semester ${n}${n==YOUR_SEM?' · Current':''}</div><div class="sub">${subs.length} courses · ${cr} credit hours</div></div>
         <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
       </summary>
       <div class="sem-body">${body}</div>
@@ -1355,19 +1684,17 @@ function renderSyllabusAcc(){
 }
 
 /* init */
-fillSemDropdown(); fillSubjectLists(); onSemChange(); drawCover();
+fillSemDropdown(); fillSubjectLists(); fillInstructorList(); fillAwardSubjects(); onSemChange(); drawCover();
 renderSyllabusAcc(); syncDayUi(); renderGrades(); renderSlots();
 liveAward();
 (async()=>{
   await restoreCloudSession();
   refreshTopAcc();
   refreshAccountView();
+  await refreshInstructorsFromCloud();
+  fillInstructorList();
 })();
-document.getElementById('aw-subj').addEventListener('change', ()=>{
-  const n=document.getElementById('aw-sem').value;
-  const hit=(SYLLABUS[n]||[]).find(x=>x[1]===document.getElementById('aw-subj').value);
-  if(hit) document.getElementById('aw-code').value=hit[0];
-});
+document.getElementById('aw-subj').addEventListener('change', onAwardSubjChange);
 if('serviceWorker' in navigator && location.protocol.startsWith('http')){
   window.addEventListener('load',()=>navigator.serviceWorker.register('service-worker.js').catch(()=>{}));
 }
