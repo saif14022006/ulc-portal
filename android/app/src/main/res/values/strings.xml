@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">ULC Toolkit</string>
+    <string name="title_activity_main">ULC Toolkit</string>
+    <string name="package_name">pk.edu.ulc.toolkit</string>
+    <string name="custom_url_scheme">pk.edu.ulc.toolkit</string>
+</resources>

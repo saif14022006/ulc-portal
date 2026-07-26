@@ -21,6 +21,23 @@ node_modules/
 dist/
 .vercel/
 
+# Capacitor web bundle (regenerate with npm run cap:copy)
+www/
+
+# Android build artifacts (keep android/ source)
+android/.gradle/
+android/app/build/
+android/build/
+android/captures/
+android/local.properties
+android/.idea/
+android/*.iml
+android/app/*.iml
+*.apk
+*.aab
+*.ap_
+*.dex
+
 # Load-test artifacts
 scripts/.load-progress.json
 scripts/.load-progress.json.tmp

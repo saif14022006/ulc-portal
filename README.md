@@ -41,6 +41,20 @@ npx --yes serve -p 8080
 # http://localhost:8080
 ```
 
+## Android APK
+
+See **[ANDROID.md](ANDROID.md)** for Capacitor packaging (`pk.edu.ulc.toolkit`).
+
+Quick path after Android Studio is installed:
+
+```bash
+npm run cap:sync
+npm run cap:open
+# Build → Build APK(s)  →  android/app/build/outputs/apk/debug/app-debug.apk
+```
+
+Or: `npm run android:debug`
+
 ## Brand
 
 ULC crest · Navy `#0b3a6b` · Gold `#c6a13c` · Paper `#f5f2ea`
