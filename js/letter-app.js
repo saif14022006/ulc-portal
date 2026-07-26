@@ -2,71 +2,152 @@
 (function (global) {
   "use strict";
 
-  const TEMPLATES = {
+  const KEY_ALIASES = {
+    fee_issue: "fee",
+    character_certificate: "character",
+    hostel_leave: "hostel",
+    id_card: "idcard",
+  };
+
+  /** Fallback if JSON fetch fails — same content as js/letter-templates.json */
+  const FALLBACK_JSON = {
     leave: {
-      label: "Leave Application",
-      to: "The Principal,\nUniversity Law College, Quetta.",
+      title: "Leave",
       subject: "APPLICATION FOR LEAVE",
-      body:
-        "It is stated that I will not be able to attend my classes from [start date] to [end date] due to [reason]. This matter is beyond my control, and I will make sure to cover any lessons or work that I miss during these days.\n\nI therefore request you to kindly grant me leave for the mentioned period so that I may attend to this matter without affecting my studies.\n\nI will be very thankful to you for your kind consideration. Your support in this regard will be highly appreciated.",
+      to: "The Principal,\nUniversity Law College, Quetta.",
+      body: [
+        "It is stated that I will not be able to attend my classes from [start date] to [end date] due to [reason]. This matter is beyond my control, and I will make sure to cover any lessons or work that I miss during these days.",
+        "I therefore request you to kindly grant me leave for the mentioned period so that I may attend to this matter without affecting my studies.",
+        "I will be very thankful to you for your kind consideration. Your support in this regard will be highly appreciated.",
+      ],
     },
     rechecking: {
-      label: "Rechecking Application",
-      to: "The Principal,\nUniversity Law College, Quetta.",
+      title: "Rechecking",
       subject: "APPLICATION FOR RECHECKING OF PAPER",
-      body:
-        "It is stated that I appeared in the [subject/paper name] examination held on [date]. After receiving my result, I am not fully satisfied with the marks awarded, as I believe my performance in the paper was better and there may be an error in the marking or totaling.\n\nI therefore request you to kindly allow the rechecking of my paper so that any mistake, if present, can be corrected. I am ready to complete any formalities or pay any fee required for this purpose.\n\nI will be very thankful to you for your kind attention to my request. Your fair consideration in this matter will mean a lot to me.",
+      to: "The Principal,\nUniversity Law College, Quetta.",
+      body: [
+        "It is stated that I appeared in the [subject/paper name] examination held on [date]. After receiving my result, I am not fully satisfied with the marks awarded, as I believe my performance in the paper was better and there may be an error in the marking or totaling.",
+        "I therefore request you to kindly allow the rechecking of my paper so that any mistake, if present, can be corrected. I am ready to complete any formalities or pay any fee required for this purpose.",
+        "I will be very thankful to you for your kind attention to my request. Your fair consideration in this matter will mean a lot to me.",
+      ],
     },
     apology: {
-      label: "Apology Letter",
-      to: "The Principal,\nUniversity Law College, Quetta.",
+      title: "Apology",
       subject: "LETTER OF APOLOGY",
-      body:
-        "It is stated that I sincerely apologize for [mistake, e.g. my absence / late submission / misconduct] on [date]. It was not intentional, and I deeply regret any inconvenience or disturbance that may have been caused as a result.\n\nI assure you that I have understood my mistake and that it will not be repeated in the future. I therefore request you to kindly accept my apology and give me a chance to improve.\n\nI will be very thankful to you for your kindness and understanding. Your consideration in this matter will be greatly valued.",
+      to: "The Principal,\nUniversity Law College, Quetta.",
+      body: [
+        "It is stated that I sincerely apologize for [mistake, e.g. my absence / late submission / misconduct] on [date]. It was not intentional, and I deeply regret any inconvenience or disturbance that may have been caused as a result.",
+        "I assure you that I have understood my mistake and that it will not be repeated in the future. I therefore request you to kindly accept my apology and give me a chance to improve.",
+        "I will be very thankful to you for your kindness and understanding. Your consideration in this matter will be greatly valued.",
+      ],
     },
     fee: {
-      label: "Fee Issue Application",
-      to: "The Principal / Accounts Office,\nUniversity Law College, Quetta.",
+      title: "Fee Issue",
       subject: "APPLICATION REGARDING FEE ISSUE",
-      body:
-        "It is stated that I am facing a problem regarding my fee [e.g. late payment / incorrect amount / installment request]. Due to [reason], I am currently unable to [pay on time / clear the full amount], although I am fully willing to fulfill my responsibility.\n\nI therefore request you to kindly [grant me extra time / correct the amount / allow me to pay in installments] so that I may continue my studies without any difficulty.\n\nI will be very thankful to you for your kind support in this matter. Your cooperation will help me a great deal during this time.",
+      to: "The Principal / Accounts Office,\nUniversity Law College, Quetta.",
+      body: [
+        "It is stated that I am facing a problem regarding my fee [e.g. late payment / incorrect amount / installment request]. Due to [reason], I am currently unable to [pay on time / clear the full amount], although I am fully willing to fulfill my responsibility.",
+        "I therefore request you to kindly [grant me extra time / correct the amount / allow me to pay in installments] so that I may continue my studies without any difficulty.",
+        "I will be very thankful to you for your kind support in this matter. Your cooperation will help me a great deal during this time.",
+      ],
     },
     character: {
-      label: "Character Certificate",
-      to: "The Principal,\nUniversity Law College, Quetta.",
+      title: "Character Certificate",
       subject: "APPLICATION FOR CHARACTER CERTIFICATE",
-      body:
-        "It is stated that I am a student of [class/semester/program] at this institution. I am in need of a character certificate, which is required for [purpose, e.g. admission / job / scholarship].\n\nI therefore request you to kindly issue me a character certificate at your earliest convenience. If any formalities or fee are required, I am fully ready to complete them.\n\nI will be very thankful to you for your kind help in this regard. Your prompt assistance will be greatly appreciated.",
+      to: "The Principal,\nUniversity Law College, Quetta.",
+      body: [
+        "It is stated that I am a student of [class/semester/program] at this institution. I am in need of a character certificate, which is required for [purpose, e.g. admission / job / scholarship].",
+        "I therefore request you to kindly issue me a character certificate at your earliest convenience. If any formalities or fee are required, I am fully ready to complete them.",
+        "I will be very thankful to you for your kind help in this regard. Your prompt assistance will be greatly appreciated.",
+      ],
     },
     hostel: {
-      label: "Hostel Leave",
-      to: "The Hostel Warden / The Principal,\nUniversity Law College, Quetta.",
+      title: "Hostel Leave",
       subject: "APPLICATION FOR HOSTEL LEAVE",
-      body:
-        "It is stated that I am a resident of the college hostel, room number [room no]. I need to leave the hostel from [start date] to [end date] due to [reason], and I will return as soon as the matter is settled.\n\nI therefore request you to kindly grant me hostel leave for the mentioned period so that I may attend to this matter without any concern.\n\nI will be very thankful to you for your kind consideration. Your support in this regard will be highly appreciated.",
+      to: "The Hostel Warden / The Principal,\nUniversity Law College, Quetta.",
+      body: [
+        "It is stated that I am a resident of the college hostel, room number [room no]. I need to leave the hostel from [start date] to [end date] due to [reason], and I will return as soon as the matter is settled.",
+        "I therefore request you to kindly grant me hostel leave for the mentioned period so that I may attend to this matter without any concern.",
+        "I will be very thankful to you for your kind consideration. Your support in this regard will be highly appreciated.",
+      ],
     },
     migration: {
-      label: "Migration Certificate",
-      to: "The Principal,\nUniversity Law College, Quetta.",
+      title: "Migration",
       subject: "APPLICATION FOR MIGRATION CERTIFICATE",
-      body:
-        "It is stated that I am a student of [class/semester/program] at this institution. Due to [reason], I am no longer able to continue my studies here and wish to migrate to [name of institution/city].\n\nI therefore request you to kindly issue me a migration certificate along with any other required documents. I am ready to complete all necessary formalities and clear any dues for this purpose.\n\nI will be very thankful to you for your kind cooperation. Your timely help will be of great importance to me.",
+      to: "The Principal,\nUniversity Law College, Quetta.",
+      body: [
+        "It is stated that I am a student of [class/semester/program] at this institution. Due to [reason], I am no longer able to continue my studies here and wish to migrate to [name of institution/city].",
+        "I therefore request you to kindly issue me a migration certificate along with any other required documents. I am ready to complete all necessary formalities and clear any dues for this purpose.",
+        "I will be very thankful to you for your kind cooperation. Your timely help will be of great importance to me.",
+      ],
     },
     idcard: {
-      label: "ID Card Issue / Duplicate",
-      to: "The Principal,\nUniversity Law College, Quetta.",
+      title: "ID Card",
       subject: "APPLICATION FOR STUDENT ID CARD",
-      body:
-        "It is stated that my student ID card has been [lost / damaged / expired]. As the ID card is necessary for using the college facilities and for my identification, I am facing difficulty without it.\n\nI therefore request you to kindly issue me a new ID card at your earliest convenience. If any fee is required for this, I am fully ready to pay it.\n\nI will be very thankful to you for your kind help in this matter. Your prompt assistance will be greatly appreciated.",
+      to: "The Principal,\nUniversity Law College, Quetta.",
+      body: [
+        "It is stated that my student ID card has been [lost / damaged / expired]. As the ID card is necessary for using the college facilities and for my identification, I am facing difficulty without it.",
+        "I therefore request you to kindly issue me a new ID card at your earliest convenience. If any fee is required for this, I am fully ready to pay it.",
+        "I will be very thankful to you for your kind help in this matter. Your prompt assistance will be greatly appreciated.",
+      ],
     },
     general: {
-      label: "General Application",
-      to: "The Principal,\nUniversity Law College, Quetta.",
+      title: "General",
       subject: "APPLICATION",
-      body:
-        "It is stated that I wish to bring to your kind attention the following matter: [state your matter clearly]. Due to [reason], this issue requires your consideration and support.\n\nI therefore request you to kindly [state what you need] so that my concern may be resolved without any further difficulty.\n\nI will be very thankful to you for your kind consideration. Your support in this regard will be highly appreciated.",
+      to: "The Principal,\nUniversity Law College, Quetta.",
+      body: [
+        "It is stated that I wish to bring to your kind attention the following matter: [state your matter clearly]. Due to [reason], this issue requires your consideration and support.",
+        "I therefore request you to kindly [state what you need] so that my concern may be resolved without any further difficulty.",
+        "I will be very thankful to you for your kind consideration. Your support in this regard will be highly appreciated.",
+      ],
     },
   };
+
+  function bodyFromArray(arr) {
+    return (Array.isArray(arr) ? arr : [String(arr || "")]).filter(Boolean).join("\n\n");
+  }
+
+  function normalizeKey(key) {
+    return KEY_ALIASES[key] || key;
+  }
+
+  function buildTemplatesFromJson(data) {
+    const out = {};
+    Object.keys(data || {}).forEach((rawKey) => {
+      const key = normalizeKey(rawKey);
+      const item = data[rawKey] || {};
+      out[key] = {
+        label: item.title || key,
+        to: item.to || "The Principal,\nUniversity Law College, Quetta.",
+        subject: item.subject || String(item.title || "APPLICATION").toUpperCase(),
+        body: bodyFromArray(item.body),
+      };
+    });
+    return out;
+  }
+
+  let TEMPLATES = buildTemplatesFromJson(FALLBACK_JSON);
+  let templatesReady = false;
+
+  async function loadTemplatesFromJson() {
+    try {
+      const res = await fetch("js/letter-templates.json", { cache: "no-cache" });
+      if (!res.ok) throw new Error("templates " + res.status);
+      const data = await res.json();
+      const next = buildTemplatesFromJson(data);
+      Object.keys(TEMPLATES).forEach((k) => delete TEMPLATES[k]);
+      Object.assign(TEMPLATES, next);
+      templatesReady = true;
+      return TEMPLATES;
+    } catch (e) {
+      console.warn("[letter] using embedded templates", e?.message || e);
+      const next = buildTemplatesFromJson(FALLBACK_JSON);
+      Object.keys(TEMPLATES).forEach((k) => delete TEMPLATES[k]);
+      Object.assign(TEMPLATES, next);
+      templatesReady = true;
+      return TEMPLATES;
+    }
+  }
 
   const GUIDE =
     "Before submitting:\n\n1. Print this application.\n2. Annex / staple a photocopy of your Student ID card with the application.\n3. Submit it to Sir Shehzad.\n\nDo not forget the ID card photocopy.";
@@ -84,14 +165,15 @@
   }
 
   function currentTplKey() {
-    return raw("lt-tpl") || "leave";
+    return normalizeKey(raw("lt-tpl") || "leave");
   }
 
   function applyTemplate(key, forceBody) {
+    key = normalizeKey(key);
     const t = TEMPLATES[key] || TEMPLATES.general;
     setVal("lt-tpl", key);
     document.querySelectorAll(".lt-tpl-btn").forEach((b) => {
-      b.classList.toggle("active", b.dataset.tpl === key);
+      b.classList.toggle("active", normalizeKey(b.dataset.tpl) === key);
     });
     if (!raw("lt-to") || forceBody) setVal("lt-to", t.to);
     setVal("lt-subject", t.subject);
@@ -244,14 +326,15 @@
     }
   }
 
-  function initLetterView() {
+  async function initLetterView() {
+    await loadTemplatesFromJson();
     const dateEl = document.getElementById("lt-date");
     if (dateEl && !dateEl.value) {
       const d = new Date();
       dateEl.value = d.toISOString().slice(0, 10);
     }
     const key = currentTplKey() || "leave";
-    applyTemplate(key, !raw("lt-body"));
+    applyTemplate(key, true);
     drawLetter();
   }
 
@@ -260,7 +343,8 @@
   }
 
   global.LetterApp = {
-    TEMPLATES,
+    get TEMPLATES() { return TEMPLATES; },
+    loadTemplatesFromJson,
     applyTemplate,
     pickTemplate,
     drawLetter,

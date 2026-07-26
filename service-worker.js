@@ -12,6 +12,7 @@ const ASSETS = [
   "./js/teacher.js",
   "./js/student-dashboard.js",
   "./js/letter-app.js",
+  "./js/letter-templates.json",
   "./assets/campus-hero.jpg",
   "./assets/batch-2025-29-section-a.png",
   "./icons/ulc-logo.png",

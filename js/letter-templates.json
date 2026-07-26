@@ -1,0 +1,92 @@
+{
+  "leave": {
+    "title": "Leave",
+    "subject": "APPLICATION FOR LEAVE",
+    "to": "The Principal,\nUniversity Law College, Quetta.",
+    "body": [
+      "It is stated that I will not be able to attend my classes from [start date] to [end date] due to [reason]. This matter is beyond my control, and I will make sure to cover any lessons or work that I miss during these days.",
+      "I therefore request you to kindly grant me leave for the mentioned period so that I may attend to this matter without affecting my studies.",
+      "I will be very thankful to you for your kind consideration. Your support in this regard will be highly appreciated."
+    ]
+  },
+  "rechecking": {
+    "title": "Rechecking",
+    "subject": "APPLICATION FOR RECHECKING OF PAPER",
+    "to": "The Principal,\nUniversity Law College, Quetta.",
+    "body": [
+      "It is stated that I appeared in the [subject/paper name] examination held on [date]. After receiving my result, I am not fully satisfied with the marks awarded, as I believe my performance in the paper was better and there may be an error in the marking or totaling.",
+      "I therefore request you to kindly allow the rechecking of my paper so that any mistake, if present, can be corrected. I am ready to complete any formalities or pay any fee required for this purpose.",
+      "I will be very thankful to you for your kind attention to my request. Your fair consideration in this matter will mean a lot to me."
+    ]
+  },
+  "apology": {
+    "title": "Apology",
+    "subject": "LETTER OF APOLOGY",
+    "to": "The Principal,\nUniversity Law College, Quetta.",
+    "body": [
+      "It is stated that I sincerely apologize for [mistake, e.g. my absence / late submission / misconduct] on [date]. It was not intentional, and I deeply regret any inconvenience or disturbance that may have been caused as a result.",
+      "I assure you that I have understood my mistake and that it will not be repeated in the future. I therefore request you to kindly accept my apology and give me a chance to improve.",
+      "I will be very thankful to you for your kindness and understanding. Your consideration in this matter will be greatly valued."
+    ]
+  },
+  "fee": {
+    "title": "Fee Issue",
+    "subject": "APPLICATION REGARDING FEE ISSUE",
+    "to": "The Principal / Accounts Office,\nUniversity Law College, Quetta.",
+    "body": [
+      "It is stated that I am facing a problem regarding my fee [e.g. late payment / incorrect amount / installment request]. Due to [reason], I am currently unable to [pay on time / clear the full amount], although I am fully willing to fulfill my responsibility.",
+      "I therefore request you to kindly [grant me extra time / correct the amount / allow me to pay in installments] so that I may continue my studies without any difficulty.",
+      "I will be very thankful to you for your kind support in this matter. Your cooperation will help me a great deal during this time."
+    ]
+  },
+  "character": {
+    "title": "Character Certificate",
+    "subject": "APPLICATION FOR CHARACTER CERTIFICATE",
+    "to": "The Principal,\nUniversity Law College, Quetta.",
+    "body": [
+      "It is stated that I am a student of [class/semester/program] at this institution. I am in need of a character certificate, which is required for [purpose, e.g. admission / job / scholarship].",
+      "I therefore request you to kindly issue me a character certificate at your earliest convenience. If any formalities or fee are required, I am fully ready to complete them.",
+      "I will be very thankful to you for your kind help in this regard. Your prompt assistance will be greatly appreciated."
+    ]
+  },
+  "hostel": {
+    "title": "Hostel Leave",
+    "subject": "APPLICATION FOR HOSTEL LEAVE",
+    "to": "The Hostel Warden / The Principal,\nUniversity Law College, Quetta.",
+    "body": [
+      "It is stated that I am a resident of the college hostel, room number [room no]. I need to leave the hostel from [start date] to [end date] due to [reason], and I will return as soon as the matter is settled.",
+      "I therefore request you to kindly grant me hostel leave for the mentioned period so that I may attend to this matter without any concern.",
+      "I will be very thankful to you for your kind consideration. Your support in this regard will be highly appreciated."
+    ]
+  },
+  "migration": {
+    "title": "Migration",
+    "subject": "APPLICATION FOR MIGRATION CERTIFICATE",
+    "to": "The Principal,\nUniversity Law College, Quetta.",
+    "body": [
+      "It is stated that I am a student of [class/semester/program] at this institution. Due to [reason], I am no longer able to continue my studies here and wish to migrate to [name of institution/city].",
+      "I therefore request you to kindly issue me a migration certificate along with any other required documents. I am ready to complete all necessary formalities and clear any dues for this purpose.",
+      "I will be very thankful to you for your kind cooperation. Your timely help will be of great importance to me."
+    ]
+  },
+  "idcard": {
+    "title": "ID Card",
+    "subject": "APPLICATION FOR STUDENT ID CARD",
+    "to": "The Principal,\nUniversity Law College, Quetta.",
+    "body": [
+      "It is stated that my student ID card has been [lost / damaged / expired]. As the ID card is necessary for using the college facilities and for my identification, I am facing difficulty without it.",
+      "I therefore request you to kindly issue me a new ID card at your earliest convenience. If any fee is required for this, I am fully ready to pay it.",
+      "I will be very thankful to you for your kind help in this matter. Your prompt assistance will be greatly appreciated."
+    ]
+  },
+  "general": {
+    "title": "General",
+    "subject": "APPLICATION",
+    "to": "The Principal,\nUniversity Law College, Quetta.",
+    "body": [
+      "It is stated that I wish to bring to your kind attention the following matter: [state your matter clearly]. Due to [reason], this issue requires your consideration and support.",
+      "I therefore request you to kindly [state what you need] so that my concern may be resolved without any further difficulty.",
+      "I will be very thankful to you for your kind consideration. Your support in this regard will be highly appreciated."
+    ]
+  }
+}
