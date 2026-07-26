@@ -39,6 +39,7 @@
         profile,
         semesterRecords: records,
         subjectMarks,
+        myFiles: global.MyFiles?.exportUserFiles ? global.MyFiles.exportUserFiles() : [],
         syncedAt: Date.now(),
       },
     });
@@ -77,6 +78,9 @@
         const allM = loadJSON(LS_SUBJECT_MARKS, {});
         allM[accountKey(u)] = d.subjectMarks;
         saveJSON(LS_SUBJECT_MARKS, allM);
+      }
+      if (Array.isArray(d.myFiles) && global.MyFiles?.replaceUserFiles) {
+        global.MyFiles.replaceUserFiles(d.myFiles);
       }
       return true;
     } catch (e) {
@@ -1435,6 +1439,7 @@
       pdf.addImage(canvas.toDataURL("image/jpeg", 0.95), "JPEG", 0, 0, pageW, pageH);
       const safe = String(u.name || "ULC").replace(/\s+/g, "_");
       pdf.save(`${safe}_Sem${sem}_Provisional.pdf`);
+      if (global.MyFiles) global.MyFiles.saveTranscriptAuto(sem, html);
     } catch (e) {
       console.error(e);
       const host = document.getElementById("printhost");
@@ -1670,6 +1675,7 @@
     accountKey,
     pullStudentWorkspace,
     pushStudentWorkspace,
+    notifyFilesChanged: scheduleStudentCloudSync,
   };
 
   global.StudentDash = StudentDash;

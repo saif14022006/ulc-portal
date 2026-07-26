@@ -26,6 +26,7 @@
 <script src="js/teacher.js"></script>
 <script src="js/student-dashboard.js"></script>
 <script src="js/letter-app.js"></script>
+<script src="js/my-files.js"></script>
 <style>
 :root{
   --navy:#0b3a6b; --navy-2:#12508f; --navy-deep:#082744;
@@ -246,6 +247,33 @@ main{flex:1;padding:18px 16px 36px;width:100%}
 .letter-sheet .lt-applicant{margin:0;padding:0;line-height:1.05}
 .letter-sheet .lt-applicant div{margin:0;padding:0;font-weight:700;text-align:center;line-height:1.05}
 .letter-sheet .lt-name{text-transform:none}
+/* My Files + mobile tools drawer */
+.file-card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px;margin-bottom:10px;box-shadow:0 2px 10px rgba(11,58,107,.05)}
+.file-card-top{display:flex;justify-content:space-between;gap:8px;align-items:center;margin-bottom:6px}
+.file-type{font-size:10.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--gold-deep);background:#fff8e8;border:1px solid #e8d4a8;border-radius:999px;padding:3px 9px}
+.file-when{font-size:11.5px;color:var(--slate)}
+.file-title{font-family:var(--serif);font-size:16px;color:var(--navy);margin:0 0 10px;line-height:1.3}
+.file-actions{display:flex;flex-wrap:wrap;gap:6px}
+.menu-toggle{display:inline-flex;align-items:center;justify-content:center;width:40px;height:40px;border-radius:10px;border:1px solid rgba(255,255,255,.25);background:rgba(255,255,255,.08);color:#fff;cursor:pointer;flex:none;padding:0}
+.menu-toggle svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:1.8}
+.tools-drawer-bg{display:none;position:fixed;inset:0;background:rgba(8,39,68,.45);z-index:80}
+.tools-drawer{position:fixed;top:0;left:0;bottom:0;width:min(86vw,300px);background:var(--paper-2);z-index:90;transform:translateX(-105%);transition:transform .22s ease;box-shadow:8px 0 28px rgba(0,0,0,.18);display:flex;flex-direction:column;padding:calc(12px + env(safe-area-inset-top)) 12px 18px;border-right:1px solid var(--line)}
+body.tools-drawer-open .tools-drawer{transform:translateX(0)}
+body.tools-drawer-open .tools-drawer-bg{display:block}
+.tools-drawer-head{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:4px 6px 14px;border-bottom:1px solid var(--line);margin-bottom:10px}
+.tools-drawer-head strong{font-family:var(--serif);font-size:17px;color:var(--navy)}
+.tools-drawer-close{border:none;background:#eef1f5;width:34px;height:34px;border-radius:9px;cursor:pointer;font-size:18px;color:var(--navy);line-height:1}
+.tools-drawer-nav{display:flex;flex-direction:column;gap:4px;overflow:auto;flex:1;-webkit-overflow-scrolling:touch}
+.tools-drawer-item{display:block;width:100%;text-align:left;border:none;background:none;padding:12px 14px;border-radius:10px;font-family:var(--sans);font-size:14px;font-weight:600;color:var(--slate);cursor:pointer}
+.tools-drawer-item:hover{background:#eef1f5;color:var(--navy)}
+.tools-drawer-item.active{background:var(--navy);color:#fff}
+.files-preview-sheet{max-width:min(960px,96vw);width:100%;max-height:92dvh;overflow:auto}
+.files-preview-host{background:#fff;border:1px solid var(--line);border-radius:8px;overflow:auto;max-height:70dvh}
+.files-preview-host .cover,.files-preview-host .letter-sheet,.files-preview-host .award-pdf,.files-preview-host .tx-cert{transform-origin:top left}
+@media (min-width:900px){
+  .menu-toggle{display:none}
+  .tools-drawer,.tools-drawer-bg{display:none!important}
+}
 .cover{position:relative;width:100%;aspect-ratio:1/1.414;background:#fff;overflow:hidden;border:1px solid var(--line);box-shadow:var(--shadow);container-type:inline-size;font-family:var(--serif);color:var(--navy)}
 .tpl-classic .fr{position:absolute;inset:4cqw;border:.5cqw solid var(--navy)}.tpl-classic .fr:after{content:"";position:absolute;inset:1.2cqw;border:.25cqw solid var(--gold)}
 .tpl-classic .ban{position:absolute;top:7cqw;left:-15cqw;transform:rotate(-45deg);background:var(--navy);color:#fff;font-family:var(--sans);font-weight:700;font-size:2.5cqw;letter-spacing:.12em;padding:1.3cqw 16cqw}
@@ -449,7 +477,7 @@ main{flex:1;padding:18px 16px 36px;width:100%}
 @media print{
   @page{size:A4;margin:0}
   body,.app{background:#fff}
-  .topbar,.tabbar,.sidebar,.site-footer,main>.view:not(#printhost),.no-print,.landing-gate{display:none!important}
+  .topbar,.tabbar,.sidebar,.site-footer,main>.view:not(#printhost),.no-print,.landing-gate,.tools-drawer,.tools-drawer-bg,.menu-toggle{display:none!important}
   #printhost,#transcriptHost{display:block!important;padding:0}
   .print-cover{display:block!important;width:100%;min-height:100vh;aspect-ratio:auto;border:none;box-shadow:none}
   .print-letter .letter-sheet,.print-letter{display:block!important;width:100%!important;min-height:100vh;aspect-ratio:auto;border:none!important;box-shadow:none!important}
@@ -725,6 +753,9 @@ body.landing-open .app{visibility:hidden;pointer-events:none}
 </div>
 <div class="app">
   <header class="topbar">
+    <button type="button" class="menu-toggle" id="menuToggle" aria-label="Open menu" onclick="MyFiles.openToolsMenu()">
+      <svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+    </button>
     <img class="seal-img" src="icons/ulc-logo.png" alt="ULC crest">
     <div class="brand"><h1>University Law College</h1><p>Quetta · ULC Toolkit</p></div>
     <button class="top-acc" id="topAccBtn" onclick="go('account')"><span id="topAccLabel">Account</span></button>
@@ -736,6 +767,7 @@ body.landing-open .app{visibility:hidden;pointer-events:none}
       <button class="side-item active" data-t="home" onclick="go('home')"><svg viewBox="0 0 24 24"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/></svg>Home</button>
       <button class="side-item" data-t="cover" onclick="go('cover')"><svg viewBox="0 0 24 24"><path d="M6 2h9l3 3v17H6z"/><path d="M15 2v4h4"/></svg>Cover Page</button>
       <button class="side-item" data-t="letter" onclick="go('letter')"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M8 13h8M8 17h6"/></svg>Applications</button>
+      <button class="side-item" data-t="files" data-files-only onclick="go('files')"><svg viewBox="0 0 24 24"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>My Files</button>
       <button class="side-item" data-t="award" onclick="go('award')"><svg viewBox="0 0 24 24"><path d="M8 21h8"/><path d="M12 17v4"/><path d="M7 4h10v8a5 5 0 0 1-10 0V4z"/><path d="M5 8H3a2 2 0 0 0 2 2"/><path d="M19 8h2a2 2 0 0 1-2 2"/></svg>Award List</button>
       <button class="side-item" data-t="syllabus" onclick="go('syllabus')"><svg viewBox="0 0 24 24"><path d="M4 5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2z"/><path d="M4 19a2 2 0 0 1 2-2h13"/></svg>Syllabus</button>
       <button class="side-item" data-t="aggregate" onclick="go('aggregate')"><svg viewBox="0 0 24 24"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 7h8M8 11h8M8 15h4"/></svg>Admission Aggregate</button>
@@ -830,6 +862,11 @@ body.landing-open .app{visibility:hidden;pointer-events:none}
               <div class="ic ic-letter"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M8 13h8M8 17h6"/></svg></div>
               <h4>Applications</h4>
               <p>Leave, fee, apology &amp; letter templates.</p>
+            </button>
+            <button class="tool-card" onclick="go('files')">
+              <div class="ic ic-cover"><svg viewBox="0 0 24 24"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg></div>
+              <h4>My Files</h4>
+              <p>Saved award lists, attendance sheets &amp; documents.</p>
             </button>
             <button class="tool-card" onclick="go('syllabus')">
               <div class="ic ic-syllabus"><svg viewBox="0 0 24 24"><path d="M4 5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2z"/><path d="M4 19a2 2 0 0 1 2-2h13"/></svg></div>
@@ -1024,6 +1061,10 @@ body.landing-open .app{visibility:hidden;pointer-events:none}
               <div class="ic ic-letter"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M8 13h8M8 17h6"/></svg></div>
               <div class="txt"><h4>Application / Letter Generator</h4><p>Leave, rechecking, apology, fee &amp; more.</p></div>
             </button>
+            <button class="tool-card featured" onclick="go('files')">
+              <div class="ic ic-cover"><svg viewBox="0 0 24 24"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg></div>
+              <div class="txt"><h4>My Files</h4><p>Saved covers, applications &amp; transcripts.</p></div>
+            </button>
             <button class="tool-card" onclick="go('award')">
               <div class="ic ic-award"><svg viewBox="0 0 24 24"><path d="M8 21h8"/><path d="M12 17v4"/><path d="M7 4h10v8a5 5 0 0 1-10 0V4z"/><path d="M5 8H3a2 2 0 0 0 2 2"/><path d="M19 8h2a2 2 0 0 1-2 2"/></svg></div>
               <h4>Award List</h4>
@@ -1096,6 +1137,7 @@ body.landing-open .app{visibility:hidden;pointer-events:none}
             <div class="field"><label>Submission date</label><input id="f-date" type="date" oninput="drawCover()"></div>
             <div class="btn-row">
               <button class="btn btn-ghost" onclick="printCover()">Print</button>
+              <button class="btn btn-ghost" type="button" onclick="MyFiles.saveCurrentCover()">Save to My Files</button>
               <button class="btn btn-primary" id="pdfBtn" onclick="downloadPDF()">Download PDF</button>
             </div>
           </div>
@@ -1162,12 +1204,42 @@ body.landing-open .app{visibility:hidden;pointer-events:none}
             </div>
             <div class="btn-row">
               <button class="btn btn-ghost" type="button" onclick="LetterApp.printLetter()">Print</button>
+              <button class="btn btn-ghost" type="button" onclick="MyFiles.saveCurrentLetter()">Save to My Files</button>
               <button class="btn btn-primary" type="button" id="lt-pdf-btn" onclick="LetterApp.downloadLetterPdf()">Download PDF</button>
             </div>
           </div>
           <div class="cover-preview-col">
             <div class="preview-label">Live preview · A4</div>
             <div id="letterPreview" style="container-type:inline-size"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- MY FILES -->
+      <section class="view" id="v-files">
+        <div class="max-narrow">
+          <div class="eyebrow">Library</div>
+          <h2 class="view-title">My Files</h2>
+          <p class="view-sub">Documents you generate while logged in are saved here — open, preview, or download again anytime.</p>
+
+          <div class="auth-banner" id="filesGate">
+            <strong>Login required.</strong>
+            <p style="font-size:13px;color:var(--slate);margin:6px 0 12px">Sign in to keep your covers, applications, transcripts, award lists, and attendance sheets in My Files.</p>
+            <button class="btn btn-gold" type="button" onclick="go('account')">Go to Account</button>
+          </div>
+
+          <div id="filesApp" style="display:none">
+            <div class="row2" style="align-items:end;margin-bottom:12px">
+              <div class="field" style="margin:0">
+                <label>Filter</label>
+                <select id="filesFilter" onchange="MyFiles.renderFilesView()">
+                  <option value="all">All files</option>
+                </select>
+              </div>
+              <button type="button" class="btn btn-ghost" onclick="MyFiles.renderFilesView()">Refresh</button>
+            </div>
+            <div class="empty" id="filesEmpty" style="display:none">No saved files yet. Generate a cover, application, transcript, award list, or attendance sheet while logged in — it will appear here.</div>
+            <div id="filesList"></div>
           </div>
         </div>
       </section>
@@ -1646,6 +1718,7 @@ body.landing-open .app{visibility:hidden;pointer-events:none}
           <h4>Toolkit</h4>
           <button type="button" onclick="go('cover')">Cover Page</button>
           <button type="button" onclick="go('letter')">Applications</button>
+          <button type="button" onclick="go('files')">My Files</button>
           <button type="button" onclick="go('award')">Award List</button>
           <button type="button" onclick="go('syllabus')">LLB Syllabus</button>
           <button type="button" onclick="go('aggregate')">Admission Aggregate</button>
@@ -1686,9 +1759,29 @@ body.landing-open .app{visibility:hidden;pointer-events:none}
     <button class="tab" data-t="cover" onclick="go('cover')"><svg viewBox="0 0 24 24"><path d="M6 2h9l3 3v17H6z"/><path d="M15 2v4h4"/></svg>Cover</button>
     <button class="tab" data-t="award" id="tabAward" onclick="go('award')"><svg viewBox="0 0 24 24"><path d="M8 21h8"/><path d="M12 17v4"/><path d="M7 4h10v8a5 5 0 0 1-10 0V4z"/></svg>Awards</button>
     <button class="tab" data-t="teacher" id="tabTeacher" onclick="go('teacher')" style="display:none"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>Desk</button>
-    <button class="tab" data-t="syllabus" onclick="go('syllabus')"><svg viewBox="0 0 24 24"><path d="M4 5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2z"/><path d="M4 19a2 2 0 0 1 2-2h13"/></svg>Syllabus</button>
+    <button class="tab" data-t="files" id="tabFiles" data-files-only onclick="go('files')" style="display:none"><svg viewBox="0 0 24 24"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>Files</button>
     <button class="tab" data-t="account" onclick="go('account')"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c1.5-3.5 4-5 8-5s6.5 1.5 8 5"/></svg>Account</button>
   </nav>
+</div>
+
+<div class="tools-drawer-bg" id="toolsDrawerBg" aria-hidden="true" onclick="MyFiles.closeToolsMenu()"></div>
+<aside class="tools-drawer" id="toolsDrawer" aria-hidden="true" aria-label="Tools menu">
+  <div class="tools-drawer-head">
+    <strong>ULC Tools</strong>
+    <button type="button" class="tools-drawer-close" aria-label="Close menu" onclick="MyFiles.closeToolsMenu()">×</button>
+  </div>
+  <nav class="tools-drawer-nav" id="toolsDrawerNav"></nav>
+</aside>
+
+<div class="overlay" id="filesPreviewOverlay" aria-hidden="true" onclick="if(event.target===this)MyFiles.closePreview()">
+  <div class="sheet files-preview-sheet" role="dialog" aria-labelledby="filesPreviewTitle">
+    <h2 id="filesPreviewTitle">Preview</h2>
+    <div class="btn-row" style="margin-bottom:10px">
+      <button type="button" class="btn btn-primary btn-sm" onclick="const h=document.getElementById('filesPreviewHost'); if(h&&h.dataset.fileId) MyFiles.downloadSavedFile(h.dataset.fileId)">Download PDF</button>
+      <button type="button" class="btn btn-ghost btn-sm" onclick="MyFiles.closePreview()">Close</button>
+    </div>
+    <div class="files-preview-host" id="filesPreviewHost"></div>
+  </div>
 </div>
 
 <div class="overlay" id="profileOverlay" aria-hidden="true" onclick="if(event.target===this)StudentDash.closeProfileModal()">
@@ -1828,6 +1921,7 @@ function go(t){
   if(t==='syllabus') renderSyllabusAcc();
   if(t==='cover'){ fillInstructorList(); onSemChange(); }
   if(t==='letter' && window.LetterApp) LetterApp.initLetterView();
+  if(t==='files' && window.MyFiles) MyFiles.initFilesView();
   if(t==='teacher' && window.TeacherApp) TeacherApp.initTeacherView();
   if(window.StudentDash){
     if(t==='home' && !currentUser()) StudentDash.resetLandingForGuestHome();
@@ -2213,6 +2307,7 @@ function syncRoleNav(){
   const tabTeacher=document.getElementById('tabTeacher');
   if(tabAward) tabAward.style.display=teacher?'none':'';
   if(tabTeacher) tabTeacher.style.display=teacher?'':'none';
+  if(window.MyFiles) MyFiles.syncFilesNav();
 }
 function refreshAccountView(){
   const u=currentUser();
@@ -2644,6 +2739,10 @@ async function downloadPDF(){
     const {jsPDF}=window.jspdf; const pdf=new jsPDF('p','mm','a4');
     pdf.addImage(canvas.toDataURL('image/jpeg',0.95),'JPEG',0,0,210,297);
     pdf.save(((val('f-name')||'ULC')+'_'+currentTpl+'_cover.pdf').replace(/\s+/g,'_'));
+    if(window.MyFiles){
+      const html=`<div class="cover tpl-${currentTpl}" style="width:794px">${document.getElementById('coverPreview').innerHTML}</div>`;
+      MyFiles.saveCoverAuto(V(), currentTpl, html);
+    }
   }catch(e){ printCover(); }
   finally{ holder.remove(); btn.disabled=false; btn.textContent=label; }
 }

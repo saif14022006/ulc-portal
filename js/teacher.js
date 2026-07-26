@@ -98,6 +98,7 @@
         classes: data.classes || [],
         activeClassId: data.activeClassId || null,
         profileComplete: !!data.profileComplete,
+        myFiles: global.MyFiles?.exportUserFiles ? global.MyFiles.exportUserFiles() : [],
         syncedAt: Date.now(),
       },
     });
@@ -131,6 +132,9 @@
       const all = loadJSON(LS_TEACHER, {});
       all[key] = merged;
       saveJSON(LS_TEACHER, all);
+      if (Array.isArray(d.myFiles) && global.MyFiles?.replaceUserFiles) {
+        global.MyFiles.replaceUserFiles(d.myFiles);
+      }
       return true;
     } catch (e) {
       console.warn("[teacher] cloud pull", e?.message || e);
@@ -1465,6 +1469,10 @@
 
       const slug = ("ULC_" + (c.subject || "Class") + "_Sem" + c.semester + "_Attendance").replace(/\s+/g, "_");
       pdf.save(slug + ".pdf");
+      if (global.MyFiles) {
+        const title = (c.subject || "Class") + " · Sem " + c.semester + " · Attendance";
+        global.MyFiles.saveAttendanceAuto(title, buildAttendanceHtml());
+      }
     } catch (e) {
       console.error(e);
       alert("Could not download attendance PDF. Please hard-refresh (Ctrl+F5) and try again.");
@@ -1773,6 +1781,12 @@
       }
 
       pdf.save((pdfFileSlug(cols) + ".pdf").replace(/\s+/g, "_"));
+      if (global.MyFiles) {
+        const c = activeClass();
+        const title = ((c && c.subject) || "Class") + " · Sem " + ((c && c.semester) || "") + " · Award list";
+        const html = partial ? buildPartialMarksHtml(cols) : buildAwardHtml();
+        global.MyFiles.saveAwardAuto(title, html);
+      }
     } catch (e) {
       console.error(e);
       const html = partial ? buildPartialMarksHtml(cols) : buildAwardHtml();
@@ -1909,5 +1923,6 @@
     saveClassDates,
     getStore,
     activeClass,
+    notifyFilesChanged: () => scheduleTeacherCloudSync(getStore()),
   };
 })(window);

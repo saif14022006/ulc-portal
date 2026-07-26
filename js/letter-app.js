@@ -320,6 +320,9 @@
       const name = (raw("lt-name") || "ULC").replace(/\s+/g, "_");
       const kind = currentTplKey();
       pdf.save(`${name}_${kind}_application.pdf`);
+      if (global.MyFiles) {
+        global.MyFiles.saveLetterAuto(letterValues(), kind, buildLetterHtml(letterValues()));
+      }
     } catch (e) {
       console.error(e);
       printLetter();
@@ -358,5 +361,7 @@
     downloadLetterPdf,
     initLetterView,
     showSubmitGuide,
+    letterValues,
+    currentTplKey,
   };
 })(typeof window !== "undefined" ? window : globalThis);
