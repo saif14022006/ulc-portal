@@ -8,63 +8,63 @@
       to: "The Principal,\nUniversity Law College, Quetta.",
       subject: "APPLICATION FOR LEAVE",
       body:
-        "Most respectfully, it is stated that I am a student of this college. Due to some urgent personal/family reasons, I am unable to attend my classes from __________ to __________.\n\nI therefore request you to kindly grant me leave for the said period. I shall be highly obliged.",
+        "I am a student of this college. I cannot attend classes from __________ to __________ because __________.\n\nPlease grant me leave for these days. Thank you.",
     },
     rechecking: {
       label: "Rechecking Application",
-      to: "The Controller of Examinations /\nThe Principal,\nUniversity Law College, Quetta.",
+      to: "The Principal,\nUniversity Law College, Quetta.",
       subject: "APPLICATION FOR RECHECKING OF PAPER",
       body:
-        "Most respectfully, it is stated that I appeared in the examination of __________ (subject) held on __________ under Roll No. __________.\n\nI am not satisfied with the marks awarded to me. I therefore request you to kindly arrange for rechecking / re-evaluation of my answer script. The required fee (if any) will be deposited as per college rules.\n\nI shall be highly obliged for your kind consideration.",
+        "I appeared in the __________ exam (subject) on __________ under Roll No. __________.\n\nI request rechecking of my answer script. I will pay any fee required by the college.\n\nPlease look into this. Thank you.",
     },
     apology: {
       label: "Apology Letter",
       to: "The Principal,\nUniversity Law College, Quetta.",
       subject: "LETTER OF APOLOGY",
       body:
-        "Most respectfully, it is stated that I sincerely apologise for __________ (mention the matter, e.g. absence / late submission / misconduct).\n\nI assure you that such an act will not be repeated in future. I kindly request you to forgive me and accept this apology.\n\nI shall remain grateful for your kind consideration.",
+        "I am writing to apologise for __________.\n\nI am sorry for this mistake. It will not happen again. Please accept my apology.\n\nThank you for your understanding.",
     },
     fee: {
       label: "Fee Issue Application",
-      to: "The Principal /\nAccounts Office,\nUniversity Law College, Quetta.",
+      to: "The Principal / Accounts Office,\nUniversity Law College, Quetta.",
       subject: "APPLICATION REGARDING FEE ISSUE",
       body:
-        "Most respectfully, it is stated that I am facing a difficulty regarding my college fee / dues for the session __________.\n\nDetails of the issue: __________ (e.g. late fee, challan error, installment request, fee refund).\n\nI therefore request you to kindly look into the matter and guide / resolve it at the earliest. I shall be highly obliged.",
+        "I have a fee problem for session __________.\n\nIssue: __________ (for example: late fee, wrong challan, installment, or refund).\n\nPlease help resolve this as soon as possible. Thank you.",
     },
     character: {
       label: "Character Certificate",
       to: "The Principal,\nUniversity Law College, Quetta.",
       subject: "APPLICATION FOR CHARACTER CERTIFICATE",
       body:
-        "Most respectfully, it is stated that I am / was a bonafide student of this college. I require a Character Certificate for __________ (purpose).\n\nI therefore request you to kindly issue me a Character Certificate at the earliest. All required documents are attached.\n\nI shall be highly obliged.",
+        "I am a student of this college. I need a Character Certificate for __________.\n\nPlease issue it. Required documents are attached.\n\nThank you.",
     },
     hostel: {
       label: "Hostel Leave",
-      to: "The Hostel Warden /\nThe Principal,\nUniversity Law College, Quetta.",
+      to: "The Hostel Warden / The Principal,\nUniversity Law College, Quetta.",
       subject: "APPLICATION FOR HOSTEL LEAVE",
       body:
-        "Most respectfully, it is stated that I am a hostel resident of this college. Due to __________ (reason), I request leave from the hostel from __________ to __________.\n\nI therefore kindly request you to grant me hostel leave for the said period. I shall return on time and abide by hostel rules.\n\nI shall be highly obliged.",
+        "I live in the college hostel. I need hostel leave from __________ to __________ because __________.\n\nPlease allow me leave. I will return on time and follow hostel rules.\n\nThank you.",
     },
     migration: {
       label: "Migration Certificate",
       to: "The Principal,\nUniversity Law College, Quetta.",
       subject: "APPLICATION FOR MIGRATION CERTIFICATE",
       body:
-        "Most respectfully, it is stated that I require a Migration Certificate for admission / transfer to __________.\n\nI therefore request you to kindly issue my Migration Certificate. I have cleared all dues and attached the required documents.\n\nI shall be highly obliged.",
+        "I need a Migration Certificate for admission / transfer to __________.\n\nMy dues are cleared. Documents are attached. Please issue the certificate.\n\nThank you.",
     },
     idcard: {
       label: "ID Card Issue / Duplicate",
       to: "The Principal,\nUniversity Law College, Quetta.",
       subject: "APPLICATION FOR STUDENT ID CARD",
       body:
-        "Most respectfully, it is stated that I request issuance of a new / duplicate Student Identity Card because __________ (lost / damaged / not received).\n\nI therefore kindly request you to issue my Student ID Card. FIR / affidavit / fee challan (if required) is attached.\n\nI shall be highly obliged.",
+        "Please issue me a new / duplicate Student ID card. Reason: __________ (lost, damaged, or not received).\n\nAny required papers or fee challan are attached.\n\nThank you.",
     },
     general: {
       label: "General Application",
       to: "The Principal,\nUniversity Law College, Quetta.",
       subject: "APPLICATION",
       body:
-        "Most respectfully, it is stated that __________.\n\nI therefore request you to kindly __________.\n\nI shall be highly obliged for your kind consideration.",
+        "I want to bring to your notice that __________.\n\nI request you to __________.\n\nThank you.",
     },
   };
 
