@@ -13,7 +13,7 @@
  *   node scripts/load-stress.mjs --students 1000 --teachers 1000 --awards 200 --covers 100
  */
 import { createClient } from "@supabase/supabase-js";
-import { readFileSync, writeFileSync, mkdirSync, existsSync } from "fs";
+import { readFileSync, writeFileSync, mkdirSync, existsSync, unlinkSync } from "fs";
 import { dirname, join } from "path";
 import { fileURLToPath } from "url";
 
@@ -55,7 +55,20 @@ function loadConfig() {
 }
 
 function parseArgs(argv) {
-  const out = { students: 1000, teachers: 1000, awards: 200, covers: 100, concurrency: 1, delayMs: 250 };
+  const out = {
+    students: 1000,
+    teachers: 1000,
+    awards: 200,
+    covers: 100,
+    concurrency: 1,
+    delayMs: 250,
+    role: "all", // all | student | teacher
+    from: 1,
+    to: 0, // 0 = use students/teachers count
+    skipBootstrap: false,
+    forceConcurrency: false,
+    workerId: "",
+  };
   for (let i = 2; i < argv.length; i++) {
     const a = argv[i];
     const n = Number(argv[i + 1]);
@@ -65,11 +78,20 @@ function parseArgs(argv) {
     else if (a === "--covers" && !Number.isNaN(n)) { out.covers = n; i++; }
     else if (a === "--concurrency" && !Number.isNaN(n)) { out.concurrency = n; i++; }
     else if (a === "--delay" && !Number.isNaN(n)) { out.delayMs = n; i++; }
+    else if (a === "--role") { out.role = String(argv[++i] || "all"); }
+    else if (a === "--from" && !Number.isNaN(n)) { out.from = n; i++; }
+    else if (a === "--to" && !Number.isNaN(n)) { out.to = n; i++; }
+    else if (a === "--worker-id") { out.workerId = String(argv[++i] || ""); }
+    else if (a === "--skip-bootstrap") { out.skipBootstrap = true; }
+    else if (a === "--force-concurrency") { out.forceConcurrency = true; }
   }
   return out;
 }
 
 function sleep(ms) { return new Promise((r) => setTimeout(r, ms)); }
+
+const progressLockPath = progressPath + ".lock";
+let progressChain = Promise.resolve();
 
 function loadProgress() {
   if (!existsSync(progressPath)) {
@@ -80,10 +102,49 @@ function loadProgress() {
   }
   return JSON.parse(readFileSync(progressPath, "utf8"));
 }
+
+function mergeByIndex(a, b) {
+  const m = new Map();
+  for (const x of [...(a || []), ...(b || [])]) {
+    if (x && x.index != null) m.set(x.index, x);
+  }
+  return [...m.values()].sort((x, y) => x.index - y.index);
+}
+
+function uniqNums(a, b) {
+  return [...new Set([...(a || []), ...(b || [])])].sort((x, y) => x - y);
+}
+
 function saveProgress(p) {
   const tmp = progressPath + ".tmp";
   writeFileSync(tmp, JSON.stringify(p, null, 2));
   writeFileSync(progressPath, readFileSync(tmp));
+}
+
+/** Cross-process safe progress write (lock + merge). */
+async function commitProgress(mutator) {
+  const run = async () => {
+    for (let attempt = 0; attempt < 80; attempt++) {
+      try {
+        writeFileSync(progressLockPath, String(process.pid), { flag: "wx" });
+        break;
+      } catch {
+        await sleep(40 + Math.floor(Math.random() * 80));
+        if (attempt === 79) throw new Error("progress lock timeout");
+      }
+    }
+    try {
+      const disk = loadProgress();
+      mutator(disk);
+      saveProgress(disk);
+      return disk;
+    } finally {
+      try { unlinkSync(progressLockPath); } catch { /* ignore */ }
+    }
+  };
+  const next = progressChain.then(run, run);
+  progressChain = next.catch(() => {});
+  return next;
 }
 
 function client(url, key) {
@@ -292,7 +353,7 @@ async function generateCovers(count, progress) {
     writeFileSync(join(coversDir, `cover-${String(n).padStart(3, "0")}-${v.template}.html`), html);
   }
   progress.coversDone = count;
-  saveProgress(progress);
+  await commitProgress((p) => { p.coversDone = count; });
   return count;
 }
 
@@ -412,36 +473,56 @@ async function processAwardsOnly({ args, url, key, progress, awardTarget }) {
   }
 }
 
-async function processRole({ role, count, args, url, key, admin, progress, awardTarget }) {
+async function processRole({ role, count, args, url, key, admin, awardTarget, from, to }) {
   const listKey = role === "teacher" ? "teachers" : "students";
-  const done = new Set(progress[listKey].map((x) => x.index));
+  const start = Math.max(1, from || 1);
+  const end = to > 0 ? to : count;
+  const tag = args.workerId ? `[${args.workerId}] ` : "";
+
+  let progress = loadProgress();
+  const done = new Set((progress[listKey] || []).map((x) => x.index));
   const todo = [];
-  for (let i = 1; i <= count; i++) if (!done.has(i)) todo.push(i);
-  console.log(`\n→ ${role}s remaining: ${todo.length}/${count}`);
+  for (let i = start; i <= end; i++) if (!done.has(i)) todo.push(i);
+  console.log(`\n${tag}→ ${role}s remaining: ${todo.length} (range ${start}-${end})`);
 
   await runPool(todo, args.concurrency, async (index) => {
     const sb = client(url, key);
     const user = await untilOk(() => ensureUser(sb, admin, { role, index }), `${role} ${index}`);
-    progress[listKey].push({
-      index, email: user.email, roll: user.roll, name: user.name, role: user.role, id: user.id, via: user.via,
-    });
 
-    if (role === "student" && awardTarget.has(index) && !progress.awardsDone.includes(index)) {
-      await untilOk(async () => {
-        const login = await sb.auth.signInWithPassword({ email: user.email, password: PASS });
-        if (login.error) throw login.error;
-        const up = await uploadFullAwards(sb, user, index);
-        if (up.failures.length) {
-          progress.calcFailures.push({ student: index, failures: up.failures });
-          throw new Error("calc mismatch " + JSON.stringify(up.failures[0]));
-        }
-        await sb.auth.signOut();
-        return up;
-      }, `awards ${index}`);
-      progress.awardsDone.push(index);
-      console.log(`  ✓ student ${index} + awards (${user.via})`);
-    } else if (index % 50 === 0 || index <= 3) {
-      console.log(`  ✓ ${role} ${index} (${user.via})`);
+    if (role === "student" && awardTarget.has(index)) {
+      const disk = loadProgress();
+      if (!(disk.awardsDone || []).includes(index)) {
+        await untilOk(async () => {
+          const login = await sb.auth.signInWithPassword({ email: user.email, password: PASS });
+          if (login.error) throw login.error;
+          const up = await uploadFullAwards(sb, user, index);
+          if (up.failures.length) {
+            await commitProgress((p) => {
+              p.calcFailures = p.calcFailures || [];
+              p.calcFailures.push({ student: index, failures: up.failures });
+            });
+            throw new Error("calc mismatch " + JSON.stringify(up.failures[0]));
+          }
+          await sb.auth.signOut();
+          return up;
+        }, `awards ${index}`);
+      }
+      await commitProgress((p) => {
+        p[listKey] = mergeByIndex(p[listKey], [{
+          index, email: user.email, roll: user.roll, name: user.name, role: user.role, id: user.id, via: user.via,
+        }]);
+        p.awardsDone = uniqNums(p.awardsDone, [index]);
+      });
+      console.log(`  ${tag}✓ student ${index} + awards (${user.via})`);
+    } else {
+      await commitProgress((p) => {
+        p[listKey] = mergeByIndex(p[listKey], [{
+          index, email: user.email, roll: user.roll, name: user.name, role: user.role, id: user.id, via: user.via,
+        }]);
+      });
+      if (index % 25 === 0 || index <= 3 || index === end) {
+        console.log(`  ${tag}✓ ${role} ${index} (${user.via})`);
+      }
     }
 
     if (role === "teacher" && index <= 50) {
@@ -452,7 +533,6 @@ async function processRole({ role, count, args, url, key, admin, progress, award
       } catch (_) { /* non-fatal */ }
     }
 
-    saveProgress(progress);
     await sleep(args.delayMs);
   });
 }
@@ -460,60 +540,70 @@ async function processRole({ role, count, args, url, key, admin, progress, award
 async function main() {
   const args = parseArgs(process.argv);
   const { url, key, service } = loadConfig();
-  const progress = loadProgress();
+  let progress = loadProgress();
   const admin = service
     ? createClient(url, service, { auth: { persistSession: false, autoRefreshToken: false } })
     : null;
+  const tag = args.workerId ? `[${args.workerId}] ` : "";
 
-  console.log("═══ ULC Portal hardened load stress ═══");
-  console.log(`Target: ${args.students} students · ${args.teachers} teachers · ${args.awards} award packs · ${args.covers} covers`);
-
-  const healthRes = await fetch(`${url}/auth/v1/health`, {
-    headers: { apikey: key, Authorization: `Bearer ${key}` },
-  });
-  if (!healthRes.ok) throw new Error("Auth health failed: " + healthRes.status);
-  console.log("✓ Auth health OK");
-
-  const mathFails = await verifyMathBattery();
-  if (mathFails.length) {
-    console.error("✗ Math battery failed:", mathFails);
-    process.exit(1);
+  console.log(`${tag}═══ ULC Portal hardened load stress ═══`);
+  console.log(`${tag}Target: ${args.students} students · ${args.teachers} teachers · ${args.awards} award packs · ${args.covers} covers`);
+  if (args.role !== "all" || args.to) {
+    console.log(`${tag}Shard: role=${args.role} from=${args.from} to=${args.to || "(end)"}`);
   }
-  console.log("✓ Calculation battery OK");
 
-  console.log(`\n→ Generating ${args.covers} cover pages…`);
-  console.log(`✓ ${await generateCovers(args.covers, progress)} covers OK`);
+  if (!args.skipBootstrap) {
+    const healthRes = await fetch(`${url}/auth/v1/health`, {
+      headers: { apikey: key, Authorization: `Bearer ${key}` },
+    });
+    if (!healthRes.ok) throw new Error("Auth health failed: " + healthRes.status);
+    console.log(`${tag}✓ Auth health OK`);
+
+    const mathFails = await verifyMathBattery();
+    if (mathFails.length) {
+      console.error(`${tag}✗ Math battery failed:`, mathFails);
+      process.exit(1);
+    }
+    console.log(`${tag}✓ Calculation battery OK`);
+
+    console.log(`\n${tag}→ Generating ${args.covers} cover pages…`);
+    console.log(`${tag}✓ ${await generateCovers(args.covers, progress)} covers OK`);
+  } else {
+    console.log(`${tag}✓ Bootstrap skipped (worker shard)`);
+  }
 
   const probeSb = client(url, key);
   const mode = await detectMode(probeSb, admin);
-  console.log(`\nMode: ${mode}`);
+  console.log(`\n${tag}Mode: ${mode}`);
   if (mode === "patient-signup") {
-    console.log(`
-⚠ Signup rate limits will slow this down.
-  FAST PATH (recommended):
-    1) Supabase → SQL Editor → run supabase/seed-load-users.sql
-    2) Re-run: npm run load-test:full
-  OR set ULC_SERVICE_ROLE_KEY and re-run.
-`);
-    args.concurrency = 1;
-    args.delayMs = Math.max(args.delayMs, 5000);
+    console.log(`${tag}⚠ patient-signup — multitask workers + backoff enabled`);
+    if (!args.forceConcurrency) {
+      args.concurrency = Math.max(args.concurrency, 3);
+      args.delayMs = Math.max(args.delayMs, 1200);
+    }
   } else if (mode === "admin") {
-    args.concurrency = Math.max(args.concurrency, 8);
-    args.delayMs = Math.min(args.delayMs, 50);
-  } else {
-    // seed-link: logins are cheaper than signup, but still rate-limited
-    args.concurrency = Math.min(Math.max(args.concurrency, 1), 2);
+    if (!args.forceConcurrency) {
+      args.concurrency = Math.max(args.concurrency, 8);
+      args.delayMs = Math.min(args.delayMs, 50);
+    }
+  } else if (!args.forceConcurrency) {
+    args.concurrency = Math.min(Math.max(args.concurrency, 2), 4);
     args.delayMs = Math.max(args.delayMs, 400);
   }
+  console.log(`${tag}Pool: concurrency=${args.concurrency} delayMs=${args.delayMs}`);
 
   const awardTarget = new Set();
   for (let i = 1; i <= Math.min(args.awards, args.students); i++) awardTarget.add(i);
 
-  if (mode === "seed-link") {
+  const runStudents = args.role === "all" || args.role === "student";
+  const runTeachers = args.role === "all" || args.role === "teacher";
+
+  if (mode === "seed-link" && args.role === "all" && !args.skipBootstrap) {
     console.log("\n→ Seed-link fast path: sample-verify + fill rosters + awards only");
     const sb = client(url, key);
     await sampleVerifySeed(sb, "student", args.students);
     await sampleVerifySeed(sb, "teacher", args.teachers);
+    progress = loadProgress();
     fillSeedRoster(progress, "student", args.students);
     fillSeedRoster(progress, "teacher", args.teachers);
     console.log(`✓ Roster filled: ${progress.students.length} students, ${progress.teachers.length} teachers`);
@@ -521,13 +611,34 @@ async function main() {
     args.delayMs = Math.max(args.delayMs, 800);
     await processAwardsOnly({ args, url, key, progress, awardTarget });
   } else {
-    await processRole({ role: "student", count: args.students, args, url, key, admin, progress, awardTarget });
-    await processRole({ role: "teacher", count: args.teachers, args, url, key, admin, progress, awardTarget });
+    const jobs = [];
+    if (runStudents) {
+      jobs.push(processRole({
+        role: "student",
+        count: args.students,
+        args, url, key, admin, awardTarget,
+        from: args.from,
+        to: args.to || args.students,
+      }));
+    }
+    if (runTeachers) {
+      jobs.push(processRole({
+        role: "teacher",
+        count: args.teachers,
+        args, url, key, admin, awardTarget,
+        from: args.from,
+        to: args.to || args.teachers,
+      }));
+    }
+    // Multitask: students + teachers in parallel when role=all
+    await Promise.all(jobs);
   }
 
-  // Cloud spot-verify
+  progress = loadProgress();
+
+  // Cloud spot-verify (lead process only)
   let cloudVerify = { checked: 0, mismatches: 0 };
-  if (progress.awardsDone.length) {
+  if (!args.skipBootstrap && progress.awardsDone.length) {
     const sampleIdx = progress.awardsDone[0];
     const stu = progress.students.find((s) => s.index === sampleIdx) || metaFor("student", sampleIdx);
     const sb = client(url, key);
@@ -542,6 +653,11 @@ async function main() {
       }
       await sb.auth.signOut();
     }
+  }
+
+  if (args.skipBootstrap) {
+    console.log(`${tag}✓ Shard finished`);
+    return;
   }
 
   const report = {
