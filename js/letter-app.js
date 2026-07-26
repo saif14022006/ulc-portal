@@ -212,7 +212,10 @@
   }
 
   function buildLetterHtml(v) {
-    const toLines = esc(v.to)
+    const toRaw = String(v.to || "")
+      .replace(/^\s*To[,:]?\s*/i, "")
+      .trim();
+    const toLines = esc(toRaw)
       .split(/\n/)
       .map((line) => `<div>${line || "&nbsp;"}</div>`)
       .join("");
@@ -223,12 +226,17 @@
       .join("");
     return `<div class="letter-sheet">
       <div class="lt-header">UNIVERSITY LAW COLLEGE QUETTA</div>
-      <div class="lt-row lt-to-row">
-        <div class="lt-label">To:</div>
-        <div class="lt-to-block">${toLines}</div>
+      <div class="lt-to-section">
+        <div class="lt-to-label">To,</div>
+        <div class="lt-align-row">
+          <span class="lt-ghost" aria-hidden="true">Subject:</span>
+          <span class="lt-gap5" aria-hidden="true"></span>
+          <div class="lt-to-block">${toLines}</div>
+        </div>
       </div>
-      <div class="lt-row lt-subject-row">
-        <div class="lt-label">Subject:</div>
+      <div class="lt-align-row lt-subject-row">
+        <span class="lt-label">Subject:</span>
+        <span class="lt-gap5" aria-hidden="true"></span>
         <div class="lt-subject-text">${esc(v.subject)}</div>
       </div>
       <div class="lt-salutation">${esc(v.salutation)}</div>
