@@ -140,6 +140,7 @@
       .map((p) => `<p>${esc(p).replace(/\n/g, "<br>")}</p>`)
       .join("");
     return `<div class="letter-sheet">
+      <div class="lt-header">UNIVERSITY LAW COLLEGE QUETTA</div>
       <div class="lt-row lt-to-row">
         <div class="lt-label">To:</div>
         <div class="lt-to-block">${toLines}</div>
