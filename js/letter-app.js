@@ -8,63 +8,63 @@
       to: "The Principal,\nUniversity Law College, Quetta.",
       subject: "APPLICATION FOR LEAVE",
       body:
-        "I am a student of this college. I cannot attend classes from __________ to __________ because __________.\n\nPlease grant me leave for these days. Thank you.",
+        "It is stated that I will not be able to attend my classes from [start date] to [end date] due to [reason]. This matter is beyond my control, and I will make sure to cover any lessons or work that I miss during these days.\n\nI therefore request you to kindly grant me leave for the mentioned period so that I may attend to this matter without affecting my studies.\n\nI will be very thankful to you for your kind consideration. Your support in this regard will be highly appreciated.",
     },
     rechecking: {
       label: "Rechecking Application",
       to: "The Principal,\nUniversity Law College, Quetta.",
       subject: "APPLICATION FOR RECHECKING OF PAPER",
       body:
-        "I appeared in the __________ exam (subject) on __________ under Roll No. __________.\n\nI request rechecking of my answer script. I will pay any fee required by the college.\n\nPlease look into this. Thank you.",
+        "It is stated that I appeared in the [subject/paper name] examination held on [date]. After receiving my result, I am not fully satisfied with the marks awarded, as I believe my performance in the paper was better and there may be an error in the marking or totaling.\n\nI therefore request you to kindly allow the rechecking of my paper so that any mistake, if present, can be corrected. I am ready to complete any formalities or pay any fee required for this purpose.\n\nI will be very thankful to you for your kind attention to my request. Your fair consideration in this matter will mean a lot to me.",
     },
     apology: {
       label: "Apology Letter",
       to: "The Principal,\nUniversity Law College, Quetta.",
       subject: "LETTER OF APOLOGY",
       body:
-        "I am writing to apologise for __________.\n\nI am sorry for this mistake. It will not happen again. Please accept my apology.\n\nThank you for your understanding.",
+        "It is stated that I sincerely apologize for [mistake, e.g. my absence / late submission / misconduct] on [date]. It was not intentional, and I deeply regret any inconvenience or disturbance that may have been caused as a result.\n\nI assure you that I have understood my mistake and that it will not be repeated in the future. I therefore request you to kindly accept my apology and give me a chance to improve.\n\nI will be very thankful to you for your kindness and understanding. Your consideration in this matter will be greatly valued.",
     },
     fee: {
       label: "Fee Issue Application",
       to: "The Principal / Accounts Office,\nUniversity Law College, Quetta.",
       subject: "APPLICATION REGARDING FEE ISSUE",
       body:
-        "I have a fee problem for session __________.\n\nIssue: __________ (for example: late fee, wrong challan, installment, or refund).\n\nPlease help resolve this as soon as possible. Thank you.",
+        "It is stated that I am facing a problem regarding my fee [e.g. late payment / incorrect amount / installment request]. Due to [reason], I am currently unable to [pay on time / clear the full amount], although I am fully willing to fulfill my responsibility.\n\nI therefore request you to kindly [grant me extra time / correct the amount / allow me to pay in installments] so that I may continue my studies without any difficulty.\n\nI will be very thankful to you for your kind support in this matter. Your cooperation will help me a great deal during this time.",
     },
     character: {
       label: "Character Certificate",
       to: "The Principal,\nUniversity Law College, Quetta.",
       subject: "APPLICATION FOR CHARACTER CERTIFICATE",
       body:
-        "I am a student of this college. I need a Character Certificate for __________.\n\nPlease issue it. Required documents are attached.\n\nThank you.",
+        "It is stated that I am a student of [class/semester/program] at this institution. I am in need of a character certificate, which is required for [purpose, e.g. admission / job / scholarship].\n\nI therefore request you to kindly issue me a character certificate at your earliest convenience. If any formalities or fee are required, I am fully ready to complete them.\n\nI will be very thankful to you for your kind help in this regard. Your prompt assistance will be greatly appreciated.",
     },
     hostel: {
       label: "Hostel Leave",
       to: "The Hostel Warden / The Principal,\nUniversity Law College, Quetta.",
       subject: "APPLICATION FOR HOSTEL LEAVE",
       body:
-        "I live in the college hostel. I need hostel leave from __________ to __________ because __________.\n\nPlease allow me leave. I will return on time and follow hostel rules.\n\nThank you.",
+        "It is stated that I am a resident of the college hostel, room number [room no]. I need to leave the hostel from [start date] to [end date] due to [reason], and I will return as soon as the matter is settled.\n\nI therefore request you to kindly grant me hostel leave for the mentioned period so that I may attend to this matter without any concern.\n\nI will be very thankful to you for your kind consideration. Your support in this regard will be highly appreciated.",
     },
     migration: {
       label: "Migration Certificate",
       to: "The Principal,\nUniversity Law College, Quetta.",
       subject: "APPLICATION FOR MIGRATION CERTIFICATE",
       body:
-        "I need a Migration Certificate for admission / transfer to __________.\n\nMy dues are cleared. Documents are attached. Please issue the certificate.\n\nThank you.",
+        "It is stated that I am a student of [class/semester/program] at this institution. Due to [reason], I am no longer able to continue my studies here and wish to migrate to [name of institution/city].\n\nI therefore request you to kindly issue me a migration certificate along with any other required documents. I am ready to complete all necessary formalities and clear any dues for this purpose.\n\nI will be very thankful to you for your kind cooperation. Your timely help will be of great importance to me.",
     },
     idcard: {
       label: "ID Card Issue / Duplicate",
       to: "The Principal,\nUniversity Law College, Quetta.",
       subject: "APPLICATION FOR STUDENT ID CARD",
       body:
-        "Please issue me a new / duplicate Student ID card. Reason: __________ (lost, damaged, or not received).\n\nAny required papers or fee challan are attached.\n\nThank you.",
+        "It is stated that my student ID card has been [lost / damaged / expired]. As the ID card is necessary for using the college facilities and for my identification, I am facing difficulty without it.\n\nI therefore request you to kindly issue me a new ID card at your earliest convenience. If any fee is required for this, I am fully ready to pay it.\n\nI will be very thankful to you for your kind help in this matter. Your prompt assistance will be greatly appreciated.",
     },
     general: {
       label: "General Application",
       to: "The Principal,\nUniversity Law College, Quetta.",
       subject: "APPLICATION",
       body:
-        "I want to bring to your notice that __________.\n\nI request you to __________.\n\nThank you.",
+        "It is stated that I wish to bring to your kind attention the following matter: [state your matter clearly]. Due to [reason], this issue requires your consideration and support.\n\nI therefore request you to kindly [state what you need] so that my concern may be resolved without any further difficulty.\n\nI will be very thankful to you for your kind consideration. Your support in this regard will be highly appreciated.",
     },
   };
 
@@ -130,17 +130,24 @@
   }
 
   function buildLetterHtml(v) {
-    const toLines = esc(v.to).replace(/\n/g, "<br>");
+    const toLines = esc(v.to)
+      .split(/\n/)
+      .map((line) => `<div>${line || "&nbsp;"}</div>`)
+      .join("");
     const bodyParas = String(v.body || "")
       .split(/\n\n+/)
+      .filter(Boolean)
       .map((p) => `<p>${esc(p).replace(/\n/g, "<br>")}</p>`)
       .join("");
     return `<div class="letter-sheet">
-      <div class="lt-college">UNIVERSITY LAW COLLEGE, QUETTA</div>
-      <div class="lt-affil">Affiliated with the University of Balochistan</div>
-      <div class="lt-date">Date: ${esc(v.date)}</div>
-      <div class="lt-to">${toLines}</div>
-      <div class="lt-subject">SUBJECT: ${esc(v.subject)}</div>
+      <div class="lt-row lt-to-row">
+        <div class="lt-label">To:</div>
+        <div class="lt-to-block">${toLines}</div>
+      </div>
+      <div class="lt-row lt-subject-row">
+        <div class="lt-label">Subject:</div>
+        <div class="lt-subject-text">${esc(v.subject)}</div>
+      </div>
       <div class="lt-salutation">${esc(v.salutation)}</div>
       <div class="lt-body">${bodyParas}</div>
       <div class="lt-closing">
@@ -149,10 +156,9 @@
           <div class="lt-name">${esc(v.name)}</div>
           <div>Roll No.: ${esc(v.roll)}</div>
           <div>Semester: ${esc(v.semester)}</div>
-          <div>Contact: ${esc(v.contact)}</div>
+          <div>Contact No.: ${esc(v.contact)}</div>
         </div>
       </div>
-      <div class="lt-note">Annex / staple a photocopy of your Student ID card · Submit to Sir Shehzad</div>
     </div>`;
   }
 

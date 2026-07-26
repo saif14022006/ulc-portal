@@ -230,20 +230,18 @@ main{flex:1;padding:18px 16px 36px;width:100%}
 .lt-tpl-btn.active{background:var(--navy);color:#fff;border-color:var(--navy)}
 .letter-guide{background:#fff8e8;border:1px solid #e8d4a8;border-radius:12px;padding:12px 14px;margin:0 0 16px;font-size:13px;line-height:1.45;color:#5a4a28}
 .letter-guide strong{color:var(--navy)}
-.letter-sheet{width:100%;aspect-ratio:1/1.414;background:#fff;border:1px solid var(--line);box-shadow:var(--shadow);padding:7% 8% 6%;box-sizing:border-box;font-family:"Times New Roman",Times,serif;color:#111;position:relative;overflow:hidden}
-.letter-sheet .lt-college{text-align:center;font-size:clamp(14px,3.2cqw,20px);font-weight:700;letter-spacing:.04em;color:var(--navy)}
-.letter-sheet .lt-affil{text-align:center;font-size:clamp(10px,1.8cqw,12px);color:var(--slate);margin-bottom:3%}
-.letter-sheet .lt-date{text-align:right;font-size:clamp(11px,2cqw,13px);margin-bottom:3%}
-.letter-sheet .lt-to{font-size:clamp(12px,2.2cqw,14px);line-height:1.45;margin-bottom:3%;white-space:pre-line}
-.letter-sheet .lt-subject{font-size:clamp(12px,2.3cqw,15px);font-weight:700;text-transform:uppercase;text-decoration:underline;text-underline-offset:3px;letter-spacing:.03em;margin:0 0 3.5%;line-height:1.35}
-.letter-sheet .lt-salutation{font-size:clamp(12px,2.2cqw,14px);margin-bottom:2%}
-.letter-sheet .lt-body{font-size:clamp(12px,2.15cqw,14px);line-height:1.55;text-align:justify}
-.letter-sheet .lt-body p{margin:0 0 2.2%;text-indent:0}
-.letter-sheet .lt-closing{margin-top:6%;display:flex;flex-direction:column;align-items:flex-end;text-align:right;font-size:clamp(12px,2.15cqw,14px);line-height:1.45}
-.letter-sheet .lt-close-line{margin-bottom:10%}
-.letter-sheet .lt-applicant{font-weight:600}
-.letter-sheet .lt-name{font-weight:700;text-transform:uppercase;margin-bottom:2px}
-.letter-sheet .lt-note{position:absolute;left:8%;right:8%;bottom:3.5%;font-family:var(--sans);font-size:clamp(9px,1.6cqw,11px);color:var(--slate);text-align:center;border-top:1px dashed var(--line);padding-top:2%}
+.letter-sheet{width:100%;aspect-ratio:1/1.414;background:#fff;border:1px solid var(--line);box-shadow:var(--shadow);padding:8% 9% 10%;box-sizing:border-box;font-family:"Times New Roman",Times,serif;color:#111;position:relative;overflow:hidden}
+.letter-sheet .lt-row{display:grid;grid-template-columns:5.5em 1fr;gap:10px 14px;align-items:start;margin-bottom:1.6em}
+.letter-sheet .lt-label{font-size:clamp(13px,2.3cqw,15px);font-weight:700;line-height:1.45}
+.letter-sheet .lt-to-block{font-size:clamp(13px,2.3cqw,15px);line-height:1.5}
+.letter-sheet .lt-subject-text{font-size:clamp(13px,2.35cqw,15px);font-weight:700;text-transform:uppercase;text-decoration:underline;text-underline-offset:3px;letter-spacing:.02em;line-height:1.45}
+.letter-sheet .lt-salutation{font-size:clamp(13px,2.3cqw,15px);margin:0 0 1.1em;line-height:1.45}
+.letter-sheet .lt-body{font-size:clamp(13px,2.25cqw,15px);line-height:1.55;text-align:left}
+.letter-sheet .lt-body p{margin:0 0 1.15em;text-indent:2.2em}
+.letter-sheet .lt-closing{margin-top:2.2em;margin-left:auto;width:min(52%,14em);text-align:left;font-size:clamp(13px,2.25cqw,15px);line-height:1.5;font-weight:700}
+.letter-sheet .lt-close-line{margin-bottom:2.4em;font-weight:700}
+.letter-sheet .lt-applicant{font-weight:700}
+.letter-sheet .lt-name{font-weight:700;text-transform:none;margin-bottom:2px}
 .cover{position:relative;width:100%;aspect-ratio:1/1.414;background:#fff;overflow:hidden;border:1px solid var(--line);box-shadow:var(--shadow);container-type:inline-size;font-family:var(--serif);color:var(--navy)}
 .tpl-classic .fr{position:absolute;inset:4cqw;border:.5cqw solid var(--navy)}.tpl-classic .fr:after{content:"";position:absolute;inset:1.2cqw;border:.25cqw solid var(--gold)}
 .tpl-classic .ban{position:absolute;top:7cqw;left:-15cqw;transform:rotate(-45deg);background:var(--navy);color:#fff;font-family:var(--sans);font-weight:700;font-size:2.5cqw;letter-spacing:.12em;padding:1.3cqw 16cqw}
@@ -1145,7 +1143,7 @@ body.landing-open .app{visibility:hidden;pointer-events:none}
             </div>
             <div class="field"><label>Body of application</label>
               <textarea id="lt-body" rows="8" placeholder="Write or edit the application body…" oninput="LetterApp.drawLetter()"></textarea>
-              <p class="hint">Fill any blanks (__________ ) before printing.</p>
+              <p class="hint">Fill any blanks in [square brackets] before printing.</p>
             </div>
             <div class="field"><label>Closing</label>
               <input id="lt-closing" value="Yours obediently," oninput="LetterApp.drawLetter()">
