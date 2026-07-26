@@ -1539,6 +1539,11 @@
         "Use Cover Page from the menu or More tools. Pick a template, fill subject and details, then Print or Download PDF. From Account you can also “Fill cover form” with your name and roll.",
     },
     {
+      keys: ["application", "letter", "leave", "apology", "rechecking", "fee", "shehzad", "id card photocopy"],
+      answer:
+        "Open Application / Letter Generator from Home or the side menu. Pick a template (Leave, Rechecking, Apology, Fee, etc.), fill To / Subject / body and your details, then Print or Download PDF. Annex a photocopy of your Student ID card and submit the application to Sir Shehzad.",
+    },
+    {
       keys: ["login", "email", "password", "account", "signup", "sign up", "register"],
       answer:
         "Create an account with name, roll, email, and password (min. 6 characters). Login needs only email and password. Your profile and semester records stay on this device, keyed to your account.",
