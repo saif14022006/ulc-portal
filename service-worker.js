@@ -1,5 +1,5 @@
-/* ULC Portal service worker — offline app shell */
-const CACHE = "ulc-portal-v54";
+/* ULC Portal service worker — offline app shell (browser + Capacitor https://localhost) */
+const CACHE = "ulc-portal-v56";
 const ASSETS = [
   "./",
   "./index.html",
@@ -14,6 +14,7 @@ const ASSETS = [
   "./js/letter-app.js",
   "./js/letter-templates.json",
   "./js/my-files.js",
+  "./js/capacitor-bridge.js",
   "./assets/campus-hero.jpg",
   "./assets/batch-2025-29-section-a.png",
   "./icons/ulc-logo.png",
@@ -24,31 +25,63 @@ const ASSETS = [
   "./icons/apple-touch-icon.png"
 ];
 
+const SW_ORIGIN = self.location.origin;
+
 self.addEventListener("install", (e) => {
-  e.waitUntil(caches.open(CACHE).then((c) => c.addAll(ASSETS)).then(() => self.skipWaiting()));
+  e.waitUntil(
+    caches
+      .open(CACHE)
+      .then((c) =>
+        Promise.all(
+          ASSETS.map((url) =>
+            c.add(url).catch(() => {
+              /* missing optional asset — skip */
+            })
+          )
+        )
+      )
+      .then(() => self.skipWaiting())
+  );
 });
 
 self.addEventListener("activate", (e) => {
   e.waitUntil(
-    caches.keys().then((keys) =>
-      Promise.all(keys.filter((k) => k !== CACHE).map((k) => caches.delete(k)))
-    ).then(() => self.clients.claim())
+    caches
+      .keys()
+      .then((keys) => Promise.all(keys.filter((k) => k !== CACHE).map((k) => caches.delete(k))))
+      .then(() => self.clients.claim())
   );
 });
 
 self.addEventListener("fetch", (e) => {
   const req = e.request;
   if (req.method !== "GET") return;
+
+  let url;
+  try {
+    url = new URL(req.url);
+  } catch (_) {
+    return;
+  }
+
+  // Only handle same-origin (includes Capacitor https://localhost); leave Supabase/CDN alone.
+  if (url.origin !== SW_ORIGIN) return;
+
   // Network-first for navigations, cache-first for the rest.
   if (req.mode === "navigate") {
     e.respondWith(fetch(req).catch(() => caches.match("./index.html")));
     return;
   }
   e.respondWith(
-    caches.match(req).then((hit) => hit || fetch(req).then((res) => {
-      const copy = res.clone();
-      caches.open(CACHE).then((c) => c.put(req, copy)).catch(() => {});
-      return res;
-    }).catch(() => hit))
+    caches.match(req).then((hit) =>
+      hit ||
+      fetch(req)
+        .then((res) => {
+          const copy = res.clone();
+          caches.open(CACHE).then((c) => c.put(req, copy)).catch(() => {});
+          return res;
+        })
+        .catch(() => hit)
+    )
   );
 });

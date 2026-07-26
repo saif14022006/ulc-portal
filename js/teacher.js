@@ -366,11 +366,12 @@
     document.getElementById("ob-t-sem").innerHTML = Object.keys(global.SYLLABUS || {}).map((n) =>
       `<option value="${n}">Semester ${n}</option>`
     ).join("");
-    document.getElementById("ob-t-subj").value = "";
     document.getElementById("ob-t-code").value = "";
     document.getElementById("ob-t-ch").value = "3";
     document.getElementById("ob-t-session").value = "2025-2029";
     fillTeacherSubjList();
+    document.getElementById("ob-t-subj").value = "";
+    onTeacherSubjChange();
     document.getElementById("teacherSetupOverlay").classList.add("show");
   }
   function closeTeacherSetup() {
@@ -379,7 +380,31 @@
   function fillTeacherSubjList() {
     const n = document.getElementById("ob-t-sem").value;
     const list = (global.SYLLABUS && global.SYLLABUS[n]) || [];
-    document.getElementById("ob-t-subj-list").innerHTML = list.map((x) => `<option value="${esc(x[1])}">`).join("");
+    const sel = document.getElementById("ob-t-subj");
+    const prev = sel.value;
+    sel.innerHTML =
+      '<option value="">Select subject</option>' +
+      list
+        .map(
+          (x) =>
+            `<option value="${esc(x[1])}" data-code="${esc(x[0])}" data-ch="${x[2] || 3}">${esc(x[1])}</option>`
+        )
+        .join("");
+    if (prev && list.some((x) => x[1] === prev)) sel.value = prev;
+    else sel.value = "";
+    onTeacherSubjChange();
+  }
+  function onTeacherSubjChange() {
+    const sel = document.getElementById("ob-t-subj");
+    const opt = sel && sel.options[sel.selectedIndex];
+    const codeEl = document.getElementById("ob-t-code");
+    const chEl = document.getElementById("ob-t-ch");
+    if (opt && opt.value && opt.dataset.code) {
+      codeEl.value = opt.dataset.code;
+      if (opt.dataset.ch) chEl.value = opt.dataset.ch;
+    } else if (!opt || !opt.value) {
+      codeEl.value = "";
+    }
   }
   function saveTeacherSetup() {
     const st = getStore();
@@ -390,7 +415,7 @@
     let subjectCode = document.getElementById("ob-t-code").value.trim();
     const creditHours = parseFloat(document.getElementById("ob-t-ch").value) || 3;
     const session = document.getElementById("ob-t-session").value.trim() || "2025-2029";
-    if (!name || !subject) { alert("Enter official name and subject."); return; }
+    if (!name || !subject) { alert("Enter official name and select a subject."); return; }
 
     const hit = ((global.SYLLABUS || {})[semester] || []).find((x) => x[1] === subject);
     if (hit && !subjectCode) subjectCode = hit[0];
@@ -1894,6 +1919,7 @@
     saveTeacherSetup,
     addAnotherClass,
     fillTeacherSubjList,
+    onTeacherSubjChange,
     onClassChange,
     showTeacherPanel,
     addStudentManual,

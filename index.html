@@ -19,6 +19,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/capacitor-bridge.js"></script>
 <script src="logo.js"></script>
 <script src="js/config.js"></script>
 <script src="js/award-math.js"></script>
@@ -1862,8 +1863,9 @@ body.landing-open .app{visibility:hidden;pointer-events:none}
     <div class="field"><label>Official instructor name</label><input id="ob-t-name" placeholder="As on award list"></div>
     <div class="field"><label>Semester</label><select id="ob-t-sem" onchange="TeacherApp.fillTeacherSubjList()"></select></div>
     <div class="field"><label>Subject</label>
-      <input id="ob-t-subj" list="ob-t-subj-list" placeholder="Select or type subject name">
-      <datalist id="ob-t-subj-list"></datalist>
+      <select id="ob-t-subj" onchange="TeacherApp.onTeacherSubjChange()">
+        <option value="">Select subject</option>
+      </select>
     </div>
     <div class="row2">
       <div class="field"><label>Subject code</label><input id="ob-t-code" placeholder="e.g. LLB 211"></div>
@@ -2846,8 +2848,10 @@ liveAward();
   fillInstructorList();
 })();
 document.getElementById('aw-subj').addEventListener('change', onAwardSubjChange);
-if('serviceWorker' in navigator && location.protocol.startsWith('http')){
-  window.addEventListener('load',()=>navigator.serviceWorker.register('service-worker.js').catch(()=>{}));
+/* Browser PWA only — Capacitor APK already ships the shell offline; skip SW there. */
+const ulcIsNative = !!(window.Capacitor && typeof window.Capacitor.isNativePlatform === 'function' && window.Capacitor.isNativePlatform());
+if(!ulcIsNative && 'serviceWorker' in navigator && location.protocol.startsWith('http')){
+  window.addEventListener('load',()=>navigator.serviceWorker.register('./service-worker.js').catch(()=>{}));
 }
 </script>
 </body>
