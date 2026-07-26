@@ -1375,7 +1375,19 @@
         <td>${pct}%</td>
       </tr>`;
     }).join("");
+    /* Inline styles so My Files preview/print also shows ruled row lines. */
     return `<div class="award-pdf" id="attendancePdfSheet">
+      <style>
+        #attendancePdfSheet{width:794px;padding:16px 18px;background:#fff;font-family:"Times New Roman",Times,serif;color:#000}
+        #attendancePdfSheet .pdf-title{text-align:center;font-size:18px;font-weight:700;margin:0 0 4px}
+        #attendancePdfSheet .pdf-badge{text-align:center;font-weight:700;border:1.5px solid #000;padding:2px 22px;margin:6px auto 10px;display:block;width:fit-content;font-size:13px}
+        #attendancePdfSheet .meta{width:100%;border-collapse:collapse;margin:0 0 10px}
+        #attendancePdfSheet .meta td{border:1px solid #333;padding:4px 6px;font-size:10px}
+        #attendancePdfSheet .grid{width:100%;border-collapse:collapse;table-layout:fixed}
+        #attendancePdfSheet .grid th{border:none;border-bottom:1.5px solid #000;padding:6px 4px;text-align:center;font-size:10px;font-weight:700}
+        #attendancePdfSheet .grid td{border:none;border-bottom:0.6pt solid #555;padding:5px 4px;text-align:center;font-size:10px}
+        #attendancePdfSheet .grid .nm{text-align:left;padding-left:4px}
+      </style>
       <div class="pdf-title">UNIVERSITY LAW COLLEGE, QUETTA</div>
       <div class="pdf-badge">ATTENDANCE SHEET</div>
       <table class="meta">
@@ -1468,6 +1480,8 @@
         pdf.text("Total", left + 140, y);
         pdf.text("%", left + 162, y);
         y += 2;
+        pdf.setDrawColor(0, 0, 0);
+        pdf.setLineWidth(0.35);
         pdf.line(left, y, right, y);
         y += 5;
         pdf.setFont("times", "normal");
@@ -1489,7 +1503,12 @@
         pdf.text(String(present), left + 118, y);
         pdf.text(String(total), left + 140, y);
         pdf.text(pct + "%", left + 162, y);
-        y += 6;
+        /* Thin ruled line under each student row (formal register style). */
+        y += 1.4;
+        pdf.setDrawColor(90, 90, 90);
+        pdf.setLineWidth(0.15);
+        pdf.line(left, y, right, y);
+        y += 4.6;
       });
 
       const slug = ("ULC_" + (c.subject || "Class") + "_Sem" + c.semester + "_Attendance").replace(/\s+/g, "_");
