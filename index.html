@@ -232,22 +232,24 @@ main{flex:1;padding:18px 16px 36px;width:100%}
 .letter-guide strong{color:var(--navy)}
 .letter-sheet{width:100%;aspect-ratio:1/1.414;background:#fff;border:1px solid var(--line);box-shadow:var(--shadow);padding:9% 10% 11%;box-sizing:border-box;font-family:"Times New Roman",Times,serif;color:#000;position:relative;overflow:hidden;font-size:15px;line-height:1.5}
 .letter-sheet .lt-header{text-align:center;font-size:clamp(15px,3.4cqw,20px);font-weight:700;letter-spacing:.06em;text-transform:uppercase;margin:0 0 1.8em;color:#000}
-.letter-sheet .lt-to-section{margin-bottom:1.45em}
-.letter-sheet .lt-to-label{font-size:inherit;font-weight:700;line-height:1.5;margin:0 0 .15em}
-.letter-sheet .lt-align-row{display:grid;grid-template-columns:max-content 5ch 1fr;align-items:start;column-gap:0}
-.letter-sheet .lt-subject-row{margin-bottom:1.45em}
-.letter-sheet .lt-label,.letter-sheet .lt-ghost{font-size:inherit;font-weight:700;line-height:1.5;white-space:nowrap}
+.letter-sheet .lt-to-section{margin-bottom:1.35em}
+.letter-sheet .lt-to-label{font-size:inherit;font-weight:700;line-height:1.45;margin:0}
+.letter-sheet .lt-line{display:block;line-height:1.45;margin:0}
+.letter-sheet .lt-subject-row{margin:0 0 1.35em;line-height:1.45}
+.letter-sheet .lt-prefix,.letter-sheet .lt-subj-word,.letter-sheet .lt-sp5,.letter-sheet .lt-aligned{display:inline;vertical-align:baseline}
+.letter-sheet .lt-subj-word{font-weight:700;white-space:nowrap}
 .letter-sheet .lt-ghost{visibility:hidden}
-.letter-sheet .lt-gap5{display:block;width:5ch}
-.letter-sheet .lt-to-block{font-size:inherit;line-height:1.5;font-weight:400}
-.letter-sheet .lt-subject-text{font-size:inherit;font-weight:700;text-transform:uppercase;text-decoration:underline;text-underline-offset:3px;letter-spacing:.015em;line-height:1.45}
+.letter-sheet .lt-sp5{white-space:pre;font-weight:400}
+.letter-sheet .lt-aligned{font-weight:400}
+.letter-sheet .lt-subject-text{font-weight:700;text-transform:uppercase;text-decoration:underline;text-underline-offset:3px;letter-spacing:.015em}
 .letter-sheet .lt-salutation{font-size:inherit;margin:0 0 1.15em;line-height:1.5;font-weight:400}
 .letter-sheet .lt-body{font-size:inherit;line-height:1.55;text-align:left}
 .letter-sheet .lt-body p{margin:0 0 1.15em;text-indent:0.5in}
-.letter-sheet .lt-closing{margin-top:2.6em;margin-left:auto;width:46%;max-width:18em;text-align:center;font-size:inherit;line-height:1.55;font-weight:700}
-.letter-sheet .lt-close-line{margin-bottom:2.4em;font-weight:700;text-align:center}
-.letter-sheet .lt-applicant,.letter-sheet .lt-applicant div{font-weight:700;text-align:center}
-.letter-sheet .lt-name{margin-bottom:2px;text-transform:none}
+.letter-sheet .lt-closing{margin-top:2.2em;margin-left:auto;width:46%;max-width:18em;text-align:center;font-size:inherit;line-height:1.05;font-weight:700}
+.letter-sheet .lt-close-line{margin:0;padding:0;font-weight:700;text-align:center;line-height:1.05}
+.letter-sheet .lt-applicant{margin:0;padding:0;line-height:1.05}
+.letter-sheet .lt-applicant div{margin:0;padding:0;font-weight:700;text-align:center;line-height:1.05}
+.letter-sheet .lt-name{text-transform:none}
 .cover{position:relative;width:100%;aspect-ratio:1/1.414;background:#fff;overflow:hidden;border:1px solid var(--line);box-shadow:var(--shadow);container-type:inline-size;font-family:var(--serif);color:var(--navy)}
 .tpl-classic .fr{position:absolute;inset:4cqw;border:.5cqw solid var(--navy)}.tpl-classic .fr:after{content:"";position:absolute;inset:1.2cqw;border:.25cqw solid var(--gold)}
 .tpl-classic .ban{position:absolute;top:7cqw;left:-15cqw;transform:rotate(-45deg);background:var(--navy);color:#fff;font-family:var(--sans);font-weight:700;font-size:2.5cqw;letter-spacing:.12em;padding:1.3cqw 16cqw}
@@ -1135,7 +1137,6 @@ body.landing-open .app{visibility:hidden;pointer-events:none}
           <div class="cover-form">
             <div class="field"><label>For whom is it written? (To)</label>
               <textarea id="lt-to" rows="3" placeholder="The Principal,&#10;University Law College, Quetta." oninput="LetterApp.drawLetter()"></textarea>
-              <p class="hint" style="margin-top:4px">Shown under <strong>To,</strong> on a new line — aligned with the subject title.</p>
             </div>
             <div class="field"><label>Subject line (shown in CAPITALS, bold &amp; underlined)</label>
               <input id="lt-subject" placeholder="APPLICATION FOR LEAVE" style="text-transform:uppercase;font-weight:700" oninput="LetterApp.drawLetter()">

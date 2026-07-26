@@ -217,28 +217,28 @@
       .trim();
     const toLines = esc(toRaw)
       .split(/\n/)
-      .map((line) => `<div>${line || "&nbsp;"}</div>`)
-      .join("");
+      .filter(Boolean)
+      .join("<br>");
     const bodyParas = String(v.body || "")
       .split(/\n\n+/)
       .filter(Boolean)
       .map((p) => `<p>${esc(p).replace(/\n/g, "<br>")}</p>`)
       .join("");
+    /* Subject: + exactly 5 spaces, then title on the SAME line.
+       Principal uses an invisible copy of that prefix so it starts at the same column. */
+    const subjPrefix =
+      '<span class="lt-subj-word">Subject:</span><span class="lt-sp5">     </span>';
+    const ghostPrefix =
+      '<span class="lt-subj-word lt-ghost">Subject:</span><span class="lt-sp5">     </span>';
     return `<div class="letter-sheet">
       <div class="lt-header">UNIVERSITY LAW COLLEGE QUETTA</div>
       <div class="lt-to-section">
         <div class="lt-to-label">To,</div>
-        <div class="lt-align-row">
-          <span class="lt-ghost" aria-hidden="true">Subject:</span>
-          <span class="lt-gap5" aria-hidden="true"></span>
-          <div class="lt-to-block">${toLines}</div>
+        <div class="lt-line">
+          <span class="lt-prefix" aria-hidden="true">${ghostPrefix}</span><span class="lt-aligned">${toLines || "&nbsp;"}</span>
         </div>
       </div>
-      <div class="lt-align-row lt-subject-row">
-        <span class="lt-label">Subject:</span>
-        <span class="lt-gap5" aria-hidden="true"></span>
-        <div class="lt-subject-text">${esc(v.subject)}</div>
-      </div>
+      <div class="lt-line lt-subject-row">${subjPrefix}<span class="lt-aligned lt-subject-text">${esc(v.subject)}</span></div>
       <div class="lt-salutation">${esc(v.salutation)}</div>
       <div class="lt-body">${bodyParas}</div>
       <div class="lt-closing">
