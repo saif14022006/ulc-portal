@@ -232,13 +232,11 @@ main{flex:1;padding:18px 16px 36px;width:100%}
 .letter-guide strong{color:var(--navy)}
 .letter-sheet{width:100%;aspect-ratio:1/1.414;background:#fff;border:1px solid var(--line);box-shadow:var(--shadow);padding:9% 10% 11%;box-sizing:border-box;font-family:"Times New Roman",Times,serif;color:#000;position:relative;overflow:hidden;font-size:15px;line-height:1.5}
 .letter-sheet .lt-header{text-align:center;font-size:clamp(15px,3.4cqw,20px);font-weight:700;letter-spacing:.06em;text-transform:uppercase;margin:0 0 1.8em;color:#000}
-.letter-sheet .lt-to-section{margin-bottom:1.35em}
-.letter-sheet .lt-to-label{font-size:inherit;font-weight:700;line-height:1.45;margin:0}
-.letter-sheet .lt-same-line{display:flex;flex-wrap:nowrap;align-items:baseline;gap:0;width:100%;margin:0;line-height:1.45}
-.letter-sheet .lt-subject-row{margin:0 0 1.35em}
-.letter-sheet .lt-indent-label{flex:0 0 auto;font-weight:700;white-space:pre;display:inline}
+.letter-sheet .lt-meta{display:grid;grid-template-columns:max-content minmax(0,1fr);column-gap:0;row-gap:0;align-items:baseline;margin:0 0 1.35em;line-height:1.45}
+.letter-sheet .lt-to-label{grid-column:1/-1;font-size:inherit;font-weight:700;line-height:1.45;margin:0}
+.letter-sheet .lt-meta-lab{font-weight:700;white-space:pre;line-height:1.45}
 .letter-sheet .lt-ghost{visibility:hidden}
-.letter-sheet .lt-same-line-body{flex:1 1 auto;min-width:0;font-weight:400;display:inline}
+.letter-sheet .lt-meta-val{font-weight:400;line-height:1.45;min-width:0}
 .letter-sheet .lt-subject-text{font-weight:700;text-transform:uppercase;text-decoration:underline;text-underline-offset:3px;letter-spacing:.015em}
 .letter-sheet .lt-salutation{font-size:inherit;margin:0 0 1.15em;line-height:1.5;font-weight:400}
 .letter-sheet .lt-body{font-size:inherit;line-height:1.55;text-align:left}

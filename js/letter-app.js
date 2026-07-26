@@ -215,29 +215,27 @@
     const toRaw = String(v.to || "")
       .replace(/^\s*To[,:]?\s*/i, "")
       .trim();
-    const toLines = esc(toRaw)
+    const indentLab = "Subject:     "; /* label + exactly 5 spaces */
+    const addrRows = esc(toRaw)
       .split(/\n/)
+      .map((s) => s.trim())
       .filter(Boolean)
-      .join("<br>");
+      .map(
+        (line) =>
+          `<span class="lt-meta-lab lt-ghost" aria-hidden="true">${indentLab}</span><span class="lt-meta-val">${line}</span>`
+      )
+      .join("");
     const bodyParas = String(v.body || "")
       .split(/\n\n+/)
       .filter(Boolean)
       .map((p) => `<p>${esc(p).replace(/\n/g, "<br>")}</p>`)
       .join("");
-    /* "Subject:" + 5 spaces stay glued; title begins on the SAME row (flex nowrap). */
-    const indentLabel = "Subject:     ";
     return `<div class="letter-sheet">
       <div class="lt-header">UNIVERSITY LAW COLLEGE QUETTA</div>
-      <div class="lt-to-section">
+      <div class="lt-meta">
         <div class="lt-to-label">To,</div>
-        <div class="lt-same-line">
-          <span class="lt-indent-label lt-ghost" aria-hidden="true">${indentLabel}</span>
-          <span class="lt-same-line-body">${toLines || "&nbsp;"}</span>
-        </div>
-      </div>
-      <div class="lt-same-line lt-subject-row">
-        <span class="lt-indent-label">Subject:     </span>
-        <span class="lt-same-line-body lt-subject-text">${esc(v.subject)}</span>
+        ${addrRows || `<span class="lt-meta-lab lt-ghost" aria-hidden="true">${indentLab}</span><span class="lt-meta-val">&nbsp;</span>`}
+        <span class="lt-meta-lab">${indentLab}</span><span class="lt-meta-val lt-subject-text">${esc(v.subject)}</span>
       </div>
       <div class="lt-salutation">${esc(v.salutation)}</div>
       <div class="lt-body">${bodyParas}</div>
