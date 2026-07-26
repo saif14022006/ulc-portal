@@ -1101,89 +1101,87 @@
       *{box-sizing:border-box}
       body{font-family:"Times New Roman",Times,serif;color:#000;margin:0;background:#fff}
       .award-pdf{
-        width:1122px;height:793px;padding:8px 10px 6px;background:#fff;
+        width:1122px;height:793px;padding:7px 9px 5px;background:#fff;
         display:flex;flex-direction:column;overflow:hidden;
       }
       .pdf-title{
-        text-align:center;font-size:16px;font-weight:700;letter-spacing:.03em;
-        margin:0;line-height:1.25;text-transform:uppercase;
-        border:2.5px solid #000;padding:4px 8px;
+        text-align:center;font-size:20px;font-weight:700;letter-spacing:.04em;
+        margin:0;line-height:1.2;text-transform:uppercase;
+        border:2.5px solid #000;padding:5px 10px;
       }
       .pdf-badge{
         text-align:center;font-weight:700;border:1.5px solid #000;
-        padding:1px 36px;margin:4px auto 5px;display:block;width:fit-content;
-        font-size:11px;letter-spacing:.08em;line-height:1.4;
+        padding:2px 40px;margin:5px auto 6px;display:block;width:fit-content;
+        font-size:13px;letter-spacing:.1em;line-height:1.35;
       }
       .pdf-page{display:none}
-      .meta-lines{width:100%;margin:0 0 5px;font-size:8.5px;line-height:1.45}
-      .meta-lines .row{display:flex;flex-wrap:nowrap;gap:12px;margin-bottom:2px;align-items:baseline}
+      .meta-lines{width:100%;margin:0 0 6px;font-size:10px;line-height:1.5}
+      .meta-lines .row{display:flex;flex-wrap:nowrap;gap:14px;margin-bottom:3px;align-items:baseline}
       .meta-lines .field{white-space:nowrap}
       .meta-lines .field.grow{flex:1 1 auto;min-width:0}
       .meta-lines .lab{font-weight:700}
       .meta-lines .val{
-        display:inline-block;min-width:3em;border-bottom:1px solid #000;
-        padding:0 3px 0 2px;font-weight:400;vertical-align:baseline;
+        display:inline-block;min-width:3.5em;border-bottom:1px solid #000;
+        padding:0 4px 1px 2px;font-weight:400;vertical-align:baseline;
       }
-      .meta-lines .val.wide{min-width:8em}
-      .meta-lines .val.mid{min-width:5em}
+      .meta-lines .val.wide{min-width:9em}
+      .meta-lines .val.mid{min-width:5.5em}
       .grid-wrap{flex:0 0 auto;width:100%}
       .grid{
         width:100%;height:auto;border-collapse:collapse;table-layout:fixed;
-        border:2px solid #000;
+        border:2.5px solid #000;
       }
-      /* Column widths sum to 100% so header borders line up with data cols */
-      .grid col.roll{width:3.8%}
-      .grid col.nm{width:11.8%}
-      .grid col.c-q{width:3.3%}
-      .grid col.c-qa{width:4.5%}
-      .grid col.c-a{width:3.5%}
-      .grid col.c-aa{width:3.8%}
-      .grid col.c-m{width:4%}
-      .grid col.c-f{width:4%}
-      .grid col.c-g{width:4.5%}
-      .grid col.c-r{width:4.2%}
-      .grid col.c-gr{width:3.2%}
-      .grid col.c-gp{width:3%}
-      .grid col.c-rm{width:5.7%}
+      .grid col.roll{width:4%}
+      .grid col.nm{width:13.9%}
+      .grid col.c-q{width:3.2%}
+      .grid col.c-qa{width:4.4%}
+      .grid col.c-a{width:3.4%}
+      .grid col.c-aa{width:3.7%}
+      .grid col.c-m{width:3.9%}
+      .grid col.c-f{width:3.9%}
+      .grid col.c-g{width:4.4%}
+      .grid col.c-r{width:4.1%}
+      .grid col.c-gr{width:3.1%}
+      .grid col.c-gp{width:2.9%}
+      .grid col.c-rm{width:5.5%}
       .grid th,.grid td{
         border:1px solid #000;text-align:center;vertical-align:middle;
-        padding:0;line-height:1.05;overflow:hidden;
+        padding:0;line-height:1.08;overflow:hidden;
       }
       .grid thead th{
-        font-size:6px;font-weight:700;padding:1px 0;line-height:1.08;
+        font-size:7.5px;font-weight:700;padding:1px 0;line-height:1.1;
       }
       .grid thead th.roll,.grid thead th.nm{
-        font-size:7.5px;line-height:1.15;padding:2px;vertical-align:middle;
+        font-size:10px;line-height:1.15;padding:3px 2px;vertical-align:middle;
       }
       .grid thead th.nm{text-align:center}
       .grid thead .top{
-        font-size:8px;letter-spacing:.04em;padding:2px 0;height:15px;
+        font-size:10.5px;letter-spacing:.05em;padding:3px 0;height:18px;
       }
       .grid thead .sub{
-        font-size:6.2px;padding:1px;height:13px;white-space:nowrap;
+        font-size:8px;padding:2px 1px;height:15px;white-space:nowrap;
       }
       .grid thead .lab{
-        font-size:5.8px;padding:1px 0;height:16px;line-height:1.08;vertical-align:middle;
+        font-size:7.5px;padding:2px 0;height:20px;line-height:1.1;vertical-align:middle;
       }
       .grid thead .leaf{
-        font-size:5.2px;padding:0;height:11px;line-height:1;vertical-align:middle;
+        font-size:6.5px;padding:1px 0;height:13px;line-height:1.05;vertical-align:middle;
         font-weight:600;
       }
       .grid thead .h-r{
-        font-size:5.8px;padding:1px;line-height:1.1;vertical-align:middle;
+        font-size:7.5px;padding:2px 1px;line-height:1.12;vertical-align:middle;
       }
-      /* Data rows — compact; quiz/assn tint matches sample top row */
-      .grid tbody tr{height:15px}
+      .grid tbody tr{height:18px}
       .grid tbody td{
-        font-size:6.8px;height:15px;max-height:15px;min-height:15px;
-        padding:0 1px;line-height:15px;background:#fff;
+        font-size:9px;height:18px;max-height:18px;min-height:18px;
+        padding:0 1px;line-height:18px;background:#fff;
       }
       .grid tbody td.tint{background:#e4eaf3}
       .grid tbody td.avg{background:#d0d7de;font-weight:700}
       .grid tbody td.avg-a{background:#c5d7ea;font-weight:700}
       .grid tbody td.grand{background:#fff8dc;font-weight:700}
       .grid tbody td.rnd{background:#fce4d6;font-weight:700}
-      .grid tbody td.grd{background:#fce4ec}
+      .grid tbody td.grd{background:#fce4ec;font-weight:700}
       .grid tbody td.gp{background:#ddebf7;font-weight:700}
       .grid tbody tr:nth-child(even) td{background:#eef3f8}
       .grid tbody tr:nth-child(even) td.tint{background:#d9e2ef}
@@ -1194,10 +1192,10 @@
       .grid tbody tr:nth-child(even) td.grd{background:#f5d0e0}
       .grid tbody tr:nth-child(even) td.gp{background:#c8d9ea}
       .grid tbody td.roll{
-        font-weight:700;white-space:nowrap;font-size:6.8px;padding:0 1px;text-align:center;
+        font-weight:700;white-space:nowrap;font-size:9px;padding:0 2px;text-align:center;
       }
       .grid tbody td.nm{
-        text-align:left;padding-left:2px;font-size:6.4px;
+        text-align:left;padding-left:3px;font-size:8.5px;
         font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:clip;
       }
       .h-q{background:#d9d9d9}
