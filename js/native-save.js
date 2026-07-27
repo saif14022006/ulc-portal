@@ -186,6 +186,7 @@
       shared: !!(result && result.shared),
       archivePath: result && result.archivePath,
       archiveDirectory: (result && result.archiveDirectory) || "DATA",
+      blob: blob,
       via: "UlcPdfSaver",
       build: BUILD_ID,
     };
@@ -230,9 +231,27 @@
         files: [uri],
         dialogTitle: "Save or share PDF",
       });
-      return { uri: uri, shared: true, downloaded: true, via: "Share", build: BUILD_ID };
+      return {
+        uri: uri,
+        shared: true,
+        downloaded: true,
+        blob: blob,
+        archivePath: path,
+        archiveDirectory: "CACHE",
+        via: "Share",
+        build: BUILD_ID,
+      };
     }
-    return { uri: uri, savedLocal: true, downloaded: true, via: "Filesystem", build: BUILD_ID };
+    return {
+      uri: uri,
+      savedLocal: true,
+      downloaded: true,
+      blob: blob,
+      archivePath: path,
+      archiveDirectory: "CACHE",
+      via: "Filesystem",
+      build: BUILD_ID,
+    };
   }
 
   async function saveViaULCNative(blob, filename) {
@@ -256,6 +275,7 @@
       filename: finished.filename || filename,
       downloaded: true,
       pending: !!finished.pending,
+      blob: blob,
       via: "ULCNative",
       build: BUILD_ID,
     };
@@ -297,11 +317,12 @@
     if (isNative()) {
       var result = await saveBlobNative(blob, name);
       if (result && result.canceled) return result;
+      if (result && !result.blob) result.blob = blob;
       return result;
     }
 
     triggerBrowserDownload(blob, name);
-    return { browser: true, build: BUILD_ID };
+    return { browser: true, blob: blob, filename: name, build: BUILD_ID };
   }
 
   function pdfToBlob(pdf) {
@@ -329,13 +350,9 @@
 
   async function saveJsPdf(pdf, filename) {
     var name = safeName(filename, "ULC.pdf");
-    if (!isNative()) {
-      if (pdf && typeof pdf.__ulcOrigSave === "function") return pdf.__ulcOrigSave.call(pdf, name);
-      if (pdf && typeof pdf.save === "function") return pdf.save(name);
-      throw new Error("jsPDF.save unavailable");
-    }
     var blob = await pdfToBlob(pdf);
     if (!blob || !blob.size) throw new Error("Generated PDF is empty (blank capture?)");
+    /* Web + native: always go through saveBlob so My Files gets a Blob back */
     return saveBlob(blob, name);
   }
 
@@ -354,22 +371,23 @@
     var ns = global.jspdf || global.jsPDF;
     var Ctor = ns && ns.jsPDF ? ns.jsPDF : typeof ns === "function" ? ns : null;
     if (!Ctor || !Ctor.prototype) return false;
-    if (Ctor.prototype.__ulcSavePatchedV4) return true;
+    if (Ctor.prototype.__ulcSavePatchedV5) return true;
 
     var orig = Ctor.prototype.save;
     Ctor.prototype.__ulcOrigSave = orig;
     Ctor.prototype.save = function ulcSave(filename) {
-      if (!isNative()) return orig.call(this, filename);
       var self = this;
       return saveJsPdf(self, filename).catch(function (err) {
         if (isCancelError(err)) return { canceled: true };
         console.error("[ulc-save] PDF failed", err);
-        alertSaveHelp(errMsg(err));
+        if (isNative()) alertSaveHelp(errMsg(err));
+        else alert("PDF failed: " + errMsg(err));
         throw err;
       });
     };
     Ctor.prototype.__ulcSavePatched = true;
     Ctor.prototype.__ulcSavePatchedV4 = true;
+    Ctor.prototype.__ulcSavePatchedV5 = true;
     console.info("[ulc-save] patched", BUILD_ID);
     return true;
   }
@@ -439,11 +457,14 @@
     patchJsPdf: patchJsPdf,
     isNative: isNative,
     pdfToBlob: pdfToBlob,
+    base64ToBlob: base64ToBlob,
+    blobToBase64: blobToBase64,
     prepareCaptureHost: prepareCaptureHost,
     captureScale: captureScale,
     captureOpts: captureOpts,
     diagnose: diagnose,
     shareArchivedPdf: shareArchivedPdf,
     stripBase64: stripBase64,
+    triggerBrowserDownload: triggerBrowserDownload,
   };
 })(typeof window !== "undefined" ? window : globalThis);

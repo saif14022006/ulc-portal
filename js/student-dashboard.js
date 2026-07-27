@@ -1466,7 +1466,7 @@
       }
       const saved = await pdf.save(`${safe}_Sem${sem}_Provisional.pdf`);
       try {
-        if (global.MyFiles) global.MyFiles.saveTranscriptAuto(sem, "", saved);
+        if (global.MyFiles) global.MyFiles.saveTranscriptAuto(sem, html, saved);
       } catch (_) {}
     } catch (e) {
       console.error(e);

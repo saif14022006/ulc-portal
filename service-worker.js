@@ -1,5 +1,5 @@
 /* ULC Portal service worker — offline app shell (browser + Capacitor https://localhost) */
-const CACHE = "ulc-portal-v57";
+const CACHE = "ulc-portal-v58";
 const ASSETS = [
   "./",
   "./index.html",
@@ -14,6 +14,7 @@ const ASSETS = [
   "./js/letter-app.js",
   "./js/letter-templates.json",
   "./js/my-files.js",
+  "./js/native-save.js",
   "./js/capacitor-bridge.js",
   "./assets/campus-hero.jpg",
   "./assets/batch-2025-29-section-a.png",

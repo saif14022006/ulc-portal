@@ -3293,6 +3293,7 @@ function tplGeometric(v){ return `<div class="d1"></div><div class="d2"></div><d
 function tplElegant(v){ return `<div class="pane"></div><div class="contact">University of Balochistan<br>Quetta<br>Faculty of Law</div><div class="circle"><img src="${LOGO}" alt=""></div><div class="bk">University</div><div class="brand">Law <span>College</span></div><div class="ttl"><small>Assignment${v.no?' No. '+v.no:''} · ${v.subject}</small>${v.topic}</div><div class="prep">Submitted by<b>${v.name}</b>Roll No. ${v.roll} · ${v.session}<br>Submitted to: ${v.teacher}<br>${v.date}</div>`; }
 function tplMinimal(v){ return `<img class="wm" src="${LOGO}" alt=""><div class="top"><img src="${LOGO}" alt=""><div class="cn">University Law College<small>Quetta</small></div></div><div class="mid"><div class="subj">${v.subject}</div><div class="hr"></div><div class="tt">${v.topic}</div><div class="pill">Assignment${v.no?' No. '+v.no:''}</div></div><div class="meta"><b>${v.name}</b> · Roll ${v.roll}<br>Submitted to ${v.teacher}<br>${v.session} · ${v.date}</div><div class="box">University Law College</div>`; }
 const TPL={classic:tplClassic,geometric:tplGeometric,elegant:tplElegant,minimal:tplMinimal};
+window.TPL=TPL;
 function drawCover(){ const el=document.getElementById('coverPreview'); el.className='cover tpl-'+currentTpl; el.innerHTML=TPL[currentTpl](V()); }
 function printCover(){ document.getElementById('printhost').innerHTML=`<div class="cover tpl-${currentTpl} print-cover" style="width:794px">${TPL[currentTpl](V())}</div>`; window.print(); }
 async function downloadPDF(){
@@ -3328,7 +3329,12 @@ async function downloadPDF(){
     btn.textContent='Saving…';
     const saved=await pdf.save(((val('f-name')||'ULC')+'_'+currentTpl+'_cover.pdf').replace(/\s+/g,'_'));
     if(saved&&saved.error) throw new Error(saved.error||'Save failed');
-    try{ if(window.MyFiles) MyFiles.saveCoverAuto(V(), currentTpl, '', saved); }catch(_){}
+    try{
+      if(window.MyFiles){
+        const previewHtml=`<div class="cover tpl-${currentTpl}" style="width:794px">${document.getElementById('coverPreview').innerHTML}</div>`;
+        MyFiles.saveCoverAuto(V(), currentTpl, previewHtml, saved);
+      }
+    }catch(_){}
   }catch(e){
     console.error(e);
     const diag=(window.ULC_SAVE&&ULC_SAVE.diagnose)?('\n\n'+ULC_SAVE.diagnose()):'';

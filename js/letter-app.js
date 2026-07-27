@@ -344,7 +344,10 @@
       const saved = await pdf.save(`${name}_${kind}_application.pdf`);
       try {
         if (global.MyFiles) {
-          global.MyFiles.saveLetterAuto(letterValues(), kind, "", saved);
+          const previewHtml =
+            (document.getElementById("letterPreview") && document.getElementById("letterPreview").innerHTML) ||
+            buildLetterHtml(letterValues());
+          global.MyFiles.saveLetterAuto(letterValues(), kind, previewHtml, saved);
         }
       } catch (_) {}
     } catch (e) {
@@ -389,5 +392,6 @@
     showSubmitGuide,
     letterValues,
     currentTplKey,
+    buildLetterHtml,
   };
 })(typeof window !== "undefined" ? window : globalThis);
