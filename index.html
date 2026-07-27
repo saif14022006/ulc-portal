@@ -1680,7 +1680,7 @@ body.landing-open .app{visibility:hidden;pointer-events:none}
             <div class="roster-drop">
               <div class="field">
                 <label>PDF or photo of student list</label>
-                <input id="tr-photo" type="file" accept="application/pdf,image/*,.pdf" capture="environment" onchange="TeacherApp.onRosterFileChosen(this.files[0])">
+                <input id="tr-photo" type="file" accept="application/pdf,image/*,.pdf,.jpg,.jpeg,.png,.webp" onchange="TeacherApp.onRosterFileChosen(this.files[0])">
               </div>
               <p class="hint" id="tr-file-name" style="margin:6px 0 10px">No file selected yet.</p>
               <button class="btn btn-gold" type="button" id="tr-analyze-btn" onclick="TeacherApp.analyzeRosterFile()">Analyze file — extract roll &amp; names</button>
