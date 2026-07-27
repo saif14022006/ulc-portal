@@ -307,37 +307,43 @@
     document.body.appendChild(holder);
     try {
       await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
+      const sharpOpts =
+        global.ULC_SAVE && typeof global.ULC_SAVE.captureScale === "function"
+          ? { width: 794, windowWidth: 794, scale: global.ULC_SAVE.captureScale(2.5), scrollX: 0, scrollY: 0 }
+          : { width: 794, windowWidth: 794, scale: 2.5, scrollX: 0, scrollY: 0 };
       const canvas =
         global.ULC_SAVE && typeof global.ULC_SAVE.captureElement === "function"
-          ? await global.ULC_SAVE.captureElement(sheet, { width: 794, windowWidth: 794 })
+          ? await global.ULC_SAVE.captureElement(sheet, sharpOpts)
           : await html2canvas(
               sheet,
               global.ULC_SAVE && global.ULC_SAVE.captureOpts
-                ? global.ULC_SAVE.captureOpts({ width: 794, windowWidth: 794 })
+                ? global.ULC_SAVE.captureOpts(sharpOpts)
                 : {
-                    scale: 2,
+                    scale: 2.5,
                     useCORS: true,
                     allowTaint: false,
                     backgroundColor: "#ffffff",
                     logging: false,
                     width: 794,
                     windowWidth: 794,
+                    scrollX: 0,
+                    scrollY: 0,
                   }
             );
       const { jsPDF } = global.jspdf;
       const pdf = new jsPDF("p", "mm", "a4");
       const pageW = pdf.internal.pageSize.getWidth();
       const pageH = pdf.internal.pageSize.getHeight();
-      const dataUrl = canvas.toDataURL("image/jpeg", 0.9);
+      const dataUrl = canvas.toDataURL("image/png");
       if (!dataUrl || dataUrl.length < 100) throw new Error("Blank PDF capture (CORS/taint)");
       const imgW = pageW;
       const imgH = (canvas.height * imgW) / canvas.width;
       if (imgH <= pageH) {
-        pdf.addImage(dataUrl, "JPEG", 0, 0, imgW, imgH);
+        pdf.addImage(dataUrl, "PNG", 0, 0, imgW, imgH);
       } else {
         const h = pageH;
         const w = (canvas.width * h) / canvas.height;
-        pdf.addImage(dataUrl, "JPEG", (pageW - w) / 2, 0, w, h);
+        pdf.addImage(dataUrl, "PNG", (pageW - w) / 2, 0, w, h);
       }
       const name = (raw("lt-name") || "ULC").replace(/\s+/g, "_");
       const kind = currentTplKey();

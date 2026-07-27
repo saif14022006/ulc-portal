@@ -1,4 +1,4 @@
-/* Native PDF save for Capacitor Android (build: ULC-PDF-2.0.1).
+/* Native PDF save for Capacitor Android (build: ULC-PDF-2.0.2).
  *
  * Rules applied:
  * 1) Always cap:sync before APK rebuild (see npm run android:release)
@@ -10,7 +10,7 @@
  * 7) Prefer UlcPdfSaver → ULCNative → Filesystem+Share (never bare <a download> on native)
  */
 (function (global) {
-  var BUILD_ID = "ULC-PDF-2.0.1";
+  var BUILD_ID = "ULC-PDF-2.0.2";
   var CHUNK_CHARS = 200000;
   var CAPTURE_TIMEOUT_MS = 45000;
 
@@ -445,7 +445,7 @@
   }
 
   function captureScale(fallback) {
-    if (isNative()) return 1.15;
+    if (isNative()) return Math.max(2, fallback == null ? 2 : Math.min(fallback, 2.5));
     return fallback == null ? 2 : fallback;
   }
 

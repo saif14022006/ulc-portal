@@ -742,30 +742,36 @@
     document.body.appendChild(holder);
     try {
       await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
+      const sharpOpts =
+        global.ULC_SAVE && typeof global.ULC_SAVE.captureScale === "function"
+          ? { width: w, windowWidth: w, scale: global.ULC_SAVE.captureScale(2.5), scrollX: 0, scrollY: 0 }
+          : { width: w, windowWidth: w, scale: 2.5, scrollX: 0, scrollY: 0 };
       const canvas =
         global.ULC_SAVE && typeof global.ULC_SAVE.captureElement === "function"
-          ? await global.ULC_SAVE.captureElement(sheet, { width: w, windowWidth: w })
+          ? await global.ULC_SAVE.captureElement(sheet, sharpOpts)
           : await html2canvas(
               sheet,
               global.ULC_SAVE && global.ULC_SAVE.captureOpts
-                ? global.ULC_SAVE.captureOpts({ width: w, windowWidth: w })
+                ? global.ULC_SAVE.captureOpts(sharpOpts)
                 : {
-                    scale: 2,
+                    scale: 2.5,
                     useCORS: true,
                     allowTaint: false,
                     backgroundColor: "#ffffff",
                     logging: false,
                     width: w,
                     windowWidth: w,
+                    scrollX: 0,
+                    scrollY: 0,
                   }
             );
       const { jsPDF } = global.jspdf;
       const pdf = new jsPDF(landscape ? "l" : "p", "mm", "a4");
       const pageW = pdf.internal.pageSize.getWidth();
       const pageH = pdf.internal.pageSize.getHeight();
-      const dataUrl = canvas.toDataURL("image/jpeg", 0.9);
+      const dataUrl = canvas.toDataURL("image/png");
       if (!dataUrl || dataUrl.length < 100) throw new Error("Blank PDF capture (CORS/taint)");
-      pdf.addImage(dataUrl, "JPEG", 0, 0, pageW, pageH);
+      pdf.addImage(dataUrl, "PNG", 0, 0, pageW, pageH);
       if (global.ULC_SAVE && typeof global.ULC_SAVE.patchJsPdf === "function") {
         global.ULC_SAVE.patchJsPdf();
       }
