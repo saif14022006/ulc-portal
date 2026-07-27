@@ -464,24 +464,27 @@ body.tools-drawer-open .tools-drawer-bg{display:block}
 .site-footer .ft-col a:hover,.site-footer .ft-col button:hover{color:var(--gold-lt)}
 .site-footer .ft-col:last-child{grid-column:1/-1}
 .site-footer .ft-meta{font-size:12px;line-height:1.55;color:#9fb3c9}
-.site-footer .ft-bottom{border-top:1px solid rgba(255,255,255,.12);padding-top:18px;display:grid;gap:16px}
-.site-footer .ft-developer{display:grid;gap:16px;align-items:start}
-.site-footer .ft-dev-photo-wrap{width:108px;height:108px;border-radius:50%;padding:3px;background:linear-gradient(145deg,#e8c76a,var(--gold),#8a6a1a);box-shadow:0 10px 28px rgba(0,0,0,.4),0 0 0 1px rgba(232,199,106,.25);flex:none;justify-self:start}
-.site-footer .ft-dev-photo{width:100%;height:100%;object-fit:cover;object-position:center 12%;border-radius:50%;display:block;background:radial-gradient(circle at 35% 25%,#1a4a7a,#0a2f56)}
-.site-footer .ft-dev-eyebrow{font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--gold-lt);font-weight:700;margin:0 0 6px}
-.site-footer .ft-developer h3{font-family:var(--serif);font-size:20px;color:#fff;margin:0 0 6px;line-height:1.2}
-.site-footer .ft-dev-lead{font-size:13px;line-height:1.55;color:#c5d5e6;margin:0 0 12px;max-width:42em}
-.site-footer .ft-dev-grid{display:grid;gap:14px}
-.site-footer .ft-dev-block h4{font-family:var(--serif);font-size:13px;color:var(--gold-lt);margin:0 0 8px}
-.site-footer .ft-dev-block ul{list-style:none;margin:0;padding:0;display:grid;gap:8px}
-.site-footer .ft-dev-block li{font-size:12px;line-height:1.45;color:#d7e3ef;padding-left:12px;border-left:2px solid rgba(198,161,60,.55)}
-.site-footer .ft-dev-block li strong{display:block;color:#fff;font-weight:600;font-size:12.5px}
-.site-footer .ft-dev-block li span{color:#9fb3c9;font-size:11.5px}
-.site-footer .ft-dev-contact{display:flex;flex-wrap:wrap;gap:8px 14px;margin-top:12px;font-size:12px}
-.site-footer .ft-dev-contact a{color:#e8eef5;text-decoration:none;border-bottom:1px solid rgba(198,161,60,.35)}
-.site-footer .ft-dev-contact a:hover{color:var(--gold-lt)}
-.site-footer .ft-dev-contact span{color:#9fb3c9}
+.site-footer .ft-bottom{border-top:1px solid rgba(255,255,255,.12);padding-top:14px;display:grid;gap:10px}
 .site-footer .ft-copy{font-size:11px;color:#8aa0b8}
+.site-footer .ft-dev-link{display:inline-block;width:auto;margin:0;padding:0;background:none;border:none;font-family:var(--sans);font-size:13px;font-weight:650;color:var(--gold-lt);cursor:pointer;text-align:left;text-decoration:none}
+.site-footer .ft-dev-link:hover{color:#fff;text-decoration:underline}
+.dev-page{display:grid;gap:22px}
+.dev-hero{display:grid;gap:18px;justify-items:center;text-align:center;padding:8px 0 4px}
+.dev-photo-wrap{width:132px;height:132px;border-radius:50%;padding:3px;background:linear-gradient(145deg,#e8c76a,var(--gold),#8a6a1a);box-shadow:0 12px 30px rgba(12,40,72,.18)}
+.dev-photo{width:100%;height:100%;object-fit:cover;object-position:center 12%;border-radius:50%;display:block;background:radial-gradient(circle at 35% 25%,#1a4a7a,#0a2f56)}
+.dev-hero h2{margin:0;font-family:var(--serif);font-size:28px;color:var(--navy);line-height:1.15}
+.dev-role{margin:0;font-size:13px;color:var(--muted);letter-spacing:.02em}
+.dev-prose{display:grid;gap:16px}
+.dev-prose p{margin:0;font-size:14.5px;line-height:1.72;color:#2a3b4d}
+.dev-contact{display:flex;flex-wrap:wrap;gap:10px 16px;padding-top:4px;border-top:1px solid rgba(12,40,72,.1)}
+.dev-contact a,.dev-contact span{font-size:13px;color:var(--navy);text-decoration:none}
+.dev-contact a{border-bottom:1px solid rgba(198,161,60,.45)}
+.dev-contact a:hover{color:var(--gold)}
+@media(min-width:720px){
+  .dev-hero{grid-template-columns:140px 1fr;justify-items:start;text-align:left;align-items:center;gap:22px 28px}
+  .dev-photo-wrap{width:140px;height:140px}
+  .dev-hero h2{font-size:32px}
+}
 @media (min-width:900px){
   body{background:#e9edf2}
   .app{max-width:1600px}
@@ -508,10 +511,7 @@ body.tools-drawer-open .tools-drawer-bg{display:block}
   .site-footer .ft-brand{grid-column:1;grid-row:1}
   .site-footer .ft-cols{display:contents}
   .site-footer .ft-col:last-child{grid-column:auto}
-  .site-footer .ft-bottom{grid-column:1/-1;display:grid;gap:18px}
-  .site-footer .ft-developer{grid-template-columns:120px 1fr;gap:22px 28px;align-items:start}
-  .site-footer .ft-dev-photo-wrap{width:120px;height:120px}
-  .site-footer .ft-dev-grid{grid-template-columns:1fr 1fr;gap:18px 28px}
+  .site-footer .ft-bottom{grid-column:1/-1;display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap}
   .site-footer .ft-logo{width:76px;height:76px}
   .site-footer .ft-brand h3{font-size:22px}
 }
@@ -572,9 +572,7 @@ body.landing-open .app{visibility:hidden;pointer-events:none}
   .landing-gate .site-footer .ft-brand{grid-column:1;grid-row:1}
   .landing-gate .site-footer .ft-cols{display:contents}
   .landing-gate .site-footer .ft-col:last-child{grid-column:auto}
-  .landing-gate .site-footer .ft-bottom{grid-column:1/-1;display:grid;gap:18px}
-  .landing-gate .site-footer .ft-developer{grid-template-columns:120px 1fr;gap:22px 28px}
-  .landing-gate .site-footer .ft-dev-grid{grid-template-columns:1fr 1fr;gap:18px 28px}
+  .landing-gate .site-footer .ft-bottom{grid-column:1/-1;display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap}
 }
 /* Student dashboard */
 .dash-welcome{background:linear-gradient(155deg,var(--navy-deep),var(--navy) 50%,var(--navy-2));color:var(--paper);border-radius:18px;padding:18px 18px 16px;margin-bottom:14px;box-shadow:var(--shadow);position:relative;overflow:hidden;display:flex;align-items:center;justify-content:space-between;gap:14px}
@@ -782,59 +780,14 @@ body.landing-open .app{visibility:hidden;pointer-events:none}
         <div class="ft-col">
           <h4>About this toolkit</h4>
           <p class="ft-meta">Built for students and teachers of University Law College, Quetta — assignment covers, results, and study tools in one place.</p>
-          <button type="button" onclick="StudentDash.openAuthFromLanding('signup','student')" style="margin-top:10px">Create student account</button>
+          <button type="button" onclick="StudentDash.openToolFromLanding('developer')" style="margin-top:10px">About the developer</button>
+          <button type="button" onclick="StudentDash.openAuthFromLanding('signup','student')">Create student account</button>
           <button type="button" onclick="StudentDash.openAuthFromLanding('signup','teacher')">Create faculty account</button>
           <button type="button" onclick="StudentDash.openAuthFromLanding('login')">Login</button>
         </div>
       </div>
       <div class="ft-bottom">
-        <div class="ft-developer">
-          <div class="ft-dev-photo-wrap">
-            <img class="ft-dev-photo" src="assets/developer-saif.png" width="240" height="240" alt="Syed Saif Ur Rahman" loading="lazy" decoding="async">
-          </div>
-          <div class="ft-dev-body">
-            <div class="ft-dev-eyebrow">About the developer</div>
-            <h3>Syed Saif Ur Rahman</h3>
-            <p class="ft-dev-lead">LLB student at University Law College, Quetta (batch <strong style="color:var(--gold-lt)">2025–29 · Section A</strong>). Builds campus tools that connect legal study with design, data, and the web — so students and teachers get clear, print-ready work without the clutter.</p>
-            <div class="ft-dev-grid">
-              <div class="ft-dev-block">
-                <h4>Experience</h4>
-                <ul>
-                  <li>
-                    <strong>Law Student · University Law College, Quetta</strong>
-                    <span>Mar 2025 – Present · Constitutional law, civil procedure &amp; legal research</span>
-                  </li>
-                  <li>
-                    <strong>Intern · Inter Services Public Relations (ISPR), Quetta</strong>
-                    <span>Jan 2026 – Feb 2026 · Media relations, content &amp; strategic communication</span>
-                  </li>
-                </ul>
-              </div>
-              <div class="ft-dev-block">
-                <h4>Education</h4>
-                <ul>
-                  <li>
-                    <strong>LLB (5-Year) · University Law College, Quetta</strong>
-                    <span>Expected 2029 · CGPA 4.0 / 4.0</span>
-                  </li>
-                  <li>
-                    <strong>Intermediate · Computer Science</strong>
-                    <span>Govt. Postgraduate Science College, Quetta · 2024 · 87%</span>
-                  </li>
-                  <li>
-                    <strong>Matriculation · General Science</strong>
-                    <span>Govt. Boys High School Prince Road, Quetta · 2022 · 79%</span>
-                  </li>
-                </ul>
-              </div>
-            </div>
-            <div class="ft-dev-contact">
-              <a href="mailto:saifagha389@outlook.com">saifagha389@outlook.com</a>
-              <a href="tel:+923138947953">+92 313 8947953</a>
-              <span>Chilton Housing Society, Quetta</span>
-            </div>
-          </div>
-        </div>
+        <button type="button" class="ft-dev-link" onclick="StudentDash.openToolFromLanding('developer')">About the developer</button>
         <div class="ft-copy">© University Law College Quetta · ULC Toolkit</div>
       </div>
     </div>
@@ -1856,6 +1809,37 @@ body.landing-open .app{visibility:hidden;pointer-events:none}
         </div>
       </section>
 
+      <!-- ABOUT DEVELOPER -->
+      <section class="view" id="v-developer">
+        <div class="max-narrow">
+          <div class="eyebrow">ULC Toolkit</div>
+          <h2 class="view-title">About the developer</h2>
+          <p class="view-sub">The person behind this campus toolkit.</p>
+          <div class="card dev-page">
+            <div class="dev-hero">
+              <div class="dev-photo-wrap">
+                <img class="dev-photo" src="assets/developer-saif.png" width="280" height="280" alt="Syed Saif Ur Rahman" loading="lazy" decoding="async">
+              </div>
+              <div>
+                <h2>Syed Saif Ur Rahman</h2>
+                <p class="dev-role">LLB student · University Law College, Quetta · Batch 2025–29, Section A</p>
+              </div>
+            </div>
+            <div class="dev-prose">
+              <p>Syed Saif Ur Rahman is an LLB student at University Law College, Quetta, and the developer of the ULC Toolkit. He built this platform so students and teachers can prepare assignment covers, formal applications, award lists, and everyday study tools in one place — clean, print-ready, and easy to use on both the website and the Android app.</p>
+              <p>He is currently studying law at University Law College, with particular attention to constitutional law, civil procedure, and legal research. From January to February 2026 he interned with Inter Services Public Relations (ISPR) in Quetta, where he contributed to media relations, content creation, and strategic communication work.</p>
+              <p>His academic path began with Matriculation in General Science from Government Boys High School Prince Road, Quetta, completed in 2022 with 79%. He then completed Intermediate in Computer Science at Government Postgraduate Science College, Quetta, in 2024 with 87%. He is now pursuing the five-year LLB at University Law College, Quetta, with an expected graduation in 2029 and a CGPA of 4.0 out of 4.0.</p>
+              <p>Alongside his legal studies, he works at the meeting point of design, data, and the web. That mix is what shaped the ULC Toolkit: practical campus software that feels clear on screen and professional on paper. He is based in Chilton Housing Society, Quetta, and can be reached by email or phone below.</p>
+            </div>
+            <div class="dev-contact">
+              <a href="mailto:saifagha389@outlook.com">saifagha389@outlook.com</a>
+              <a href="tel:+923138947953">+92 313 8947953</a>
+              <span>Chilton Housing Society, Quetta</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
     </main>
   </div>
 
@@ -1893,60 +1877,15 @@ body.landing-open .app{visibility:hidden;pointer-events:none}
         <div class="ft-col">
           <h4>About this toolkit</h4>
           <p class="ft-meta">Built for students and teachers of University Law College, Quetta — assignment covers, results, and study tools in one place.</p>
-          <button type="button" onclick="StudentDash.openAuthFromLanding('signup','student')" style="margin-top:10px">Create student account</button>
+          <button type="button" onclick="go('developer')" style="margin-top:10px">About the developer</button>
+          <button type="button" onclick="StudentDash.openAuthFromLanding('signup','student')">Create student account</button>
           <button type="button" onclick="StudentDash.openAuthFromLanding('signup','teacher')">Create faculty account</button>
           <button type="button" onclick="go('account')">Login / Account</button>
           <button type="button" onclick="go('teacher')">Teacher desk</button>
         </div>
       </div>
       <div class="ft-bottom">
-        <div class="ft-developer">
-          <div class="ft-dev-photo-wrap">
-            <img class="ft-dev-photo" src="assets/developer-saif.png" width="240" height="240" alt="Syed Saif Ur Rahman" loading="lazy" decoding="async">
-          </div>
-          <div class="ft-dev-body">
-            <div class="ft-dev-eyebrow">About the developer</div>
-            <h3>Syed Saif Ur Rahman</h3>
-            <p class="ft-dev-lead">LLB student at University Law College, Quetta (batch <strong style="color:var(--gold-lt)">2025–29 · Section A</strong>). Builds campus tools that connect legal study with design, data, and the web — so students and teachers get clear, print-ready work without the clutter.</p>
-            <div class="ft-dev-grid">
-              <div class="ft-dev-block">
-                <h4>Experience</h4>
-                <ul>
-                  <li>
-                    <strong>Law Student · University Law College, Quetta</strong>
-                    <span>Mar 2025 – Present · Constitutional law, civil procedure &amp; legal research</span>
-                  </li>
-                  <li>
-                    <strong>Intern · Inter Services Public Relations (ISPR), Quetta</strong>
-                    <span>Jan 2026 – Feb 2026 · Media relations, content &amp; strategic communication</span>
-                  </li>
-                </ul>
-              </div>
-              <div class="ft-dev-block">
-                <h4>Education</h4>
-                <ul>
-                  <li>
-                    <strong>LLB (5-Year) · University Law College, Quetta</strong>
-                    <span>Expected 2029 · CGPA 4.0 / 4.0</span>
-                  </li>
-                  <li>
-                    <strong>Intermediate · Computer Science</strong>
-                    <span>Govt. Postgraduate Science College, Quetta · 2024 · 87%</span>
-                  </li>
-                  <li>
-                    <strong>Matriculation · General Science</strong>
-                    <span>Govt. Boys High School Prince Road, Quetta · 2022 · 79%</span>
-                  </li>
-                </ul>
-              </div>
-            </div>
-            <div class="ft-dev-contact">
-              <a href="mailto:saifagha389@outlook.com">saifagha389@outlook.com</a>
-              <a href="tel:+923138947953">+92 313 8947953</a>
-              <span>Chilton Housing Society, Quetta</span>
-            </div>
-          </div>
-        </div>
+        <button type="button" class="ft-dev-link" onclick="go('developer')">About the developer</button>
         <div class="ft-copy">© University Law College Quetta · ULC Toolkit</div>
       </div>
     </div>
