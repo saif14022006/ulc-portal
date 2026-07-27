@@ -1,5 +1,5 @@
 /* ULC Portal service worker — offline app shell (browser + Capacitor https://localhost) */
-const CACHE = "ulc-portal-v61";
+const CACHE = "ulc-portal-v62";
 const ASSETS = [
   "./",
   "./index.html",
@@ -18,6 +18,7 @@ const ASSETS = [
   "./js/capacitor-bridge.js",
   "./assets/campus-hero.jpg",
   "./assets/batch-2025-29-section-a.png",
+  "./assets/developer-saif.png",
   "./icons/ulc-logo.png",
   "./icons/uob-logo.png",
   "./icons/icon-192.png",
