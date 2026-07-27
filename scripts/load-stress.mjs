@@ -379,8 +379,8 @@ async function verifyMathBattery() {
 }
 
 async function detectMode(sb, admin) {
-  if (admin) return "admin";
-  // Probe: can we login a seeded student?
+  // Prefer seed-link when SQL seed accounts work — avoids Auth rate limits
+  // even if a service_role key is present.
   const probe = await sb.auth.signInWithPassword({
     email: "ulc.load.stu.0001@example.com",
     password: PASS,
@@ -389,6 +389,7 @@ async function detectMode(sb, admin) {
     await sb.auth.signOut();
     return "seed-link";
   }
+  if (admin) return "admin";
   return "patient-signup";
 }
 
@@ -598,7 +599,9 @@ async function main() {
   const runStudents = args.role === "all" || args.role === "student";
   const runTeachers = args.role === "all" || args.role === "teacher";
 
-  if (mode === "seed-link" && args.role === "all" && !args.skipBootstrap) {
+  // Seed-link: fill full rosters from SQL seed, then awards only.
+  // Also used by multitask bootstrap (role=student from=1 to=1) so shards inherit filled progress.
+  if (mode === "seed-link" && !args.skipBootstrap) {
     console.log("\n→ Seed-link fast path: sample-verify + fill rosters + awards only");
     const sb = client(url, key);
     await sampleVerifySeed(sb, "student", args.students);
@@ -608,8 +611,24 @@ async function main() {
     fillSeedRoster(progress, "teacher", args.teachers);
     console.log(`✓ Roster filled: ${progress.students.length} students, ${progress.teachers.length} teachers`);
     args.concurrency = 1;
-    args.delayMs = Math.max(args.delayMs, 800);
+    args.delayMs = Math.max(args.delayMs, 1200);
     await processAwardsOnly({ args, url, key, progress, awardTarget });
+  } else if (mode === "seed-link" && args.skipBootstrap) {
+    // Worker shards: rosters already filled by bootstrap — only finish missing awards if student shard
+    progress = loadProgress();
+    if (runStudents && (args.from <= 1 || args.role === "student")) {
+      const needAwards = [...awardTarget].some((i) => i >= args.from && (args.to <= 0 || i <= args.to) && !(progress.awardsDone || []).includes(i));
+      if (needAwards && args.from === 1) {
+        // Only first student shard runs awards to avoid parallel login storms
+        args.concurrency = 1;
+        args.delayMs = Math.max(args.delayMs, 1200);
+        await processAwardsOnly({ args, url, key, progress, awardTarget });
+      } else {
+        console.log(`${tag}✓ Seed roster already filled — shard idle`);
+      }
+    } else {
+      console.log(`${tag}✓ Seed roster already filled — shard idle`);
+    }
   } else {
     const jobs = [];
     if (runStudents) {

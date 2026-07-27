@@ -3,7 +3,8 @@
   "use strict";
 
   const LS_FILES = "ulc_my_files_v1";
-  const MAX_FILES = 40;
+  const MAX_FILES = 20;
+  const MAX_HTML_CHARS = 180000; /* ~180KB — WebView localStorage is tiny */
   const TYPE_LABELS = {
     cover: "Cover Page",
     letter: "Application",
@@ -21,8 +22,105 @@
       return fb;
     }
   }
+
+  function isQuotaError(err) {
+    if (!err) return false;
+    if (err.name === "QuotaExceededError" || err.name === "NS_ERROR_DOM_QUOTA_REACHED") return true;
+    return /quota|exceeded|setItem/i.test(String(err.message || err));
+  }
+
+  /** Never throw — PDF download must not die because My Files is full. */
   function saveJSON(k, v) {
-    localStorage.setItem(k, JSON.stringify(v));
+    const raw = JSON.stringify(v);
+    try {
+      localStorage.setItem(k, raw);
+      return true;
+    } catch (err) {
+      if (!isQuotaError(err)) {
+        console.warn("[MyFiles] save failed", err);
+        return false;
+      }
+      /* Prune aggressively, then retry */
+      try {
+        localStorage.removeItem(k);
+        const slim = pruneStoreForQuota(typeof v === "object" && v ? v : {});
+        localStorage.setItem(k, JSON.stringify(slim));
+        return true;
+      } catch (err2) {
+        try {
+          localStorage.removeItem(k);
+        } catch (_) {}
+        console.warn("[MyFiles] quota exceeded — cleared library so PDF download can continue");
+        return false;
+      }
+    }
+  }
+
+  function pruneStoreForQuota(all) {
+    const out = {};
+    const keys = Object.keys(all || {});
+    keys.forEach((key) => {
+      const list = Array.isArray(all[key]) ? all[key] : [];
+      out[key] = list.slice(0, 8).map((f) => ({
+        id: f.id,
+        type: f.type,
+        title: String(f.title || "").slice(0, 80),
+        createdAt: f.createdAt,
+        orientation: f.orientation || "p",
+        meta: f.meta || {},
+        payload: f.payload || null,
+        /* Drop heavy HTML on quota pressure — list still shows titles */
+        html: "",
+        metaNote: "preview cleared to free space",
+      }));
+    });
+    return out;
+  }
+
+  function clearLibraryIfNeeded() {
+    try {
+      const raw = localStorage.getItem(LS_FILES);
+      if (raw && raw.length > 800_000) {
+        localStorage.removeItem(LS_FILES);
+        console.warn("[MyFiles] cleared oversized library");
+      }
+    } catch (_) {
+      try {
+        localStorage.removeItem(LS_FILES);
+      } catch (__) {}
+    }
+  }
+
+  /** Call after PDF download — stores archive path for My Files → PDF. */
+  function saveAfterPdf(type, title, html, extra, savedResult) {
+    try {
+      if (!currentUser()) return null;
+      const native =
+        global.ULC_IS_NATIVE === true ||
+        (global.ULC_SAVE && global.ULC_SAVE.isNative && global.ULC_SAVE.isNative());
+      const pdfPath = savedResult && savedResult.archivePath;
+      const pdfDir = (savedResult && savedResult.archiveDirectory) || "DATA";
+      const pdfName = (savedResult && savedResult.filename) || null;
+      return addFile({
+        type,
+        title: title || TYPE_LABELS[type] || "File",
+        /* Keep a small HTML preview on web only; APK uses archived PDF file */
+        html: native ? "" : html || "",
+        orientation: (extra && extra.orientation) || "p",
+        meta: {
+          ...(extra && extra.meta),
+          pdfDownloaded: true,
+          hasPdf: !!pdfPath,
+        },
+        payload: (extra && extra.payload) || null,
+        pdfPath: pdfPath || null,
+        pdfDir: pdfPath ? pdfDir : null,
+        pdfName: pdfName,
+      });
+    } catch (err) {
+      console.warn("[MyFiles] saveAfterPdf skipped", err);
+      return null;
+    }
   }
   function esc(s) {
     return String(s || "").replace(/[<>&]/g, (c) => ({ "<": "&lt;", ">": "&gt;", "&": "&amp;" }[c]));
@@ -47,9 +145,6 @@
 
   function getStore() {
     return loadJSON(LS_FILES, {});
-  }
-  function setStore(all) {
-    saveJSON(LS_FILES, all);
   }
 
   function listFiles(filterType) {
@@ -80,33 +175,74 @@
   }
 
   function addFile(entry) {
-    const u = currentUser();
-    const key = accountKey(u);
-    if (!key) return null;
-    if (!allowedTypes(u).includes(entry.type)) return null;
-    const all = getStore();
-    const list = all[key] || [];
-    const row = {
-      id: entry.id || uid(),
-      type: entry.type,
-      title: String(entry.title || TYPE_LABELS[entry.type] || "File").slice(0, 120),
-      createdAt: entry.createdAt || new Date().toISOString(),
-      html: entry.html || "",
-      orientation: entry.orientation || "p",
-      meta: entry.meta || {},
-      payload: entry.payload || null,
-    };
-    /* Keep HTML under ~1.2MB per file to protect localStorage */
-    if (row.html && row.html.length > 1200000) {
-      row.html = row.html.slice(0, 1200000);
-      row.meta = { ...(row.meta || {}), truncated: true };
+    try {
+      clearLibraryIfNeeded();
+      const u = currentUser();
+      const key = accountKey(u);
+      if (!key) return null;
+      if (!allowedTypes(u).includes(entry.type)) return null;
+      const all = getStore();
+      const list = all[key] || [];
+      const row = {
+        id: entry.id || uid(),
+        type: entry.type,
+        title: String(entry.title || TYPE_LABELS[entry.type] || "File").slice(0, 120),
+        createdAt: entry.createdAt || new Date().toISOString(),
+        html: entry.html || "",
+        orientation: entry.orientation || "p",
+        meta: entry.meta || {},
+        payload: entry.payload || null,
+        pdfPath: entry.pdfPath || null,
+        pdfDir: entry.pdfDir || null,
+        pdfName: entry.pdfName || null,
+      };
+      if (row.html && row.html.length > MAX_HTML_CHARS) {
+        row.html = row.html.slice(0, MAX_HTML_CHARS);
+        row.meta = { ...(row.meta || {}), truncated: true };
+      }
+      list.unshift(row);
+      /* Also strip older HTML to keep storage small */
+      all[key] = list.slice(0, MAX_FILES).map((f, idx) => {
+        if (idx === 0) return f;
+        if (f.html && f.html.length > 40000) {
+          return { ...f, html: "", meta: { ...(f.meta || {}), previewDropped: true } };
+        }
+        return f;
+      });
+      const ok = setStore(all);
+      if (!ok) {
+        /* Last resort: metadata-only entry */
+        all[key] = [
+          {
+            ...row,
+            html: "",
+            meta: { ...(row.meta || {}), noPreview: true },
+          },
+        ].concat(
+          (list.slice(1, 6) || []).map((f) => ({
+            id: f.id,
+            type: f.type,
+            title: f.title,
+            createdAt: f.createdAt,
+            orientation: f.orientation,
+            meta: f.meta || {},
+            payload: f.payload || null,
+            html: "",
+          }))
+        );
+        setStore(all);
+      }
+      notifyCloud();
+      if (document.getElementById("v-files")?.classList.contains("active")) renderFilesView();
+      return row;
+    } catch (err) {
+      console.warn("[MyFiles] addFile ignored", err);
+      return null;
     }
-    list.unshift(row);
-    all[key] = list.slice(0, MAX_FILES);
-    setStore(all);
-    notifyCloud();
-    if (document.getElementById("v-files")?.classList.contains("active")) renderFilesView();
-    return row;
+  }
+
+  function setStore(all) {
+    return saveJSON(LS_FILES, all);
   }
 
   function removeFile(id) {
@@ -147,63 +283,71 @@
   }
 
   /* -------- Save helpers (called from generators) -------- */
-  function saveCoverAuto(v, tpl, html) {
-    if (!currentUser()) return null;
-    const title = (v.topic || "Cover") + (v.subject ? " · " + v.subject : "");
-    return addFile({
-      type: "cover",
+  /** Auto-save after PDF — never throws (quota must not block downloads). */
+  function safeAuto(fn) {
+    try {
+      return fn();
+    } catch (err) {
+      console.warn("[MyFiles] auto-save skipped", err);
+      return null;
+    }
+  }
+
+  function saveCoverAuto(v, tpl, html, savedResult) {
+    const title = ((v && v.topic) || "Cover") + (v && v.subject ? " · " + v.subject : "");
+    return saveAfterPdf(
+      "cover",
       title,
-      html: html || "",
-      orientation: "p",
-      meta: { tpl: tpl || "classic" },
-      payload: { ...(v || {}), tpl: tpl || "classic" },
-    });
+      html,
+      {
+        orientation: "p",
+        meta: { tpl: tpl || "classic" },
+        payload: { ...(v || {}), tpl: tpl || "classic" },
+      },
+      savedResult
+    );
   }
 
-  function saveLetterAuto(values, tplKey, html) {
-    if (!currentUser()) return null;
-    return addFile({
-      type: "letter",
-      title: values?.subject || "Application",
-      html: html || "",
-      orientation: "p",
-      meta: { tpl: tplKey || "general" },
-      payload: { ...(values || {}), tpl: tplKey || "general" },
-    });
+  function saveLetterAuto(values, tplKey, html, savedResult) {
+    return saveAfterPdf(
+      "letter",
+      (values && values.subject) || "Application",
+      html,
+      {
+        orientation: "p",
+        meta: { tpl: tplKey || "general" },
+        payload: { ...(values || {}), tpl: tplKey || "general" },
+      },
+      savedResult
+    );
   }
 
-  function saveTranscriptAuto(sem, html) {
-    if (!currentUser()) return null;
-    return addFile({
-      type: "transcript",
-      title: "Provisional transcript · Sem " + sem,
-      html: html || "",
-      orientation: "l",
-      meta: { semester: sem },
-      payload: { semester: sem },
-    });
+  function saveTranscriptAuto(sem, html, savedResult) {
+    return saveAfterPdf(
+      "transcript",
+      "Provisional transcript · Sem " + sem,
+      html,
+      {
+        orientation: "l",
+        meta: { semester: sem },
+        payload: { semester: sem },
+      },
+      savedResult
+    );
   }
 
-  function saveAwardAuto(title, html) {
-    if (!currentUser()) return null;
-    return addFile({
-      type: "award",
-      title: title || "Award list",
-      html: html || "",
-      orientation: "l",
-      meta: {},
-    });
+  function saveAwardAuto(title, html, savedResult) {
+    return saveAfterPdf("award", title || "Award list", html, { orientation: "l" }, savedResult);
   }
 
-  function saveAttendanceAuto(title, html) {
-    if (!currentUser()) return null;
-    return addFile({
-      type: "attendance",
-      title: title || "Attendance sheet",
-      html: html || "",
-      orientation: "p",
-      meta: {},
-    });
+  function saveAttendanceAuto(title, html, savedResult) {
+    return saveAfterPdf(
+      "attendance",
+      title || "Attendance sheet",
+      html,
+      { orientation: "p" },
+      savedResult
+    );
   }
 
   function saveCurrentCover() {
@@ -316,11 +460,42 @@
 
   async function downloadSavedFile(id) {
     const f = getFile(id);
-    if (!f || !f.html) {
-      alert("Nothing to download.");
+    if (!f) {
+      alert("File not found.");
+      return;
+    }
+
+    /* 1) Preferred: re-share archived PDF from app storage (APK) */
+    if (f.pdfPath && global.ULC_SAVE && typeof global.ULC_SAVE.shareArchivedPdf === "function") {
+      try {
+        await global.ULC_SAVE.shareArchivedPdf(f.pdfPath, f.pdfName || f.title || "ULC.pdf", f.pdfDir || "DATA");
+        return;
+      } catch (err) {
+        console.warn("[MyFiles] archive share failed", err);
+      }
+    }
+
+    /* 2) Cover / letter with payload — reopen editor so user can Download PDF again */
+    if ((f.type === "cover" || f.type === "letter") && f.payload) {
+      openFile(id);
+      alert(
+        "This file was opened in the editor.\n\nTap Download PDF there to generate and share it again."
+      );
+      return;
+    }
+
+    /* 3) HTML preview → generate PDF */
+    if (!f.html) {
+      alert(
+        "No PDF copy is stored for this item yet.\n\nOpen it and tap Download PDF once — it will appear in the Share menu and stay available here."
+      );
       return;
     }
     if (typeof html2canvas === "undefined" || !global.jspdf) {
+      if (global.ULC_SAVE && global.ULC_SAVE.isNative && global.ULC_SAVE.isNative()) {
+        alert("PDF libraries failed to load. Check your connection and reopen the app.");
+        return;
+      }
       const host = document.getElementById("printhost");
       if (host) {
         host.innerHTML = f.html;
@@ -329,37 +504,81 @@
       window.print();
       return;
     }
-    const holder = document.createElement("div");
-    holder.style.cssText = "position:fixed;left:-99999px;top:0;background:#fff;";
+    const landscape = f.orientation === "l";
+    const w = landscape ? 1122 : 794;
+    const holder =
+      global.ULC_SAVE && typeof global.ULC_SAVE.prepareCaptureHost === "function"
+        ? global.ULC_SAVE.prepareCaptureHost(w)
+        : (() => {
+            const d = document.createElement("div");
+            d.style.cssText =
+              "position:fixed;left:0;top:0;width:" +
+              w +
+              "px;opacity:0.01;pointer-events:none;z-index:-1;background:#fff;";
+            return d;
+          })();
     const wrap = document.createElement("div");
     wrap.innerHTML = f.html;
     const sheet = wrap.firstElementChild || wrap;
-    const landscape = f.orientation === "l";
-    sheet.style.width = landscape ? "1122px" : "794px";
+    sheet.style.width = w + "px";
     sheet.style.boxShadow = "none";
     sheet.style.border = "none";
     holder.appendChild(sheet);
     document.body.appendChild(holder);
     try {
-      const canvas = await html2canvas(sheet, {
-        scale: 2,
-        useCORS: true,
-        allowTaint: true,
-        backgroundColor: "#ffffff",
-        logging: false,
-        width: landscape ? 1122 : 794,
-        windowWidth: landscape ? 1122 : 794,
-      });
+      await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
+      const canvas = await html2canvas(
+        sheet,
+        global.ULC_SAVE && global.ULC_SAVE.captureOpts
+          ? global.ULC_SAVE.captureOpts({ width: w, windowWidth: w })
+          : {
+              scale: 2,
+              useCORS: true,
+              allowTaint: false,
+              backgroundColor: "#ffffff",
+              logging: false,
+              width: w,
+              windowWidth: w,
+            }
+      );
       const { jsPDF } = global.jspdf;
       const pdf = new jsPDF(landscape ? "l" : "p", "mm", "a4");
       const pageW = pdf.internal.pageSize.getWidth();
       const pageH = pdf.internal.pageSize.getHeight();
-      pdf.addImage(canvas.toDataURL("image/jpeg", 0.94), "JPEG", 0, 0, pageW, pageH);
+      const dataUrl = canvas.toDataURL("image/jpeg", 0.9);
+      if (!dataUrl || dataUrl.length < 100) throw new Error("Blank PDF capture (CORS/taint)");
+      pdf.addImage(dataUrl, "JPEG", 0, 0, pageW, pageH);
       const safe = String(f.title || f.type || "ULC").replace(/[^\w\-]+/g, "_").slice(0, 60);
-      pdf.save(safe + ".pdf");
+      if (global.ULC_SAVE && typeof global.ULC_SAVE.patchJsPdf === "function") {
+        global.ULC_SAVE.patchJsPdf();
+      }
+      const saved = await pdf.save(safe + ".pdf");
+      if (saved && saved.archivePath) {
+        /* Upgrade this My Files row with archive path for next time */
+        try {
+          const u = currentUser();
+          const key = accountKey(u);
+          if (key) {
+            const all = getStore();
+            const list = all[key] || [];
+            const idx = list.findIndex((x) => x.id === f.id);
+            if (idx >= 0) {
+              list[idx] = {
+                ...list[idx],
+                pdfPath: saved.archivePath,
+                pdfDir: saved.archiveDirectory || "DATA",
+                pdfName: saved.filename || safe + ".pdf",
+                meta: { ...(list[idx].meta || {}), hasPdf: true },
+              };
+              all[key] = list;
+              setStore(all);
+            }
+          }
+        } catch (_) {}
+      }
     } catch (e) {
       console.error(e);
-      window.print();
+      alert("Could not generate PDF. " + (e && e.message ? e.message : "Try again."));
     } finally {
       holder.remove();
     }
@@ -408,16 +627,17 @@
     listEl.innerHTML = items
       .map((f) => {
         const canEdit = f.type === "cover" || f.type === "letter";
+        const hasPdf = !!(f.pdfPath || f.html);
         return `<article class="file-card" data-id="${esc(f.id)}">
           <div class="file-card-top">
-            <span class="file-type">${esc(TYPE_LABELS[f.type] || f.type)}</span>
+            <span class="file-type">${esc(TYPE_LABELS[f.type] || f.type)}${f.pdfPath ? " · PDF ready" : ""}</span>
             <span class="file-when">${esc(fmtWhen(f.createdAt))}</span>
           </div>
           <h4 class="file-title">${esc(f.title)}</h4>
           <div class="file-actions">
             ${canEdit ? `<button type="button" class="btn btn-ghost btn-sm" onclick="MyFiles.openFile('${f.id}')">Open / edit</button>` : ""}
-            <button type="button" class="btn btn-ghost btn-sm" onclick="MyFiles.previewFile('${f.id}')">Preview</button>
-            <button type="button" class="btn btn-primary btn-sm" onclick="MyFiles.downloadSavedFile('${f.id}')">PDF</button>
+            ${f.html ? `<button type="button" class="btn btn-ghost btn-sm" onclick="MyFiles.previewFile('${f.id}')">Preview</button>` : ""}
+            <button type="button" class="btn btn-primary btn-sm" onclick="MyFiles.downloadSavedFile('${f.id}')">${hasPdf ? "Share PDF" : "PDF"}</button>
             <button type="button" class="btn btn-ghost btn-sm" style="color:var(--danger)" onclick="MyFiles.confirmRemove('${f.id}')">Delete</button>
           </div>
         </article>`;
@@ -439,7 +659,7 @@
     const u = currentUser();
     const teacher = u && u.role === "teacher";
     const items = [
-      { t: "home", label: "Home" },
+      { t: "home", label: "Dashboard" },
       { t: "cover", label: "Cover Page" },
       { t: "letter", label: "Applications" },
       { t: "files", label: "My Files" },
@@ -529,4 +749,9 @@
     syncFilesNav,
     TYPE_LABELS,
   };
+
+  /* Free space once on load so the next Download PDF is not blocked */
+  try {
+    clearLibraryIfNeeded();
+  } catch (_) {}
 })(typeof window !== "undefined" ? window : globalThis);

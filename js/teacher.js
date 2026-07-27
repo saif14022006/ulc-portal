@@ -1512,11 +1512,16 @@
       });
 
       const slug = ("ULC_" + (c.subject || "Class") + "_Sem" + c.semester + "_Attendance").replace(/\s+/g, "_");
-      pdf.save(slug + ".pdf");
-      if (global.MyFiles) {
-        const title = (c.subject || "Class") + " · Sem " + c.semester + " · Attendance";
-        global.MyFiles.saveAttendanceAuto(title, buildAttendanceHtml());
+      if (global.ULC_SAVE && typeof global.ULC_SAVE.patchJsPdf === "function") {
+        global.ULC_SAVE.patchJsPdf();
       }
+      const savedAtt = await pdf.save(slug + ".pdf");
+      try {
+        if (global.MyFiles) {
+          const title = (c.subject || "Class") + " · Sem " + c.semester + " · Attendance";
+          global.MyFiles.saveAttendanceAuto(title, "", savedAtt);
+        }
+      } catch (_) {}
     } catch (e) {
       console.error(e);
       alert("Could not download attendance PDF. Please hard-refresh (Ctrl+F5) and try again.");
@@ -1730,18 +1735,32 @@
     const heightPx = partial ? undefined : 793;
     host.innerHTML = `<style>${awardPdfCss(partial)}</style>` + html;
     host.style.cssText =
-      "position:fixed;left:-99999px;top:0;width:" + widthPx + "px;background:#fff;";
+      "position:fixed;left:0;top:0;width:" +
+      widthPx +
+      "px;opacity:0.01;pointer-events:none;z-index:-1;background:#fff;overflow:visible;";
     const sheet = document.getElementById("awardPdfSheet");
     if (!sheet) throw new Error("sheet missing");
-    const opts = {
-      scale: 2.5,
-      backgroundColor: "#ffffff",
-      logging: false,
-      width: widthPx,
-      windowWidth: widthPx,
-      scrollX: 0,
-      scrollY: 0,
-    };
+    await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
+    const opts =
+      global.ULC_SAVE && global.ULC_SAVE.captureOpts
+        ? global.ULC_SAVE.captureOpts({
+            scale: global.ULC_SAVE.captureScale ? global.ULC_SAVE.captureScale(2.5) : 2.5,
+            width: widthPx,
+            windowWidth: widthPx,
+            scrollX: 0,
+            scrollY: 0,
+          })
+        : {
+            scale: 2.5,
+            backgroundColor: "#ffffff",
+            logging: false,
+            width: widthPx,
+            windowWidth: widthPx,
+            scrollX: 0,
+            scrollY: 0,
+            useCORS: true,
+            allowTaint: false,
+          };
     if (heightPx) {
       opts.height = heightPx;
       opts.windowHeight = heightPx;
@@ -1824,32 +1843,39 @@
         }
       }
 
-      pdf.save((pdfFileSlug(cols) + ".pdf").replace(/\s+/g, "_"));
-      if (global.MyFiles) {
-        const c = activeClass();
-        const title = ((c && c.subject) || "Class") + " · Sem " + ((c && c.semester) || "") + " · Award list";
-        const html = partial ? buildPartialMarksHtml(cols) : buildAwardHtml();
-        global.MyFiles.saveAwardAuto(title, html);
+      if (global.ULC_SAVE && typeof global.ULC_SAVE.patchJsPdf === "function") {
+        global.ULC_SAVE.patchJsPdf();
       }
+      const savedAward = await pdf.save((pdfFileSlug(cols) + ".pdf").replace(/\s+/g, "_"));
+      try {
+        if (global.MyFiles) {
+          const c = activeClass();
+          const title = ((c && c.subject) || "Class") + " · Sem " + ((c && c.semester) || "") + " · Award list";
+          global.MyFiles.saveAwardAuto(title, "", savedAward);
+        }
+      } catch (_) {}
     } catch (e) {
       console.error(e);
-      const html = partial ? buildPartialMarksHtml(cols) : buildAwardHtml();
-      const w = window.open("", "_blank");
-      if (w) {
-        w.document.write(
-          `<html><head><title>Award List</title><style>${awardPdfCss(partial)}
+      const diag =
+        global.ULC_SAVE && global.ULC_SAVE.diagnose ? "\n\n" + global.ULC_SAVE.diagnose() : "";
+      alert("PDF failed: " + (e && e.message ? e.message : "Try again.") + diag);
+      if (!(global.ULC_SAVE && global.ULC_SAVE.isNative && global.ULC_SAVE.isNative())) {
+        const html = partial ? buildPartialMarksHtml(cols) : buildAwardHtml();
+        const w = window.open("", "_blank");
+        if (w) {
+          w.document.write(
+            `<html><head><title>Award List</title><style>${awardPdfCss(partial)}
           @page{size:A4 landscape;margin:8mm}
           @media print{
             html,body{margin:0;padding:0}
             .award-pdf{width:100%!important;height:auto!important;max-width:none}
           }
           </style></head><body>${html}</body></html>`
-        );
-        w.document.close();
-        w.focus();
-        w.print();
-      } else {
-        alert("Could not generate award PDF. Allow pop-ups or hard-refresh and try again.");
+          );
+          w.document.close();
+          w.focus();
+          w.print();
+        }
       }
     } finally {
       if (btn) {

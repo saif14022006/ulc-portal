@@ -1406,14 +1406,26 @@
       b.disabled = true;
     });
     const html = buildTranscriptHtml(sem);
-    const holder = document.createElement("div");
-    holder.style.cssText = "position:fixed;left:-99999px;top:0;width:1122px;background:#fff;";
+    const holder =
+      global.ULC_SAVE && typeof global.ULC_SAVE.prepareCaptureHost === "function"
+        ? global.ULC_SAVE.prepareCaptureHost(1122)
+        : (() => {
+            const d = document.createElement("div");
+            d.style.cssText =
+              "position:fixed;left:0;top:0;width:1122px;opacity:0.01;pointer-events:none;z-index:-1;background:#fff;";
+            return d;
+          })();
     holder.innerHTML = html;
     document.body.appendChild(holder);
     const cert = holder.querySelector(".tx-cert");
     try {
       await waitForImages(cert);
+      await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
       if (typeof html2canvas === "undefined" || !global.jspdf) {
+        if (global.ULC_SAVE && global.ULC_SAVE.isNative && global.ULC_SAVE.isNative()) {
+          alert("PDF libraries failed to load. Check your connection and reopen the app.");
+          return;
+        }
         const host = document.getElementById("printhost");
         if (host) {
           host.innerHTML = html;
@@ -1422,32 +1434,54 @@
         window.print();
         return;
       }
-      const canvas = await html2canvas(cert, {
-        scale: 2,
-        useCORS: true,
-        allowTaint: true,
-        backgroundColor: "#ffffff",
-        logging: false,
-        width: 1122,
-        windowWidth: 1122,
-        imageTimeout: 4000,
-      });
+      const canvas = await html2canvas(
+        cert,
+        global.ULC_SAVE && global.ULC_SAVE.captureOpts
+          ? global.ULC_SAVE.captureOpts({
+              width: 1122,
+              windowWidth: 1122,
+              imageTimeout: 8000,
+            })
+          : {
+              scale: 2,
+              useCORS: true,
+              allowTaint: false,
+              backgroundColor: "#ffffff",
+              logging: false,
+              width: 1122,
+              windowWidth: 1122,
+              imageTimeout: 8000,
+            }
+      );
       const { jsPDF } = global.jspdf;
       const pdf = new jsPDF("l", "mm", "a4");
       const pageW = pdf.internal.pageSize.getWidth();
       const pageH = pdf.internal.pageSize.getHeight();
-      pdf.addImage(canvas.toDataURL("image/jpeg", 0.95), "JPEG", 0, 0, pageW, pageH);
+      const dataUrl = canvas.toDataURL("image/jpeg", 0.9);
+      if (!dataUrl || dataUrl.length < 100) throw new Error("Blank PDF capture (CORS/taint)");
+      pdf.addImage(dataUrl, "JPEG", 0, 0, pageW, pageH);
       const safe = String(u.name || "ULC").replace(/\s+/g, "_");
-      pdf.save(`${safe}_Sem${sem}_Provisional.pdf`);
-      if (global.MyFiles) global.MyFiles.saveTranscriptAuto(sem, html);
+      if (global.ULC_SAVE && typeof global.ULC_SAVE.patchJsPdf === "function") {
+        global.ULC_SAVE.patchJsPdf();
+      }
+      const saved = await pdf.save(`${safe}_Sem${sem}_Provisional.pdf`);
+      try {
+        if (global.MyFiles) global.MyFiles.saveTranscriptAuto(sem, "", saved);
+      } catch (_) {}
     } catch (e) {
       console.error(e);
-      const host = document.getElementById("printhost");
-      if (host) {
-        host.innerHTML = html;
-        host.style.display = "block";
+      const diag =
+        global.ULC_SAVE && global.ULC_SAVE.diagnose ? "\n\n" + global.ULC_SAVE.diagnose() : "";
+      if (global.ULC_SAVE && global.ULC_SAVE.isNative && global.ULC_SAVE.isNative()) {
+        alert("PDF failed: " + (e && e.message ? e.message : "Try again.") + diag);
+      } else {
+        const host = document.getElementById("printhost");
+        if (host) {
+          host.innerHTML = html;
+          host.style.display = "block";
+        }
+        window.print();
       }
-      window.print();
     } finally {
       holder.remove();
       if (btn) {
@@ -1549,9 +1583,9 @@
         "Open Application / Letter Generator from Home or the side menu. Pick a template (Leave, Rechecking, Apology, Fee, etc.), fill To / Subject / body and your details, then Print or Download PDF. Annex a photocopy of your Student ID card and submit the application to Sir Shehzad.",
     },
     {
-      keys: ["login", "email", "password", "account", "signup", "sign up", "register"],
+      keys: ["login", "email", "password", "account", "signup", "sign up", "register", "forgot", "reset", "change password", "change email"],
       answer:
-        "Create an account with name, roll, email, and password (min. 6 characters). Login needs only email and password. Your profile and semester records stay on this device, keyed to your account.",
+        "Forgot password? Account → Login → Forgot password → enter email. You are greeted by name and shown a new temporary password (old passwords cannot be recovered). Logged in? Tap the Settings gear (top bar or Account → Settings) to change password or email. Create an account with name, roll, email, and password (min. 6 characters).",
     },
     {
       keys: ["syllabus", "subject", "course", "llb", "credit"],

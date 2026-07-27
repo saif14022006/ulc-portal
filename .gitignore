@@ -30,6 +30,10 @@ android/app/build/
 android/build/
 android/captures/
 android/local.properties
+android/keystore.properties
+android/ulc-release.keystore
+android/*.keystore
+android/*.jks
 android/.idea/
 android/*.iml
 android/app/*.iml

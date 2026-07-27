@@ -12,6 +12,16 @@
   window.ULC_IS_NATIVE = true;
   document.documentElement.classList.add("ulc-native");
 
+  /* Free WebView storage so PDF download is not blocked by full My Files */
+  try {
+    var mf = localStorage.getItem("ulc_my_files_v1");
+    if (mf && mf.length > 500000) localStorage.removeItem("ulc_my_files_v1");
+  } catch (e) {
+    try {
+      localStorage.removeItem("ulc_my_files_v1");
+    } catch (_) {}
+  }
+
   // Suppress browser/PWA "install" / A2HS flows inside the native shell.
   window.addEventListener(
     "beforeinstallprompt",
@@ -96,6 +106,9 @@
   setupBackButton();
   window.addEventListener("load", () => {
     hideSplash();
+    if (window.ULC_SAVE && typeof window.ULC_SAVE.patchJsPdf === "function") {
+      window.ULC_SAVE.patchJsPdf();
+    }
   });
   if (document.readyState === "complete") hideSplash();
 })();

@@ -276,6 +276,10 @@
     const label = btn ? btn.textContent : "Download PDF";
     showSubmitGuide();
     if (typeof html2canvas === "undefined" || !global.jspdf) {
+      if (global.ULC_SAVE && global.ULC_SAVE.isNative && global.ULC_SAVE.isNative()) {
+        alert("PDF libraries failed to load. Check your connection and reopen the app.");
+        return;
+      }
       printLetter();
       return;
     }
@@ -283,8 +287,15 @@
       btn.disabled = true;
       btn.textContent = "Generating…";
     }
-    const holder = document.createElement("div");
-    holder.style.cssText = "position:fixed;left:-99999px;top:0;width:794px;background:#fff;";
+    const holder =
+      global.ULC_SAVE && typeof global.ULC_SAVE.prepareCaptureHost === "function"
+        ? global.ULC_SAVE.prepareCaptureHost(794)
+        : (() => {
+            const d = document.createElement("div");
+            d.style.cssText =
+              "position:fixed;left:0;top:0;width:794px;opacity:0.01;pointer-events:none;z-index:-1;background:#fff;";
+            return d;
+          })();
     const wrap = document.createElement("div");
     wrap.innerHTML = buildLetterHtml(letterValues());
     const sheet = wrap.firstElementChild;
@@ -295,37 +306,52 @@
     holder.appendChild(sheet);
     document.body.appendChild(holder);
     try {
-      const canvas = await html2canvas(sheet, {
-        scale: 2,
-        useCORS: true,
-        backgroundColor: "#ffffff",
-        logging: false,
-        width: 794,
-        windowWidth: 794,
-      });
+      await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
+      const canvas = await html2canvas(
+        sheet,
+        global.ULC_SAVE && global.ULC_SAVE.captureOpts
+          ? global.ULC_SAVE.captureOpts({ width: 794, windowWidth: 794 })
+          : {
+              scale: 2,
+              useCORS: true,
+              allowTaint: false,
+              backgroundColor: "#ffffff",
+              logging: false,
+              width: 794,
+              windowWidth: 794,
+            }
+      );
       const { jsPDF } = global.jspdf;
       const pdf = new jsPDF("p", "mm", "a4");
       const pageW = pdf.internal.pageSize.getWidth();
       const pageH = pdf.internal.pageSize.getHeight();
+      const dataUrl = canvas.toDataURL("image/jpeg", 0.9);
+      if (!dataUrl || dataUrl.length < 100) throw new Error("Blank PDF capture (CORS/taint)");
       const imgW = pageW;
       const imgH = (canvas.height * imgW) / canvas.width;
       if (imgH <= pageH) {
-        pdf.addImage(canvas.toDataURL("image/jpeg", 0.95), "JPEG", 0, 0, imgW, imgH);
+        pdf.addImage(dataUrl, "JPEG", 0, 0, imgW, imgH);
       } else {
-        /* scale to fit height */
         const h = pageH;
         const w = (canvas.width * h) / canvas.height;
-        pdf.addImage(canvas.toDataURL("image/jpeg", 0.95), "JPEG", (pageW - w) / 2, 0, w, h);
+        pdf.addImage(dataUrl, "JPEG", (pageW - w) / 2, 0, w, h);
       }
       const name = (raw("lt-name") || "ULC").replace(/\s+/g, "_");
       const kind = currentTplKey();
-      pdf.save(`${name}_${kind}_application.pdf`);
-      if (global.MyFiles) {
-        global.MyFiles.saveLetterAuto(letterValues(), kind, buildLetterHtml(letterValues()));
+      if (global.ULC_SAVE && typeof global.ULC_SAVE.patchJsPdf === "function") {
+        global.ULC_SAVE.patchJsPdf();
       }
+      const saved = await pdf.save(`${name}_${kind}_application.pdf`);
+      try {
+        if (global.MyFiles) {
+          global.MyFiles.saveLetterAuto(letterValues(), kind, "", saved);
+        }
+      } catch (_) {}
     } catch (e) {
       console.error(e);
-      printLetter();
+      const diag =
+        global.ULC_SAVE && global.ULC_SAVE.diagnose ? "\n\n" + global.ULC_SAVE.diagnose() : "";
+      alert("PDF failed: " + (e && e.message ? e.message : "Try again.") + diag);
     } finally {
       holder.remove();
       if (btn) {

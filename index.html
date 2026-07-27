@@ -14,12 +14,11 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Cormorant+Garamond:wght@600;700&family=Source+Sans+3:wght@400;500;600;700&display=swap" rel="stylesheet">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/vendor/html2canvas.min.js"></script>
+<script src="js/vendor/jspdf.umd.min.js"></script>
+<script src="js/vendor/pdf.min.js"></script>
 <script src="js/capacitor-bridge.js"></script>
+<script src="js/native-save.js"></script>
 <script src="logo.js"></script>
 <script src="js/config.js"></script>
 <script src="js/award-math.js"></script>
@@ -28,6 +27,8 @@
 <script src="js/student-dashboard.js"></script>
 <script src="js/letter-app.js"></script>
 <script src="js/my-files.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js" defer></script>
 <style>
 :root{
   --navy:#0b3a6b; --navy-2:#12508f; --navy-deep:#082744;
@@ -41,8 +42,8 @@
   --ok:#1f6b3a; --danger:#a3341f;
 }
 *{box-sizing:border-box;margin:0;padding:0}
-html{-webkit-text-size-adjust:100%}
-body{font-family:var(--sans);color:var(--ink);background:var(--navy-deep);line-height:1.5;-webkit-font-smoothing:antialiased}
+html{-webkit-text-size-adjust:100%;font-size:13px}
+body{font-family:var(--sans);font-size:13px;color:var(--ink);background:var(--navy-deep);line-height:1.5;-webkit-font-smoothing:antialiased}
 .app{max-width:480px;margin:0 auto;min-height:100dvh;background:radial-gradient(ellipse 120% 40% at 50% -5%,rgba(198,161,60,.08),transparent 55%),linear-gradient(180deg,var(--paper-2),var(--paper));display:flex;flex-direction:column;box-shadow:0 0 60px rgba(0,0,0,.35);padding-bottom:calc(var(--nav-h) + env(safe-area-inset-bottom))}
 .topbar{position:sticky;top:0;z-index:20;background:linear-gradient(180deg,var(--navy),var(--navy-deep));color:var(--paper);padding:calc(env(safe-area-inset-top) + 12px) 14px 12px;display:flex;align-items:center;gap:10px;border-bottom:2px solid var(--gold)}
 .seal-img{width:46px;height:46px;flex:none;object-fit:contain;filter:drop-shadow(0 2px 6px rgba(0,0,0,.35))}
@@ -51,6 +52,20 @@ body{font-family:var(--sans);color:var(--ink);background:var(--navy-deep);line-h
 .brand p{font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:#a9c1da;margin-top:2px}
 .top-acc{flex:none;border:1px solid rgba(226,197,104,.45);background:rgba(255,255,255,.08);color:#fff;border-radius:999px;padding:7px 12px;font-size:12px;font-weight:600;font-family:var(--sans);cursor:pointer}
 .top-acc span{display:block;max-width:88px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.top-settings{flex:none;width:36px;height:36px;margin-right:6px;border:1px solid rgba(226,197,104,.35);background:rgba(255,255,255,.08);color:#fff;border-radius:50%;display:grid;place-items:center;cursor:pointer;padding:0}
+.top-settings svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.top-settings[hidden]{display:none!important}
+.settings-row{width:100%;display:flex;align-items:center;gap:12px;padding:4px 0;border:0;background:transparent;cursor:pointer;text-align:left;font-family:var(--sans);color:inherit}
+.settings-row .settings-ico{width:40px;height:40px;border-radius:12px;background:linear-gradient(145deg,#0b3a6b,#1a5fa0);color:#fff;display:grid;place-items:center;flex:none}
+.settings-row .settings-ico svg{width:20px;height:20px;stroke:#fff;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.settings-row .settings-txt{flex:1;min-width:0}
+.settings-row .settings-txt strong{display:block;font-size:14px;color:var(--navy);font-family:var(--serif)}
+.settings-row .settings-txt small{display:block;font-size:12px;color:var(--slate);margin-top:2px}
+.settings-row .settings-chev{width:18px;height:18px;stroke:var(--slate);fill:none;stroke-width:2;flex:none;transition:transform .2s}
+.settings-row[aria-expanded="true"] .settings-chev{transform:rotate(180deg)}
+#accSecurityPanel{margin-top:14px;padding-top:14px;border-top:1px solid var(--line)}
+.dash-settings-btn{width:36px;height:36px;border-radius:50%;border:1px solid rgba(255,255,255,.35);background:rgba(255,255,255,.12);color:#fff;display:grid;place-items:center;cursor:pointer;padding:0;flex:none}
+.dash-settings-btn svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 .body-row{display:flex;flex:1;min-height:0}
 .sidebar{display:none}
 main{flex:1;padding:18px 16px 36px;width:100%}
@@ -187,13 +202,13 @@ main{flex:1;padding:18px 16px 36px;width:100%}
 .mk{width:48px;padding:4px 2px;font-size:11px;border:1px solid #ddd;border-radius:6px;text-align:center}
 .field{margin-bottom:12px}
 .field label{display:block;font-size:12px;font-weight:600;color:var(--navy);margin-bottom:5px}
-.field input,.field select,textarea{width:100%;font-family:var(--sans);font-size:14px;color:var(--ink);background:var(--white);border:1px solid var(--line);border-radius:10px;padding:11px 12px}
+.field input,.field select,textarea{width:100%;font-family:var(--sans);font-size:13px;color:var(--ink);background:var(--white);border:1px solid var(--line);border-radius:10px;padding:11px 12px}
 .field input:focus,.field select:focus,textarea:focus{outline:none;border-color:var(--navy);box-shadow:0 0 0 3px rgba(11,58,107,.12)}
 .hint{font-size:11px;color:var(--slate);margin-top:4px}
 .row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
 .row5{display:grid;grid-template-columns:repeat(5,1fr);gap:6px}
-.btn{width:100%;font-family:var(--sans);font-weight:600;font-size:14px;border:none;border-radius:11px;padding:12px;cursor:pointer}
+.btn{width:100%;font-family:var(--sans);font-weight:600;font-size:13px;border:none;border-radius:11px;padding:12px;cursor:pointer}
 .btn:active{transform:scale(.98)}
 .btn-primary{background:var(--navy);color:#fff}
 .btn-primary:disabled{opacity:.55;cursor:default}
@@ -207,6 +222,14 @@ main{flex:1;padding:18px 16px 36px;width:100%}
 .tabs-mini{display:flex;gap:6px;margin-bottom:14px}
 .tabs-mini button{flex:1;border:1px solid var(--line);background:#fff;border-radius:10px;padding:9px;font-size:13px;font-weight:600;color:var(--slate);cursor:pointer;font-family:var(--sans)}
 .tabs-mini button.active{background:var(--navy);color:#fff;border-color:var(--navy)}
+.auth-forgot{display:block;width:auto;margin:6px 0 12px auto;padding:0;border:none;background:none;color:var(--navy);font-size:12.5px;font-weight:600;font-family:var(--sans);cursor:pointer;text-align:right}
+.auth-forgot:hover{text-decoration:underline;color:var(--navy-2)}
+.auth-back{display:inline-block;width:auto;margin:10px 0 0;padding:0;border:none;background:none;color:var(--slate);font-size:12.5px;font-weight:600;font-family:var(--sans);cursor:pointer}
+.temp-pass-box{display:none;margin-top:14px;padding:14px;border-radius:12px;border:1px solid #cfe8d6;background:#f0faf3}
+.temp-pass-box.show{display:block}
+.temp-pass-box .greet{font-size:14px;font-weight:700;color:var(--navy);margin:0 0 8px;font-family:var(--serif)}
+.temp-pass-box .pw{font-size:20px;font-weight:700;letter-spacing:.04em;color:var(--ink);background:#fff;border:1px solid var(--line);border-radius:10px;padding:12px;text-align:center;user-select:all;word-break:break-all}
+.temp-pass-box .note{font-size:12px;color:var(--slate);margin:10px 0 0;line-height:1.45}
 .auth-banner{display:none;background:linear-gradient(120deg,#fff8e8,#fff);border:1px solid #edd9a0;border-radius:14px;padding:14px;margin-bottom:14px}
 .auth-banner.show{display:block}
 .auth-banner strong{color:var(--navy);font-family:var(--serif)}
@@ -759,13 +782,16 @@ body.landing-open .app{visibility:hidden;pointer-events:none}
     </button>
     <img class="seal-img" src="icons/ulc-logo.png" alt="ULC crest">
     <div class="brand"><h1>University Law College</h1><p>Quetta · ULC Toolkit</p></div>
+    <button type="button" class="top-settings" id="topSettingsBtn" hidden title="Settings" aria-label="Settings" onclick="openAccountSettings()">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9c.3.6.9 1 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>
+    </button>
     <button class="top-acc" id="topAccBtn" onclick="go('account')"><span id="topAccLabel">Account</span></button>
   </header>
 
   <div class="body-row">
     <aside class="sidebar">
       <div class="side-lbl">Menu</div>
-      <button class="side-item active" data-t="home" onclick="go('home')"><svg viewBox="0 0 24 24"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/></svg>Home</button>
+      <button class="side-item active" data-t="home" onclick="go('home')"><svg viewBox="0 0 24 24"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/></svg>Dashboard</button>
       <button class="side-item" data-t="cover" onclick="go('cover')"><svg viewBox="0 0 24 24"><path d="M6 2h9l3 3v17H6z"/><path d="M15 2v4h4"/></svg>Cover Page</button>
       <button class="side-item" data-t="letter" onclick="go('letter')"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M8 13h8M8 17h6"/></svg>Applications</button>
       <button class="side-item" data-t="files" data-files-only onclick="go('files')"><svg viewBox="0 0 24 24"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>My Files</button>
@@ -846,9 +872,14 @@ body.landing-open .app{visibility:hidden;pointer-events:none}
         <!-- Teacher home -->
         <div id="homeTeacher" style="display:none">
           <div class="dash-welcome" style="background:linear-gradient(135deg,#082744,#0b3a6b 55%,#12508f)">
-            <div class="kicker">Teacher desk</div>
-            <h2 id="homeTeacherTitle">Welcome</h2>
-            <p id="homeTeacherSub">Your class overview and desk tools.</p>
+            <div class="dash-welcome-copy" style="flex:1;min-width:0">
+              <div class="kicker">Teacher dashboard</div>
+              <h2 id="homeTeacherTitle">Welcome</h2>
+              <p id="homeTeacherSub">Your class overview and desk tools.</p>
+            </div>
+            <button type="button" class="dash-settings-btn" title="Settings" aria-label="Settings" onclick="openAccountSettings()">
+              <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9c.3.6.9 1 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>
+            </button>
           </div>
           <div class="home-teacher-overview" id="homeTeacherOverview"></div>
           <button class="btn btn-primary" type="button" onclick="go('teacher')" style="margin-bottom:14px">Open Teacher desk</button>
@@ -896,6 +927,9 @@ body.landing-open .app{visibility:hidden;pointer-events:none}
                 <span class="val" id="dashCgpaVal">—</span>
                 <span class="hint" id="dashCgpaHint">from records</span>
               </div>
+              <button type="button" class="dash-settings-btn" title="Settings" aria-label="Settings" onclick="openAccountSettings()" style="border-color:rgba(11,58,107,.2);background:rgba(11,58,107,.08);color:var(--navy)">
+                <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9c.3.6.9 1 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>
+              </button>
               <button type="button" class="dash-profile-btn" id="dashProfileBtn" title="Edit profile" onclick="StudentDash.openProfileModal();return false;">
                 <span class="av" id="dashProfileAv">?</span>
                 <span>Edit profile</span>
@@ -1462,10 +1496,10 @@ body.landing-open .app{visibility:hidden;pointer-events:none}
         <div class="max-narrow">
         <div class="eyebrow">Account</div>
         <h2 class="view-title">Sign in</h2>
-        <p class="view-sub">Sign up with your name and email. Login needs only email and password.</p>
+        <p class="view-sub">Sign up with your name and email. Login needs only email and password. Forgot your password? Reset it from Login.</p>
 
         <div id="accountLoggedOut">
-          <div class="tabs-mini">
+          <div class="tabs-mini" id="authTabs">
             <button type="button" class="active" id="tabLogin" onclick="setAuthTab('login')">Login</button>
             <button type="button" id="tabSignup" onclick="setAuthTab('signup')">Create account</button>
           </div>
@@ -1475,6 +1509,7 @@ body.landing-open .app{visibility:hidden;pointer-events:none}
             <h3>Login</h3>
             <div class="field"><label>Email</label><input id="login-email" type="email" autocomplete="username" placeholder="you@example.com"></div>
             <div class="field"><label>Password</label><input id="login-pass" type="password" autocomplete="current-password" placeholder="Password"></div>
+            <button type="button" class="auth-forgot" onclick="setAuthTab('forgot')">Forgot password?</button>
             <button class="btn btn-primary" onclick="doLogin()">Login</button>
           </div>
 
@@ -1497,6 +1532,29 @@ body.landing-open .app{visibility:hidden;pointer-events:none}
             <div class="field"><label>Confirm password</label><input id="su-pass2" type="password" autocomplete="new-password"></div>
             <button class="btn btn-gold" onclick="doSignup()">Create account</button>
             <p class="hint">Teachers keep class results on their account only (not shared to student award lists).</p>
+          </div>
+
+          <div class="card" id="forgotCard" style="display:none">
+            <h3>Forgot password</h3>
+            <p class="hint" style="margin-bottom:12px">Enter your registered email. We’ll email you a <strong>new temporary password</strong> (and show it here as a backup). The old password cannot be recovered.</p>
+            <div class="field"><label>Email</label><input id="forgot-email" type="email" autocomplete="email" placeholder="you@example.com"></div>
+            <button class="btn btn-primary" type="button" id="forgotSendBtn" onclick="doForgotPassword()">Send temporary password</button>
+            <div class="temp-pass-box" id="tempPassBox" aria-live="polite">
+              <p class="greet" id="tempPassGreet">Hello!</p>
+              <div class="pw" id="tempPassValue">—</div>
+              <p class="note" id="tempPassNote">Use this password to log in. You can change it later after signing in.</p>
+              <button class="btn btn-gold" type="button" style="margin-top:12px" onclick="useTempPasswordLogin()">Use this password to log in</button>
+            </div>
+            <button type="button" class="auth-back" onclick="setAuthTab('login')">← Back to login</button>
+          </div>
+
+          <div class="card" id="resetCard" style="display:none">
+            <h3>Set new password</h3>
+            <p class="hint" style="margin-bottom:12px" id="resetHint">Choose a new password, then confirm it.</p>
+            <div class="field"><label>New password</label><input id="reset-pass" type="password" autocomplete="new-password" placeholder="Min. 6 characters"></div>
+            <div class="field"><label>Confirm new password</label><input id="reset-pass2" type="password" autocomplete="new-password"></div>
+            <button class="btn btn-gold" type="button" id="resetSaveBtn" onclick="doResetPassword()">Update password</button>
+            <button type="button" class="auth-back" onclick="setAuthTab('login')">← Back to login</button>
           </div>
         </div>
 
@@ -1523,6 +1581,39 @@ body.landing-open .app{visibility:hidden;pointer-events:none}
             <button class="btn btn-primary" type="button" onclick="go('teacher')">Open Teacher desk</button>
             <button class="btn btn-ghost" type="button" style="margin-top:8px" onclick="TeacherApp.addAnotherClass()">Add another class</button>
           </div>
+
+          <div class="card" id="accSettingsCard">
+            <button type="button" class="settings-row" id="accSettingsToggle" aria-expanded="false" aria-controls="accSecurityPanel" onclick="toggleAccountSettings()">
+              <span class="settings-ico" aria-hidden="true">
+                <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9c.3.6.9 1 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>
+              </span>
+              <span class="settings-txt">
+                <strong>Settings</strong>
+                <small>Change password or email</small>
+              </span>
+              <svg class="settings-chev" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+            </button>
+            <div id="accSecurityPanel" style="display:none" hidden>
+              <h3 style="margin-bottom:8px">Security</h3>
+              <p class="hint" style="margin-bottom:12px">Change your password or email. Applies to students and teachers.</p>
+              <div class="msg" id="secMsg"></div>
+
+              <h4 style="font-size:13px;color:var(--navy);margin:4px 0 10px">Change password</h4>
+              <div class="field"><label>Current password</label><input id="ch-pass-cur" type="password" autocomplete="current-password" placeholder="Current password"></div>
+              <div class="field"><label>New password</label><input id="ch-pass-new" type="password" autocomplete="new-password" placeholder="Min. 6 characters"></div>
+              <div class="field"><label>Confirm new password</label><input id="ch-pass-new2" type="password" autocomplete="new-password"></div>
+              <button class="btn btn-primary" type="button" id="chPassBtn" onclick="doChangePassword()">Update password</button>
+
+              <hr style="border:none;border-top:1px solid var(--line);margin:18px 0">
+
+              <h4 style="font-size:13px;color:var(--navy);margin:0 0 10px">Change email</h4>
+              <div class="field"><label>New email</label><input id="ch-email-new" type="email" autocomplete="email" placeholder="new@example.com"></div>
+              <div class="field"><label>Confirm new email</label><input id="ch-email-new2" type="email" autocomplete="email"></div>
+              <div class="field"><label>Current password (confirm it’s you)</label><input id="ch-email-pass" type="password" autocomplete="current-password" placeholder="Current password"></div>
+              <button class="btn btn-gold" type="button" id="chEmailBtn" onclick="doChangeEmail()">Update email</button>
+            </div>
+          </div>
+
           <div class="card">
             <h3>Quick actions</h3>
             <div class="btn-row" id="accQuickStudent">
@@ -1756,7 +1847,7 @@ body.landing-open .app{visibility:hidden;pointer-events:none}
   <div id="teacherPdfHost" aria-hidden="true"></div>
 
   <nav class="tabbar">
-    <button class="tab active" data-t="home" onclick="go('home')"><svg viewBox="0 0 24 24"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/></svg>Home</button>
+    <button class="tab active" data-t="home" onclick="go('home')"><svg viewBox="0 0 24 24"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/></svg>Dashboard</button>
     <button class="tab" data-t="cover" onclick="go('cover')"><svg viewBox="0 0 24 24"><path d="M6 2h9l3 3v17H6z"/><path d="M15 2v4h4"/></svg>Cover</button>
     <button class="tab" data-t="award" id="tabAward" onclick="go('award')"><svg viewBox="0 0 24 24"><path d="M8 21h8"/><path d="M12 17v4"/><path d="M7 4h10v8a5 5 0 0 1-10 0V4z"/></svg>Awards</button>
     <button class="tab" data-t="teacher" id="tabTeacher" onclick="go('teacher')" style="display:none"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>Desk</button>
@@ -2009,14 +2100,484 @@ function showAuthMsg(text, ok){
   const el=document.getElementById('authMsg');
   el.textContent=text; el.className='msg show '+(ok?'ok':'err');
 }
-function setAuthTab(which){
-  document.getElementById('tabLogin').classList.toggle('active', which==='login');
-  document.getElementById('tabSignup').classList.toggle('active', which==='signup');
-  document.getElementById('loginCard').style.display=which==='login'?'block':'none';
-  document.getElementById('signupCard').style.display=which==='signup'?'block':'none';
-  document.getElementById('authMsg').className='msg';
-  if(which==='signup') onSignupRoleChange();
+let _localResetEmail=null;
+let _passwordRecoveryActive=false;
+let _authRecoveryWired=false;
+let _lastTempPassword=null;
+
+function makeTempPassword(){
+  const alphabet='ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz';
+  let s='Ulc-';
+  const bytes=new Uint8Array(4);
+  (window.crypto||crypto).getRandomValues(bytes);
+  for(let i=0;i<4;i++) s+=alphabet[bytes[i]%alphabet.length];
+  s+=String(1000+Math.floor(Math.random()*9000));
+  return s;
 }
+
+function showTempPasswordResult({ name, tempPassword, emailed, email }){
+  const box=document.getElementById('tempPassBox');
+  const greet=document.getElementById('tempPassGreet');
+  const val=document.getElementById('tempPassValue');
+  const note=document.getElementById('tempPassNote');
+  const who=String(name||'').trim()||'there';
+  const to=String(email||'').trim();
+  _lastTempPassword=tempPassword;
+  if(greet) greet.textContent=`Hello, ${who}!`;
+  if(val) val.textContent=tempPassword;
+  if(note){
+    note.textContent=emailed
+      ? `We also show it here as a backup. Log in with it now, then change it after you sign in if you want.`
+      : `Your temporary password is above. Log in with it now. (For safety, change it after you sign in if you want.)`;
+  }
+  if(box) box.classList.add('show');
+  if(emailed){
+    showAuthMsg(
+      to
+        ? `We sent a temporary password to your email (${to}).`
+        : 'We sent a temporary password to your email.',
+      true
+    );
+  } else {
+    showAuthMsg(`Hello, ${who}! Your temporary password is ready below.`, true);
+  }
+}
+
+function useTempPasswordLogin(){
+  const email=normalizeEmail(document.getElementById('forgot-email')?.value||'');
+  if(email) document.getElementById('login-email').value=email;
+  if(_lastTempPassword) document.getElementById('login-pass').value=_lastTempPassword;
+  setAuthTab('login');
+  showAuthMsg('Temporary password filled in. Tap Login.', true);
+}
+
+function passwordResetRedirectUrl(){
+  const cfg=window.ULC_CONFIG||{};
+  if(cfg.passwordResetRedirect) return String(cfg.passwordResetRedirect);
+  try{
+    const u=new URL(window.location.href);
+    u.hash='';
+    u.search='';
+    u.searchParams.set('ulc_reset','1');
+    return u.toString();
+  }catch(_){
+    return window.location.origin+window.location.pathname;
+  }
+}
+
+function setAuthTab(which){
+  const mode=which==='signup'?'signup':which==='forgot'?'forgot':which==='reset'?'reset':'login';
+  const tabLogin=document.getElementById('tabLogin');
+  const tabSignup=document.getElementById('tabSignup');
+  const tabs=document.getElementById('authTabs');
+  if(tabLogin) tabLogin.classList.toggle('active', mode==='login');
+  if(tabSignup) tabSignup.classList.toggle('active', mode==='signup');
+  if(tabs) tabs.style.display=(mode==='forgot'||mode==='reset')?'none':'flex';
+  const loginCard=document.getElementById('loginCard');
+  const signupCard=document.getElementById('signupCard');
+  const forgotCard=document.getElementById('forgotCard');
+  const resetCard=document.getElementById('resetCard');
+  if(loginCard) loginCard.style.display=mode==='login'?'block':'none';
+  if(signupCard) signupCard.style.display=mode==='signup'?'block':'none';
+  if(forgotCard) forgotCard.style.display=mode==='forgot'?'block':'none';
+  if(resetCard) resetCard.style.display=mode==='reset'?'block':'none';
+  document.getElementById('authMsg').className='msg';
+  if(mode==='signup') onSignupRoleChange();
+  if(mode==='forgot'){
+    const box=document.getElementById('tempPassBox');
+    if(box) box.classList.remove('show');
+    _lastTempPassword=null;
+    const loginEmail=document.getElementById('login-email');
+    const forgotEmail=document.getElementById('forgot-email');
+    if(forgotEmail && loginEmail && loginEmail.value && !forgotEmail.value) forgotEmail.value=loginEmail.value;
+    forgotEmail?.focus();
+  }
+  if(mode==='reset'){
+    document.getElementById('reset-pass')?.focus();
+  }
+}
+
+function openPasswordResetForm(fromRecovery){
+  _passwordRecoveryActive=!!fromRecovery;
+  go('account');
+  setAuthTab('reset');
+  const hint=document.getElementById('resetHint');
+  if(hint){
+    hint.textContent=fromRecovery
+      ? 'Link verified. Enter a new password for your account.'
+      : 'Choose a new password for this account on this device.';
+  }
+  showAuthMsg(fromRecovery
+    ? 'Create your new password below, then tap Update password.'
+    : 'Set a new password below.', true);
+}
+
+async function requestCloudTempPasswordViaEdge(email){
+  const cfg=window.ULC_CONFIG||{};
+  const base=String(cfg.supabaseUrl||'').replace(/\/$/,'');
+  const key=cfg.supabaseAnonKey||'';
+  if(!base||!key) throw new Error('Cloud is not configured.');
+  const res=await fetch(`${base}/functions/v1/send-temp-password`, {
+    method:'POST',
+    headers:{
+      'Content-Type':'application/json',
+      'apikey': key,
+      'Authorization': `Bearer ${key}`,
+    },
+    body: JSON.stringify({ email }),
+  });
+  let body={};
+  try{ body=await res.json(); }catch(_){ body={}; }
+  if(!res.ok){
+    const detail=String(body.error||body.message||body.msg||'');
+    const err=new Error(detail||`Reset failed (${res.status})`);
+    err.status=res.status;
+    /* Gateway / missing deploy vs our "No account found" 404 */
+    const accountMissing=/no account found/i.test(detail);
+    const functionMissing=
+      res.status===404 && !accountMissing ||
+      /function was not found|requested function|not deployed/i.test(detail);
+    if(functionMissing || res.status===502 || res.status===503 || res.status===546){
+      err.undeployed=true;
+    }
+    throw err;
+  }
+  return body;
+}
+
+async function requestCloudTempPasswordViaRpc(email){
+  const sb=getSb();
+  if(!sb) throw new Error('Cloud is not configured.');
+  const { data, error }=await sb.rpc('request_temp_password', { p_email: email });
+  if(error){
+    const msg=String(error.message||error||'');
+    const err=new Error(msg||'Reset failed');
+    if(/wait a minute|rate/i.test(msg)) err.status=429;
+    else if(/could not find|function|schema cache|PGRST202|404/i.test(msg)) err.status=404;
+    else if(/no account found/i.test(msg)) err.status=404;
+    else err.status=400;
+    throw err;
+  }
+  const parsed=typeof data==='string' ? JSON.parse(data) : data;
+  if(!parsed || !parsed.tempPassword){
+    const err=new Error('Reset failed');
+    err.status=500;
+    throw err;
+  }
+  return parsed;
+}
+
+async function requestCloudTempPassword(email){
+  const sb=getSb();
+  if(!sb) throw new Error('Cloud is not configured.');
+
+  /* Primary: Edge Function (emails temp password via Resend when configured) */
+  try{
+    return await requestCloudTempPasswordViaEdge(email);
+  }catch(edgeErr){
+    if(edgeErr?.status===429) throw edgeErr;
+    if(edgeErr?.undeployed){
+      console.warn('send-temp-password edge not available', edgeErr?.message||edgeErr);
+    } else if(edgeErr?.status===400 || edgeErr?.status===404){
+      throw edgeErr;
+    } else {
+      console.warn('send-temp-password edge', edgeErr?.message||edgeErr);
+    }
+  }
+
+  /* Fallback: SQL RPC (no email — password shown on screen only) */
+  return await requestCloudTempPasswordViaRpc(email);
+}
+
+async function doForgotPassword(){
+  const email=normalizeEmail(document.getElementById('forgot-email').value||document.getElementById('login-email').value||'');
+  if(!email){ showAuthMsg('Enter the email for your account.'); return; }
+  if(!isValidEmail(email)){ showAuthMsg('Enter a valid email address.'); return; }
+
+  const btn=document.getElementById('forgotSendBtn');
+  const label=btn?btn.textContent:'';
+  const box=document.getElementById('tempPassBox');
+  if(box) box.classList.remove('show');
+  if(btn){ btn.disabled=true; btn.textContent='Please wait…'; }
+
+  try{
+    const sb=getSb();
+    if(sb){
+      try{
+        const data=await requestCloudTempPassword(email);
+        showTempPasswordResult({
+          name: data.name,
+          email: data.email || email,
+          tempPassword: data.tempPassword,
+          emailed: !!data.emailed,
+        });
+        return;
+      }catch(err){
+        if(err?.status===429 || isAuthRateLimit(err)){
+          showAuthMsg(err.message||'Please wait a minute and try again.');
+          return;
+        }
+        if(err?.status===404){
+          showAuthMsg(err.message||'No account found for this email.');
+          return;
+        }
+        /* Function not deployed yet, or network — fall back to local device account */
+        console.warn('temp password function', err?.message||err);
+      }
+    }
+
+    const local=findLocalUserByEmail(email);
+    if(!local){
+      if(sb){
+        showAuthMsg('Could not reset cloud password. Deploy supabase/functions/send-temp-password (and set RESEND_API_KEY), or run supabase/migrate-temp-password.sql as a backup.');
+      } else {
+        showAuthMsg('No account found for this email on this device.');
+      }
+      return;
+    }
+    const tempPassword=makeTempPassword();
+    local.user.passHash=await hashPass(tempPassword);
+    const users=getUsers();
+    users[local.key]=local.user;
+    setUsers(users);
+    showTempPasswordResult({
+      name: local.user.name || 'there',
+      tempPassword,
+      emailed: false,
+    });
+  } finally {
+    if(btn){ btn.disabled=false; btn.textContent=label||'Send temporary password'; }
+  }
+}
+
+async function doResetPassword(){
+  const pass=document.getElementById('reset-pass').value;
+  const pass2=document.getElementById('reset-pass2').value;
+  if(!pass||pass.length<6){ showAuthMsg('Password must be at least 6 characters.'); return; }
+  if(pass!==pass2){ showAuthMsg('Passwords do not match.'); return; }
+
+  const btn=document.getElementById('resetSaveBtn');
+  const label=btn?btn.textContent:'';
+  if(btn){ btn.disabled=true; btn.textContent='Updating…'; }
+
+  try{
+    const sb=getSb();
+    if(sb && (_passwordRecoveryActive || (await sb.auth.getSession()).data?.session)){
+      const { error }=await sb.auth.updateUser({ password: pass });
+      if(error){ showAuthMsg(friendlyError(error)); return; }
+      _passwordRecoveryActive=false;
+      _localResetEmail=null;
+      document.getElementById('reset-pass').value='';
+      document.getElementById('reset-pass2').value='';
+      showAuthMsg('Password updated. You can log in with your new password.', true);
+      await restoreCloudSession();
+      refreshAccountView(); refreshTopAcc();
+      if(currentUser()){
+        afterAuthLanding();
+      } else {
+        setAuthTab('login');
+      }
+      return;
+    }
+
+    if(_localResetEmail){
+      const users=getUsers();
+      const em=_localResetEmail;
+      const found=findLocalUserByEmail(em);
+      if(!found){ showAuthMsg('Account not found on this device.'); return; }
+      found.user.passHash=await hashPass(pass);
+      users[found.key]=found.user;
+      setUsers(users);
+      _localResetEmail=null;
+      document.getElementById('reset-pass').value='';
+      document.getElementById('reset-pass2').value='';
+      document.getElementById('login-email').value=em;
+      showAuthMsg('Password updated on this device. Log in with your new password.', true);
+      setAuthTab('login');
+      return;
+    }
+
+    showAuthMsg('Open the reset link from your email first, then set a new password.');
+    setAuthTab('forgot');
+  } finally {
+    if(btn){ btn.disabled=false; btn.textContent=label||'Update password'; }
+  }
+}
+
+function showSecMsg(text, ok){
+  const el=document.getElementById('secMsg');
+  if(!el) return;
+  if(!text){ el.className='msg'; el.textContent=''; return; }
+  el.textContent=text;
+  el.className='msg show '+(ok?'ok':'err');
+}
+
+function setAccountSettingsOpen(open){
+  const panel=document.getElementById('accSecurityPanel');
+  const toggle=document.getElementById('accSettingsToggle');
+  if(!panel) return;
+  const on=!!open;
+  panel.style.display=on?'block':'none';
+  if(on) panel.removeAttribute('hidden');
+  else panel.setAttribute('hidden','');
+  if(toggle) toggle.setAttribute('aria-expanded', on?'true':'false');
+}
+
+function toggleAccountSettings(){
+  const panel=document.getElementById('accSecurityPanel');
+  const currentlyOpen=!!(panel && panel.style.display!=='none' && !panel.hidden);
+  setAccountSettingsOpen(!currentlyOpen);
+  if(!currentlyOpen){
+    showSecMsg('');
+    document.getElementById('ch-pass-cur')?.focus();
+  }
+}
+
+function openAccountSettings(){
+  const u=currentUser();
+  if(!u){ go('account'); return; }
+  go('account');
+  setAccountSettingsOpen(true);
+  showSecMsg('');
+  setTimeout(()=>{
+    document.getElementById('accSettingsCard')?.scrollIntoView({ behavior:'smooth', block:'start' });
+    document.getElementById('ch-pass-cur')?.focus();
+  }, 50);
+}
+
+async function verifyCurrentPassword(email, pass){
+  const em=normalizeEmail(email);
+  const local=findLocalUserByEmail(em);
+  if(local){
+    return local.user.passHash === await hashPass(pass);
+  }
+  const sb=getSb();
+  if(!sb) return false;
+  const { error }=await sb.auth.signInWithPassword({ email: em, password: pass });
+  return !error;
+}
+
+async function doChangePassword(){
+  const u=currentUser();
+  if(!u){ showSecMsg('Please log in first.'); return; }
+  const cur=document.getElementById('ch-pass-cur').value;
+  const pass=document.getElementById('ch-pass-new').value;
+  const pass2=document.getElementById('ch-pass-new2').value;
+  if(!cur){ showSecMsg('Enter your current password.'); return; }
+  if(!pass||pass.length<6){ showSecMsg('New password must be at least 6 characters.'); return; }
+  if(pass!==pass2){ showSecMsg('New passwords do not match.'); return; }
+  if(pass===cur){ showSecMsg('New password must be different from the current one.'); return; }
+
+  const btn=document.getElementById('chPassBtn');
+  const label=btn?btn.textContent:'';
+  if(btn){ btn.disabled=true; btn.textContent='Updating…'; }
+  try{
+    const ok=await verifyCurrentPassword(u.email, cur);
+    if(!ok){ showSecMsg('Current password is incorrect.'); return; }
+
+    const sb=getSb();
+    const sess=sb ? (await sb.auth.getSession()).data?.session : null;
+    if(sb && sess){
+      const { error }=await sb.auth.updateUser({ password: pass });
+      if(error){ showSecMsg(friendlyError(error)); return; }
+    }
+
+    const local=findLocalUserByEmail(u.email);
+    if(local){
+      local.user.passHash=await hashPass(pass);
+      const users=getUsers();
+      users[local.key]=local.user;
+      setUsers(users);
+    }
+
+    document.getElementById('ch-pass-cur').value='';
+    document.getElementById('ch-pass-new').value='';
+    document.getElementById('ch-pass-new2').value='';
+    showSecMsg('Password updated successfully.', true);
+  } finally {
+    if(btn){ btn.disabled=false; btn.textContent=label||'Update password'; }
+  }
+}
+
+async function doChangeEmail(){
+  const u=currentUser();
+  if(!u){ showSecMsg('Please log in first.'); return; }
+  const neu=normalizeEmail(document.getElementById('ch-email-new').value);
+  const neu2=normalizeEmail(document.getElementById('ch-email-new2').value);
+  const curPass=document.getElementById('ch-email-pass').value;
+  if(!neu||!isValidEmail(neu)){ showSecMsg('Enter a valid new email.'); return; }
+  if(neu!==neu2){ showSecMsg('New emails do not match.'); return; }
+  if(neu===normalizeEmail(u.email)){ showSecMsg('That is already your email.'); return; }
+  if(!curPass){ showSecMsg('Enter your current password to confirm.'); return; }
+
+  const btn=document.getElementById('chEmailBtn');
+  const label=btn?btn.textContent:'';
+  if(btn){ btn.disabled=true; btn.textContent='Updating…'; }
+  try{
+    const ok=await verifyCurrentPassword(u.email, curPass);
+    if(!ok){ showSecMsg('Current password is incorrect.'); return; }
+
+    if(findLocalUserByEmail(neu)){
+      showSecMsg('Another account already uses that email on this device.');
+      return;
+    }
+
+    const sb=getSb();
+    const sess=sb ? (await sb.auth.getSession()).data?.session : null;
+    if(sb && sess){
+      const { error }=await sb.auth.updateUser({ email: neu });
+      if(error){ showSecMsg(friendlyError(error)); return; }
+      try{
+        await sb.from('profiles').update({ contact: neu }).eq('id', sess.user.id);
+      }catch(_){ /* optional */ }
+      if(_sbUser) _sbUser.email=neu;
+    }
+
+    const local=findLocalUserByEmail(u.email);
+    if(local){
+      const users=getUsers();
+      const prev=users[local.key];
+      delete users[local.key];
+      prev.email=neu;
+      users[neu]=prev;
+      setUsers(users);
+      setSession({ email: neu, roll: prev.roll || local.key, cloud: !!(sb && sess) });
+    } else if(u){
+      setSession({ email: neu, roll: u.roll, cloud: !!(sb && sess) });
+    }
+
+    document.getElementById('ch-email-new').value='';
+    document.getElementById('ch-email-new2').value='';
+    document.getElementById('ch-email-pass').value='';
+    showSecMsg('Email updated. Use the new email next time you log in.', true);
+    refreshAccountView(); refreshTopAcc();
+  } finally {
+    if(btn){ btn.disabled=false; btn.textContent=label||'Update email'; }
+  }
+}
+
+function wirePasswordRecovery(){
+  if(_authRecoveryWired) return;
+  const sb=getSb(); if(!sb) return;
+  _authRecoveryWired=true;
+  sb.auth.onAuthStateChange((event)=>{
+    if(event==='PASSWORD_RECOVERY'){
+      openPasswordResetForm(true);
+    }
+  });
+  try{
+    const hash=String(window.location.hash||'');
+    const search=String(window.location.search||'');
+    if(hash.includes('type=recovery') || search.includes('ulc_reset=1') || hash.includes('type%3Drecovery')){
+      /* Session may already be recovery; show form after a tick */
+      setTimeout(async ()=>{
+        const { data }=await sb.auth.getSession();
+        if(data?.session) openPasswordResetForm(true);
+      }, 200);
+    }
+  }catch(_){ /* ignore */ }
+}
+
 function onSignupRoleChange(){
   const role=document.getElementById('su-role').value;
   const isTeacher=role==='teacher';
@@ -2035,12 +2596,13 @@ function afterAuthLanding(){
   if(!u) return;
   if(window.StudentDash) StudentDash.syncLanding();
   if(u.role==='teacher'){
-    go('teacher');
+    go('home');
+    if(window.StudentDash) StudentDash.refreshHomeShell({overview:true});
   } else if(!u.profileComplete){
     openOnboarding(false);
   } else {
     go('home');
-    if(window.StudentDash) StudentDash.refreshHomeShell();
+    if(window.StudentDash) StudentDash.refreshHomeShell({overview:true});
   }
 }
 function isAuthRateLimit(err){
@@ -2282,6 +2844,8 @@ async function saveOnboarding(){
 function refreshTopAcc(){
   const u=currentUser();
   document.getElementById('topAccLabel').textContent=u?u.name.split(' ')[0]:'Account';
+  const settingsBtn=document.getElementById('topSettingsBtn');
+  if(settingsBtn) settingsBtn.hidden=!u;
   refreshHeroWelcome();
 }
 function refreshHeroWelcome(){
@@ -2328,6 +2892,10 @@ function refreshAccountView(){
     document.getElementById('accStudentCard').style.display=teacher?'none':'block';
     document.getElementById('accTeacherCard').style.display=teacher?'block':'none';
     document.getElementById('accQuickStudent').style.display=teacher?'none':'grid';
+    const settingsCard=document.getElementById('accSettingsCard');
+    if(settingsCard) settingsCard.style.display='block';
+    setAccountSettingsOpen(false);
+    showSecMsg('');
     if(!teacher){
       document.getElementById('accPrevGpa').textContent=u.prevGpa!=null?Number(u.prevGpa).toFixed(2):'—';
       document.getElementById('accCgpa').textContent=u.cgpa!=null?Number(u.cgpa).toFixed(2):'—';
@@ -2729,23 +3297,43 @@ function drawCover(){ const el=document.getElementById('coverPreview'); el.class
 function printCover(){ document.getElementById('printhost').innerHTML=`<div class="cover tpl-${currentTpl} print-cover" style="width:794px">${TPL[currentTpl](V())}</div>`; window.print(); }
 async function downloadPDF(){
   const btn=document.getElementById('pdfBtn'), label=btn.textContent;
-  if(typeof html2canvas==='undefined'||!window.jspdf){ printCover(); return; }
+  if(typeof html2canvas==='undefined'||!window.jspdf){
+    if(window.ULC_SAVE&&ULC_SAVE.isNative&&ULC_SAVE.isNative()){ alert('PDF libraries failed to load. Check your connection and reopen the app.'); return; }
+    printCover(); return;
+  }
   btn.disabled=true; btn.textContent='Generating…';
-  const holder=document.createElement('div');
-  holder.style.cssText='position:fixed;left:-99999px;top:0;width:794px;background:#fff';
+  const holder=(window.ULC_SAVE&&ULC_SAVE.prepareCaptureHost)
+    ? ULC_SAVE.prepareCaptureHost(794)
+    : (()=>{ const d=document.createElement('div'); d.style.cssText='position:fixed;left:0;top:0;width:794px;opacity:0.01;pointer-events:none;z-index:-1;background:#fff'; return d; })();
   const clone=document.getElementById('coverPreview').cloneNode(true);
   clone.style.width='794px'; clone.style.boxShadow='none'; clone.style.border='none';
   holder.appendChild(clone); document.body.appendChild(holder);
   try{
-    const canvas=await html2canvas(clone,{scale:2,useCORS:true,backgroundColor:'#ffffff',logging:false,width:794,windowWidth:794});
+    /* Hard timeout so Android WebView never sits on Generating forever */
+    const canvas=await Promise.race([
+      (async()=>{
+        await new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)));
+        const opts=(window.ULC_SAVE&&ULC_SAVE.captureOpts)
+          ? ULC_SAVE.captureOpts({width:794,windowWidth:794})
+          : {scale:2,useCORS:true,allowTaint:false,backgroundColor:'#ffffff',logging:false,width:794,windowWidth:794};
+        return html2canvas(clone,opts);
+      })(),
+      new Promise((_,rej)=>setTimeout(()=>rej(new Error('PDF preview timed out on this phone. Try again.')), 45000))
+    ]);
     const {jsPDF}=window.jspdf; const pdf=new jsPDF('p','mm','a4');
-    pdf.addImage(canvas.toDataURL('image/jpeg',0.95),'JPEG',0,0,210,297);
-    pdf.save(((val('f-name')||'ULC')+'_'+currentTpl+'_cover.pdf').replace(/\s+/g,'_'));
-    if(window.MyFiles){
-      const html=`<div class="cover tpl-${currentTpl}" style="width:794px">${document.getElementById('coverPreview').innerHTML}</div>`;
-      MyFiles.saveCoverAuto(V(), currentTpl, html);
-    }
-  }catch(e){ printCover(); }
+    const dataUrl=canvas.toDataURL('image/jpeg',0.82);
+    if(!dataUrl||dataUrl.length<100) throw new Error('Blank PDF capture (image/CORS). Use local logo images.');
+    pdf.addImage(dataUrl,'JPEG',0,0,210,297);
+    if(window.ULC_SAVE&&typeof ULC_SAVE.patchJsPdf==='function') ULC_SAVE.patchJsPdf();
+    btn.textContent='Saving…';
+    const saved=await pdf.save(((val('f-name')||'ULC')+'_'+currentTpl+'_cover.pdf').replace(/\s+/g,'_'));
+    if(saved&&saved.error) throw new Error(saved.error||'Save failed');
+    try{ if(window.MyFiles) MyFiles.saveCoverAuto(V(), currentTpl, '', saved); }catch(_){}
+  }catch(e){
+    console.error(e);
+    const diag=(window.ULC_SAVE&&ULC_SAVE.diagnose)?('\n\n'+ULC_SAVE.diagnose()):'';
+    alert('PDF failed: '+(e&&e.message?e.message:'Try again.')+diag);
+  }
   finally{ holder.remove(); btn.disabled=false; btn.textContent=label; }
 }
 
@@ -2837,6 +3425,7 @@ fillSemDropdown(); fillSubjectLists(); fillInstructorList(); fillAwardSubjects()
 renderSyllabusAcc(); syncDayUi(); renderGrades(); renderSlots();
 liveAward();
 (async()=>{
+  wirePasswordRecovery();
   await restoreCloudSession();
   refreshTopAcc();
   refreshAccountView();
@@ -2846,6 +3435,7 @@ liveAward();
   }
   await refreshInstructorsFromCloud();
   fillInstructorList();
+  if(currentUser()) afterAuthLanding();
 })();
 document.getElementById('aw-subj').addEventListener('change', onAwardSubjChange);
 /* Browser PWA only — Capacitor APK already ships the shell offline; skip SW there. */

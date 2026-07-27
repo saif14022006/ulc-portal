@@ -45,12 +45,25 @@ cd android
 
 Debug APK path: `android/app/build/outputs/apk/debug/app-debug.apk`
 
-## Signed release (Play Store)
+## Signed release (sideload / Play Store)
+
+Release APK (signed, recommended for phones):
+
+```bash
+npm run android:release
+```
+
+Output: `android/app/build/outputs/apk/release/app-release.apk`
+
+Signing uses `android/keystore.properties` + `android/ulc-release.keystore` (gitignored — keep backups offline).
+
+Play Protect may still warn for apps installed outside the Play Store; a signed release is safer than a debug APK. Publishing on Play Store removes that warning for users.
+
+### Play Store bundle
 
 1. Open `android/` in Android Studio
 2. **Build → Generate Signed Bundle / APK**
-3. Create or select a keystore
-4. Prefer an **Android App Bundle (.aab)** for Play Store upload
+3. Prefer an **Android App Bundle (.aab)** for Play Store upload
 
 ## Useful npm scripts
 
@@ -59,13 +72,26 @@ Debug APK path: `android/app/build/outputs/apk/debug/app-debug.apk`
 | `npm run cap:copy` | Copy `index.html`, `js/`, `icons/`, `assets/`, etc. into `www/` |
 | `npm run cap:sync` | Copy + `npx cap sync android` |
 | `npm run cap:open` | Open the project in Android Studio |
-| `npm run android:debug` | Sync then `gradlew assembleDebug` |
+| `npm run android:debug` | Sync then build debug APK |
+| `npm run android:release` | Sync then build signed release APK |
+
+## Forgot password email (Supabase)
+
+Cloud “Forgot password” calls Edge Function `send-temp-password`, which sets a new temporary password and emails it via Resend.
+
+```bash
+npx supabase functions deploy send-temp-password --project-ref fkyrxsbhuzfxrlzzykpj
+npx supabase secrets set RESEND_API_KEY=re_xxxxxxxx --project-ref fkyrxsbhuzfxrlzzykpj
+npx supabase secrets set RESET_FROM_EMAIL="ULC Toolkit <onboarding@resend.dev>" --project-ref fkyrxsbhuzfxrlzzykpj
+```
+
+Optional on-screen-only backup: run `supabase/migrate-temp-password.sql` in the SQL Editor.
 
 ## Notes
 
 - App ID: `pk.edu.ulc.toolkit` · App name: **ULC Toolkit**
 - Status bar / splash background: `#0b3a6b` (ULC navy); splash uses the ULC logo
-- Icons are generated from `icons/` via `npm run cap:icons` (re-run after logo changes, then `npm run cap:sync`)
+- Launcher icon: ULC logo on white (no navy plate). Regenerate with `npm run cap:icons`, then `npm run cap:sync`
 - Browser “Add to Home Screen” prompts are suppressed inside the native app; hardware back returns to Home before exiting
 - Keep `android/` source in git; build outputs (`app/build`, `.gradle`, `local.properties`) are gitignored
 - If `gradlew assembleDebug` fails with **JAVA_HOME is not set**, install Android Studio (it bundles a JDK) or set `JAVA_HOME` to a JDK 21+ install, and ensure the Android SDK is installed
