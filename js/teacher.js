@@ -1725,7 +1725,7 @@
       );
       const sliceHmm = slicePx / pxPerMm;
       pdf.addImage(
-        sliceCanvas.toDataURL("image/jpeg", 0.94),
+        sliceCanvas.toDataURL("image/jpeg", 0.86),
         "JPEG",
         margin,
         margin,
@@ -1752,14 +1752,14 @@
     const opts =
       global.ULC_SAVE && global.ULC_SAVE.captureOpts
         ? global.ULC_SAVE.captureOpts({
-            scale: global.ULC_SAVE.captureScale ? global.ULC_SAVE.captureScale(2.5) : 2.5,
+            scale: global.ULC_SAVE.captureScale ? global.ULC_SAVE.captureScale(2) : 2,
             width: widthPx,
             windowWidth: widthPx,
             scrollX: 0,
             scrollY: 0,
           })
         : {
-            scale: 2.5,
+            scale: 2,
             backgroundColor: "#ffffff",
             logging: false,
             width: widthPx,
@@ -1795,7 +1795,7 @@
     }
     const x = (pageW - imgW) / 2;
     const y = (pageH - imgH) / 2;
-    pdf.addImage(canvas.toDataURL("image/jpeg", 0.95), "JPEG", x, y, imgW, imgH);
+    pdf.addImage(canvas.toDataURL("image/jpeg", 0.86), "JPEG", x, y, imgW, imgH);
   }
 
   async function exportAwardPdf() {
@@ -1845,7 +1845,7 @@
           const imgW = usableW;
           const imgH = (canvas.height * imgW) / canvas.width;
           if (imgH <= usableH) {
-            pdf.addImage(canvas.toDataURL("image/jpeg", 0.94), "JPEG", margin, margin, imgW, imgH);
+            pdf.addImage(canvas.toDataURL("image/jpeg", 0.86), "JPEG", margin, margin, imgW, imgH);
           } else {
             addCanvasToPdfPages(pdf, canvas, margin);
           }

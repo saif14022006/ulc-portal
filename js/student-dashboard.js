@@ -1602,7 +1602,7 @@
     {
       keys: ["syllabus", "subject", "course", "llb", "credit"],
       answer:
-        "Open LLB Syllabus in the menu for all ten semesters (HEC scheme). Semester Records uses the same subject list when you pick a semester.",
+        "Open LLB & LLM Syllabus in the menu for the LLB scheme and HEC LL.M. (2006). Semester Records uses the LLB subject list when you pick a semester.",
     },
     {
       keys: ["gpa", "cgpa", "analysis", "grade"],

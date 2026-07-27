@@ -309,8 +309,8 @@
       await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
       const sharpOpts =
         global.ULC_SAVE && typeof global.ULC_SAVE.captureScale === "function"
-          ? { width: 794, windowWidth: 794, scale: global.ULC_SAVE.captureScale(2.5), scrollX: 0, scrollY: 0 }
-          : { width: 794, windowWidth: 794, scale: 2.5, scrollX: 0, scrollY: 0 };
+          ? { width: 794, windowWidth: 794, scale: global.ULC_SAVE.captureScale(2), scrollX: 0, scrollY: 0 }
+          : { width: 794, windowWidth: 794, scale: 2, scrollX: 0, scrollY: 0 };
       const canvas =
         global.ULC_SAVE && typeof global.ULC_SAVE.captureElement === "function"
           ? await global.ULC_SAVE.captureElement(sheet, sharpOpts)
@@ -334,16 +334,19 @@
       const pdf = new jsPDF("p", "mm", "a4");
       const pageW = pdf.internal.pageSize.getWidth();
       const pageH = pdf.internal.pageSize.getHeight();
-      const dataUrl = canvas.toDataURL("image/png");
-      if (!dataUrl || dataUrl.length < 100) throw new Error("Blank PDF capture (CORS/taint)");
+      const img =
+        global.ULC_SAVE && typeof global.ULC_SAVE.canvasToPdfImage === "function"
+          ? global.ULC_SAVE.canvasToPdfImage(canvas, 0.86)
+          : { dataUrl: canvas.toDataURL("image/jpeg", 0.86), format: "JPEG" };
+      if (!img.dataUrl || img.dataUrl.length < 100) throw new Error("Blank PDF capture (CORS/taint)");
       const imgW = pageW;
       const imgH = (canvas.height * imgW) / canvas.width;
       if (imgH <= pageH) {
-        pdf.addImage(dataUrl, "PNG", 0, 0, imgW, imgH);
+        pdf.addImage(img.dataUrl, img.format, 0, 0, imgW, imgH);
       } else {
         const h = pageH;
         const w = (canvas.width * h) / canvas.height;
-        pdf.addImage(dataUrl, "PNG", (pageW - w) / 2, 0, w, h);
+        pdf.addImage(img.dataUrl, img.format, (pageW - w) / 2, 0, w, h);
       }
       const name = (raw("lt-name") || "ULC").replace(/\s+/g, "_");
       const kind = currentTplKey();

@@ -444,9 +444,36 @@
     return holder;
   }
 
+  /** Sharp but size-aware: ~2× capture keeps text crisp without huge PNG payloads. */
   function captureScale(fallback) {
-    if (isNative()) return Math.max(2, fallback == null ? 2 : Math.min(fallback, 2.5));
-    return fallback == null ? 2 : fallback;
+    var pref = fallback == null ? 2 : fallback;
+    if (isNative()) return Math.max(1.75, Math.min(pref, 2));
+    return Math.max(1.75, Math.min(pref, 2.15));
+  }
+
+  /**
+   * JPEG at high quality is far smaller than PNG for full-page captures,
+   * while staying visually sharp (ultra-HD look at A4 size).
+   */
+  function canvasToPdfImage(canvas, quality) {
+    var q = quality == null ? 0.86 : quality;
+    if (q > 1) q = 1;
+    if (q < 0.5) q = 0.5;
+    var dataUrl = "";
+    try {
+      dataUrl = canvas.toDataURL("image/jpeg", q);
+    } catch (e) {
+      dataUrl = "";
+    }
+    if (!dataUrl || dataUrl.length < 100) {
+      try {
+        dataUrl = canvas.toDataURL("image/png");
+      } catch (e2) {
+        dataUrl = "";
+      }
+      return { dataUrl: dataUrl, format: "PNG" };
+    }
+    return { dataUrl: dataUrl, format: "JPEG" };
   }
 
   /** Safe html2canvas defaults — useCORS, no taint (blank PDF trap). */
@@ -505,6 +532,7 @@
     captureScale: captureScale,
     captureOpts: captureOpts,
     captureElement: captureElement,
+    canvasToPdfImage: canvasToPdfImage,
     withTimeout: withTimeout,
     alertPdfFailed: alertPdfFailed,
     wasAlerted: wasAlerted,

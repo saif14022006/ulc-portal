@@ -499,13 +499,27 @@
 
   async function saveCurrentCover() {
     if (!requireLogin("Saving this cover")) return;
-    const v = typeof global.V === "function" ? global.V() : {};
     const tpl = global.currentTpl || "classic";
-    const preview = document.getElementById("coverPreview");
-    const inner = preview ? preview.innerHTML : "";
-    const html = `<div class="cover tpl-${tpl}" style="width:794px">${inner}</div>`;
-    const row = await saveCoverAuto(v, tpl, html);
-    if (row) alert("Cover saved to My Files.");
+    const raw = {
+      no: (document.getElementById("f-assignmentno") || {}).value || "",
+      topic: (document.getElementById("f-topic") || {}).value || "Assignment Title",
+      subject: (document.getElementById("f-subject") || {}).value || "Subject",
+      name: (document.getElementById("f-name") || {}).value || "—",
+      roll: (document.getElementById("f-roll") || {}).value || "—",
+      teacher: (document.getElementById("f-teacher") || {}).value || "—",
+      session: (document.getElementById("f-session") || {}).value || "—",
+      date:
+        typeof global.fmtDate === "function"
+          ? global.fmtDate((document.getElementById("f-date") || {}).value)
+          : (document.getElementById("f-date") || {}).value || "",
+      tpl,
+    };
+    const html =
+      typeof global.TPL === "object" && global.TPL && typeof global.TPL[tpl] === "function"
+        ? `<div class="cover tpl-${tpl} ulc-cover-cap" style="width:794px">${global.TPL[tpl](raw)}</div>`
+        : `<div class="cover tpl-${tpl}" style="width:794px">${(document.getElementById("coverPreview") || {}).innerHTML || ""}</div>`;
+    const row = await saveCoverAuto(raw, tpl, html);
+    if (row) alert("Cover saved to My Files. Download from My Files rebuilds a full PDF.");
   }
 
   async function saveCurrentLetter() {
@@ -548,29 +562,238 @@
     return !!(f.pdfPath || (f.meta && (f.meta.hasPdf || f.meta.hasPdfBlob)) || f.html);
   }
 
-  function rebuildCoverPreviewHtml(payload) {
+  function decodePayloadText(s) {
+    return String(s == null ? "" : s)
+      .replace(/&amp;/g, "&")
+      .replace(/&lt;/g, "<")
+      .replace(/&gt;/g, ">")
+      .replace(/&quot;/g, '"');
+  }
+
+  /** Build capture CSS: convert cover template cqw rules to px so html2canvas stays sharp. */
+  function buildCoverCaptureCss(widthPx) {
+    const w = widthPx || 794;
+    const unit = w / 100;
+    const root = getComputedStyle(document.documentElement);
+    const varNames = [
+      "--navy",
+      "--navy-2",
+      "--gold",
+      "--gold-lt",
+      "--gold-deep",
+      "--slate",
+      "--ink",
+      "--serif",
+      "--sans",
+      "--display",
+      "--line",
+    ];
+    const vars = varNames
+      .map((n) => {
+        const v = root.getPropertyValue(n).trim();
+        return v ? n + ":" + v + ";" : "";
+      })
+      .join("");
+    let rules = "";
+    try {
+      for (const sheet of Array.from(document.styleSheets || [])) {
+        let cssRules;
+        try {
+          cssRules = sheet.cssRules;
+        } catch (_) {
+          continue;
+        }
+        if (!cssRules) continue;
+        for (const rule of Array.from(cssRules)) {
+          const sel = rule.selectorText || "";
+          if (!sel) continue;
+          if (
+            sel.includes(".tpl-") ||
+            sel === ".cover" ||
+            sel.startsWith(".cover ") ||
+            sel.includes(".cover.")
+          ) {
+            rules += rule.cssText + "\n";
+          }
+        }
+      }
+    } catch (_) {}
+    rules = rules
+      .replace(/([\d.]+)cqw/g, (_, n) => (parseFloat(n) * unit).toFixed(3) + "px")
+      .replace(/\.cover\b/g, ".ulc-cover-cap")
+      .replace(/container-type\s*:[^;]+;/g, "");
+    return (
+      ".ulc-cover-cap{" +
+      vars +
+      "position:relative;width:" +
+      w +
+      "px;height:" +
+      Math.round(w * 1.414) +
+      "px;background:#fff;overflow:hidden;font-family:var(--serif);color:var(--navy);box-sizing:border-box;border:none;box-shadow:none;aspect-ratio:auto;}" +
+      ".ulc-cover-cap *,.ulc-cover-cap *::before,.ulc-cover-cap *::after{box-sizing:border-box;}" +
+      rules
+    );
+  }
+
+  function coverValuesFromPayload(payload) {
     const p = payload || {};
-    const tpl = p.tpl || "classic";
-    /* Prefer live template builders if the cover page is loaded */
+    return {
+      no: decodePayloadText(p.no || ""),
+      topic: decodePayloadText(p.topic || "Assignment Title"),
+      subject: decodePayloadText(p.subject || "Subject"),
+      name: decodePayloadText(p.name || "—"),
+      roll: decodePayloadText(p.roll || "—"),
+      teacher: decodePayloadText(p.teacher || "—"),
+      session: decodePayloadText(p.session || "—"),
+      date: decodePayloadText(p.date || "—"),
+      tpl: p.tpl || "classic",
+    };
+  }
+
+  function rebuildCoverPreviewHtml(payload) {
+    const v = coverValuesFromPayload(payload);
+    const tpl = v.tpl || "classic";
     if (typeof global.TPL === "object" && global.TPL && typeof global.TPL[tpl] === "function") {
-      const v = {
-        no: p.no || "",
-        topic: p.topic || "Assignment",
-        subject: p.subject || "",
-        name: p.name || "",
-        roll: p.roll || "",
-        teacher: p.teacher || "",
-        session: p.session || "",
-        date: p.date || "",
-      };
-      return `<div class="cover tpl-${esc(tpl)}" style="width:794px">${global.TPL[tpl](v)}</div>`;
+      return `<div class="cover tpl-${esc(tpl)} ulc-cover-cap" style="width:794px">${global.TPL[tpl](v)}</div>`;
     }
-    return `<div class="cover tpl-${esc(tpl)}" style="width:794px;padding:24px;font-family:Georgia,serif">
-      <h3 style="margin:0 0 8px">${esc(p.topic || "Cover")}</h3>
-      <p style="margin:0;color:#444">${esc(p.subject || "")}</p>
-      <p style="margin:12px 0 0">${esc(p.name || "")} · ${esc(p.roll || "")}</p>
-      <p style="margin:4px 0 0;color:#666">Submitted to ${esc(p.teacher || "—")}</p>
+    return `<div class="cover tpl-${esc(tpl)} ulc-cover-cap" style="width:794px;padding:24px;font-family:Georgia,serif">
+      <h3 style="margin:0 0 8px">${esc(v.topic || "Cover")}</h3>
+      <p style="margin:0;color:#444">${esc(v.subject || "")}</p>
+      <p style="margin:12px 0 0">${esc(v.name || "")} · ${esc(v.roll || "")}</p>
+      <p style="margin:4px 0 0;color:#666">Submitted to ${esc(v.teacher || "—")}</p>
     </div>`;
+  }
+
+  async function waitForImages(root) {
+    const imgs = Array.from((root && root.querySelectorAll && root.querySelectorAll("img")) || []);
+    await Promise.all(
+      imgs.map(
+        (img) =>
+          img.complete
+            ? Promise.resolve()
+            : new Promise((resolve) => {
+                img.onload = img.onerror = () => resolve();
+                setTimeout(resolve, 2500);
+              })
+      )
+    );
+  }
+
+  async function regenerateCoverPdf(f, pdfName) {
+    if (typeof html2canvas === "undefined" || !global.jspdf) {
+      throw new Error("PDF_LIBS_MISSING");
+    }
+    const w = 794;
+    const holder =
+      global.ULC_SAVE && typeof global.ULC_SAVE.prepareCaptureHost === "function"
+        ? global.ULC_SAVE.prepareCaptureHost(w)
+        : (() => {
+            const d = document.createElement("div");
+            d.style.cssText =
+              "position:fixed;left:0;top:0;width:" +
+              w +
+              "px;opacity:0.01;pointer-events:none;z-index:-1;background:#fff;";
+            return d;
+          })();
+    const style = document.createElement("style");
+    style.textContent = buildCoverCaptureCss(w);
+    holder.appendChild(style);
+
+    let sheet;
+    if (f.payload && typeof global.TPL === "object" && global.TPL) {
+      const v = coverValuesFromPayload(f.payload);
+      const tpl = v.tpl || "classic";
+      const fn = global.TPL[tpl] || global.TPL.classic;
+      sheet = document.createElement("div");
+      sheet.className = "cover tpl-" + tpl + " ulc-cover-cap";
+      sheet.style.cssText =
+        "width:" + w + "px;height:" + Math.round(w * 1.414) + "px;border:none;box-shadow:none;";
+      sheet.innerHTML = typeof fn === "function" ? fn(v) : "";
+    } else {
+      const wrap = document.createElement("div");
+      wrap.innerHTML = resolveFileHtml(f);
+      sheet = wrap.firstElementChild || wrap;
+      sheet.classList.add("ulc-cover-cap");
+      sheet.style.width = w + "px";
+      sheet.style.height = Math.round(w * 1.414) + "px";
+      sheet.style.boxShadow = "none";
+      sheet.style.border = "none";
+    }
+    holder.appendChild(sheet);
+    document.body.appendChild(holder);
+    try {
+      await waitForImages(sheet);
+      await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
+      const sharpOpts =
+        global.ULC_SAVE && typeof global.ULC_SAVE.captureScale === "function"
+          ? { width: w, windowWidth: w, scale: global.ULC_SAVE.captureScale(2), scrollX: 0, scrollY: 0 }
+          : { width: w, windowWidth: w, scale: 2, scrollX: 0, scrollY: 0 };
+      const canvas =
+        global.ULC_SAVE && typeof global.ULC_SAVE.captureElement === "function"
+          ? await global.ULC_SAVE.captureElement(sheet, sharpOpts)
+          : await html2canvas(
+              sheet,
+              global.ULC_SAVE && global.ULC_SAVE.captureOpts
+                ? global.ULC_SAVE.captureOpts(sharpOpts)
+                : {
+                    scale: 2,
+                    useCORS: true,
+                    allowTaint: false,
+                    backgroundColor: "#ffffff",
+                    logging: false,
+                    width: w,
+                    windowWidth: w,
+                    scrollX: 0,
+                    scrollY: 0,
+                  }
+            );
+      const { jsPDF } = global.jspdf;
+      const pdf = new jsPDF("p", "mm", "a4");
+      const pageW = pdf.internal.pageSize.getWidth();
+      const pageH = pdf.internal.pageSize.getHeight();
+      const img =
+        global.ULC_SAVE && typeof global.ULC_SAVE.canvasToPdfImage === "function"
+          ? global.ULC_SAVE.canvasToPdfImage(canvas, 0.86)
+          : { dataUrl: canvas.toDataURL("image/jpeg", 0.86), format: "JPEG" };
+      if (!img.dataUrl || img.dataUrl.length < 100) throw new Error("Blank PDF capture (CORS/taint)");
+      pdf.addImage(img.dataUrl, img.format, 0, 0, pageW, pageH);
+      if (global.ULC_SAVE && typeof global.ULC_SAVE.patchJsPdf === "function") {
+        global.ULC_SAVE.patchJsPdf();
+      }
+      const saved =
+        global.ULC_SAVE && typeof global.ULC_SAVE.saveJsPdf === "function"
+          ? await global.ULC_SAVE.saveJsPdf(pdf, pdfName)
+          : await pdf.save(pdfName);
+      if (saved && saved.canceled) return saved;
+      try {
+        const u = currentUser();
+        const key = accountKey(u);
+        if (key) {
+          const all = getStore();
+          const list = all[key] || [];
+          const idx = list.findIndex((x) => x.id === f.id);
+          if (idx >= 0) {
+            list[idx] = {
+              ...list[idx],
+              pdfPath: (saved && saved.archivePath) || list[idx].pdfPath || null,
+              pdfDir: (saved && saved.archiveDirectory) || list[idx].pdfDir || "DATA",
+              pdfName: (saved && saved.filename) || pdfName,
+              meta: {
+                ...(list[idx].meta || {}),
+                hasPdf: true,
+                hasPdfBlob: !!(saved && saved.blob),
+              },
+            };
+            all[key] = list;
+            setStore(all);
+          }
+        }
+        if (saved && saved.blob) await storePdfBlob(f.id, saved.blob);
+      } catch (_) {}
+      return saved;
+    } finally {
+      holder.remove();
+    }
   }
 
   function rebuildLetterPreviewHtml(payload) {
@@ -654,7 +877,11 @@
     const title = document.getElementById("filesPreviewTitle");
     if (!overlay || !host) return;
     if (title) title.textContent = f.title || TYPE_LABELS[f.type] || "Preview";
-    host.innerHTML = html;
+    if (f.type === "cover") {
+      host.innerHTML = "<style>" + buildCoverCaptureCss(794) + "</style>" + html;
+    } else {
+      host.innerHTML = html;
+    }
     host.dataset.fileId = f.id;
     overlay.classList.add("show");
     overlay.setAttribute("aria-hidden", "false");
@@ -744,8 +971,8 @@
       await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
       const sharpOpts =
         global.ULC_SAVE && typeof global.ULC_SAVE.captureScale === "function"
-          ? { width: w, windowWidth: w, scale: global.ULC_SAVE.captureScale(2.5), scrollX: 0, scrollY: 0 }
-          : { width: w, windowWidth: w, scale: 2.5, scrollX: 0, scrollY: 0 };
+          ? { width: w, windowWidth: w, scale: global.ULC_SAVE.captureScale(2), scrollX: 0, scrollY: 0 }
+          : { width: w, windowWidth: w, scale: 2, scrollX: 0, scrollY: 0 };
       const canvas =
         global.ULC_SAVE && typeof global.ULC_SAVE.captureElement === "function"
           ? await global.ULC_SAVE.captureElement(sheet, sharpOpts)
@@ -754,7 +981,7 @@
               global.ULC_SAVE && global.ULC_SAVE.captureOpts
                 ? global.ULC_SAVE.captureOpts(sharpOpts)
                 : {
-                    scale: 2.5,
+                    scale: 2,
                     useCORS: true,
                     allowTaint: false,
                     backgroundColor: "#ffffff",
@@ -769,9 +996,12 @@
       const pdf = new jsPDF(landscape ? "l" : "p", "mm", "a4");
       const pageW = pdf.internal.pageSize.getWidth();
       const pageH = pdf.internal.pageSize.getHeight();
-      const dataUrl = canvas.toDataURL("image/png");
-      if (!dataUrl || dataUrl.length < 100) throw new Error("Blank PDF capture (CORS/taint)");
-      pdf.addImage(dataUrl, "PNG", 0, 0, pageW, pageH);
+      const img =
+        global.ULC_SAVE && typeof global.ULC_SAVE.canvasToPdfImage === "function"
+          ? global.ULC_SAVE.canvasToPdfImage(canvas, 0.86)
+          : { dataUrl: canvas.toDataURL("image/jpeg", 0.86), format: "JPEG" };
+      if (!img.dataUrl || img.dataUrl.length < 100) throw new Error("Blank PDF capture (CORS/taint)");
+      pdf.addImage(img.dataUrl, img.format, 0, 0, pageW, pageH);
       if (global.ULC_SAVE && typeof global.ULC_SAVE.patchJsPdf === "function") {
         global.ULC_SAVE.patchJsPdf();
       }
@@ -860,7 +1090,18 @@
       }
     }
 
-    /* 2) IndexedDB local PDF copy (web + native) */
+    /* 2) Covers: rebuild from template payload (fixes blank PDFs from cqw/CSS capture) */
+    if (f.type === "cover" && f.payload) {
+      try {
+        await regenerateCoverPdf(f, pdfName);
+        return;
+      } catch (e) {
+        if (/cancel/i.test(String((e && e.message) || e || ""))) return;
+        console.warn("[MyFiles] cover rebuild failed", e);
+      }
+    }
+
+    /* 3) IndexedDB local PDF copy (web + native) */
     try {
       const blob = await getPdfBlob(f.id);
       if (blob && blob.size) {
@@ -872,10 +1113,14 @@
       console.warn("[MyFiles] IDB PDF read/share failed", err);
     }
 
-    /* 3) Regenerate from stored / rebuilt HTML (older items + cover/letter with payload) */
+    /* 4) Regenerate from stored / rebuilt HTML (older items + letter with payload) */
     const html = resolveFileHtml(f);
     if (html) {
       try {
+        if (f.type === "cover") {
+          await regenerateCoverPdf(f, pdfName);
+          return;
+        }
         await regeneratePdfFromHtml(f, html, pdfName);
         return;
       } catch (e) {
@@ -895,16 +1140,12 @@
         } catch (_) {}
         const diag =
           global.ULC_SAVE && global.ULC_SAVE.diagnose ? "\n\n" + global.ULC_SAVE.diagnose() : "";
-        if (global.ULC_SAVE && typeof global.ULC_SAVE.alertPdfFailed === "function") {
-          global.ULC_SAVE.alertPdfFailed(e, diag);
-        } else if (!(e && e.__ulcAlerted)) {
-          alert("Could not generate PDF. " + (e && e.message ? e.message : "Try again.") + diag);
-        }
+        alert("Could not rebuild this PDF." + diag);
         return;
       }
     }
 
-    /* 4) Cover / letter with payload only — reopen editor so user can Download PDF again */
+    /* 5) Cover / letter with payload only — reopen editor so user can Download PDF again */
     if ((f.type === "cover" || f.type === "letter") && f.payload) {
       openFile(id);
       alert(
@@ -994,6 +1235,20 @@
   function toolsForUser() {
     const u = currentUser();
     const teacher = u && u.role === "teacher";
+    const ico = {
+      home: '<svg viewBox="0 0 24 24"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/></svg>',
+      cover: '<svg viewBox="0 0 24 24"><path d="M6 2h9l3 3v17H6z"/><path d="M15 2v4h4"/></svg>',
+      letter: '<svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M8 13h8M8 17h6"/></svg>',
+      files: '<svg viewBox="0 0 24 24"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>',
+      teacher: '<svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>',
+      award: '<svg viewBox="0 0 24 24"><path d="M8 21h8"/><path d="M12 17v4"/><path d="M7 4h10v8a5 5 0 0 1-10 0V4z"/><path d="M5 8H3a2 2 0 0 0 2 2"/><path d="M19 8h2a2 2 0 0 1-2 2"/></svg>',
+      syllabus: '<svg viewBox="0 0 24 24"><path d="M4 5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2z"/><path d="M4 19a2 2 0 0 1 2-2h13"/><path d="M8 7h8M8 11h6"/></svg>',
+      aggregate: '<svg viewBox="0 0 24 24"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 7h8M8 11h8M8 15h4"/></svg>',
+      gpa: '<svg viewBox="0 0 24 24"><path d="M4 19V5"/><path d="M4 19h16"/><path d="M8 15l3-4 3 2 4-6"/></svg>',
+      timetable: '<svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>',
+      account: '<svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c1.5-3.5 4-5 8-5s6.5 1.5 8 5"/></svg>',
+      developer: '<svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c1.5-3.5 4-5 8-5s6.5 1.5 8 5"/></svg>',
+    };
     const items = [
       { t: "home", label: "Dashboard" },
       { t: "cover", label: "Cover Page" },
@@ -1003,13 +1258,13 @@
     if (teacher) items.push({ t: "teacher", label: "Teacher desk" });
     else items.push({ t: "award", label: "Award List" });
     items.push(
-      { t: "syllabus", label: "Syllabus" },
+      { t: "syllabus", label: "LLB & LLM Syllabus" },
       { t: "aggregate", label: "Admission Aggregate" },
       { t: "gpa", label: "GPA Tracker" },
       { t: "timetable", label: "Timetable" },
       { t: "account", label: "Account" }
     );
-    return items;
+    return items.map((item) => ({ ...item, icon: ico[item.t] || ico.home }));
   }
 
   function syncToolsDrawer() {
@@ -1020,7 +1275,7 @@
     nav.innerHTML = toolsForUser()
       .map((item) => {
         const on = item.t === cur ? " active" : "";
-        return `<button type="button" class="tools-drawer-item${on}" data-t="${item.t}" onclick="MyFiles.goTool('${item.t}')">${esc(item.label)}</button>`;
+        return `<button type="button" class="tools-drawer-item${on}" data-t="${item.t}" onclick="MyFiles.goTool('${item.t}')"><span class="tools-drawer-ico" aria-hidden="true">${item.icon}</span><span>${esc(item.label)}</span></button>`;
       })
       .join("");
   }
