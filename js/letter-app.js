@@ -307,20 +307,23 @@
     document.body.appendChild(holder);
     try {
       await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
-      const canvas = await html2canvas(
-        sheet,
-        global.ULC_SAVE && global.ULC_SAVE.captureOpts
-          ? global.ULC_SAVE.captureOpts({ width: 794, windowWidth: 794 })
-          : {
-              scale: 2,
-              useCORS: true,
-              allowTaint: false,
-              backgroundColor: "#ffffff",
-              logging: false,
-              width: 794,
-              windowWidth: 794,
-            }
-      );
+      const canvas =
+        global.ULC_SAVE && typeof global.ULC_SAVE.captureElement === "function"
+          ? await global.ULC_SAVE.captureElement(sheet, { width: 794, windowWidth: 794 })
+          : await html2canvas(
+              sheet,
+              global.ULC_SAVE && global.ULC_SAVE.captureOpts
+                ? global.ULC_SAVE.captureOpts({ width: 794, windowWidth: 794 })
+                : {
+                    scale: 2,
+                    useCORS: true,
+                    allowTaint: false,
+                    backgroundColor: "#ffffff",
+                    logging: false,
+                    width: 794,
+                    windowWidth: 794,
+                  }
+            );
       const { jsPDF } = global.jspdf;
       const pdf = new jsPDF("p", "mm", "a4");
       const pageW = pdf.internal.pageSize.getWidth();
@@ -338,23 +341,29 @@
       }
       const name = (raw("lt-name") || "ULC").replace(/\s+/g, "_");
       const kind = currentTplKey();
-      if (global.ULC_SAVE && typeof global.ULC_SAVE.patchJsPdf === "function") {
-        global.ULC_SAVE.patchJsPdf();
-      }
-      const saved = await pdf.save(`${name}_${kind}_application.pdf`);
+      const fname = `${name}_${kind}_application.pdf`;
+      const saved =
+        global.ULC_SAVE && typeof global.ULC_SAVE.saveJsPdf === "function"
+          ? await global.ULC_SAVE.saveJsPdf(pdf, fname)
+          : await pdf.save(fname);
+      if (saved && saved.canceled) return;
       try {
         if (global.MyFiles) {
           const previewHtml =
             (document.getElementById("letterPreview") && document.getElementById("letterPreview").innerHTML) ||
             buildLetterHtml(letterValues());
-          global.MyFiles.saveLetterAuto(letterValues(), kind, previewHtml, saved);
+          await global.MyFiles.saveLetterAuto(letterValues(), kind, previewHtml, saved);
         }
       } catch (_) {}
     } catch (e) {
       console.error(e);
       const diag =
         global.ULC_SAVE && global.ULC_SAVE.diagnose ? "\n\n" + global.ULC_SAVE.diagnose() : "";
-      alert("PDF failed: " + (e && e.message ? e.message : "Try again.") + diag);
+      if (global.ULC_SAVE && typeof global.ULC_SAVE.alertPdfFailed === "function") {
+        global.ULC_SAVE.alertPdfFailed(e, diag);
+      } else if (!(e && e.__ulcAlerted)) {
+        alert("PDF failed: " + (e && e.message ? e.message : "Try again.") + diag);
+      }
     } finally {
       holder.remove();
       if (btn) {

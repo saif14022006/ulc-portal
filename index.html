@@ -3310,35 +3310,32 @@ async function downloadPDF(){
   clone.style.width='794px'; clone.style.boxShadow='none'; clone.style.border='none';
   holder.appendChild(clone); document.body.appendChild(holder);
   try{
-    /* Hard timeout so Android WebView never sits on Generating forever */
-    const canvas=await Promise.race([
-      (async()=>{
-        await new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)));
-        const opts=(window.ULC_SAVE&&ULC_SAVE.captureOpts)
-          ? ULC_SAVE.captureOpts({width:794,windowWidth:794})
-          : {scale:2,useCORS:true,allowTaint:false,backgroundColor:'#ffffff',logging:false,width:794,windowWidth:794};
-        return html2canvas(clone,opts);
-      })(),
-      new Promise((_,rej)=>setTimeout(()=>rej(new Error('PDF preview timed out on this phone. Try again.')), 45000))
-    ]);
+    await new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)));
+    const canvas=(window.ULC_SAVE&&typeof ULC_SAVE.captureElement==='function')
+      ? await ULC_SAVE.captureElement(clone,{width:794,windowWidth:794})
+      : await html2canvas(clone,(window.ULC_SAVE&&ULC_SAVE.captureOpts)?ULC_SAVE.captureOpts({width:794,windowWidth:794}):{scale:2,useCORS:true,allowTaint:false,backgroundColor:'#ffffff',logging:false,width:794,windowWidth:794});
     const {jsPDF}=window.jspdf; const pdf=new jsPDF('p','mm','a4');
     const dataUrl=canvas.toDataURL('image/jpeg',0.82);
     if(!dataUrl||dataUrl.length<100) throw new Error('Blank PDF capture (image/CORS). Use local logo images.');
     pdf.addImage(dataUrl,'JPEG',0,0,210,297);
-    if(window.ULC_SAVE&&typeof ULC_SAVE.patchJsPdf==='function') ULC_SAVE.patchJsPdf();
     btn.textContent='Saving…';
-    const saved=await pdf.save(((val('f-name')||'ULC')+'_'+currentTpl+'_cover.pdf').replace(/\s+/g,'_'));
+    const fname=((val('f-name')||'ULC')+'_'+currentTpl+'_cover.pdf').replace(/\s+/g,'_');
+    const saved=(window.ULC_SAVE&&typeof ULC_SAVE.saveJsPdf==='function')
+      ? await ULC_SAVE.saveJsPdf(pdf,fname)
+      : await pdf.save(fname);
+    if(saved&&saved.canceled) return;
     if(saved&&saved.error) throw new Error(saved.error||'Save failed');
     try{
       if(window.MyFiles){
         const previewHtml=`<div class="cover tpl-${currentTpl}" style="width:794px">${document.getElementById('coverPreview').innerHTML}</div>`;
-        MyFiles.saveCoverAuto(V(), currentTpl, previewHtml, saved);
+        await MyFiles.saveCoverAuto(V(), currentTpl, previewHtml, saved);
       }
     }catch(_){}
   }catch(e){
     console.error(e);
     const diag=(window.ULC_SAVE&&ULC_SAVE.diagnose)?('\n\n'+ULC_SAVE.diagnose()):'';
-    alert('PDF failed: '+(e&&e.message?e.message:'Try again.')+diag);
+    if(window.ULC_SAVE&&typeof ULC_SAVE.alertPdfFailed==='function') ULC_SAVE.alertPdfFailed(e,diag);
+    else if(!(e&&e.__ulcAlerted)) alert('PDF failed: '+(e&&e.message?e.message:'Try again.')+diag);
   }
   finally{ holder.remove(); btn.disabled=false; btn.textContent=label; }
 }

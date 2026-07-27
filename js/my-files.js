@@ -120,18 +120,49 @@
     });
   }
 
+  function blobToIdbValue(blob) {
+    const type = (blob && blob.type) || "application/pdf";
+    if (blob && typeof blob.arrayBuffer === "function") {
+      return blob.arrayBuffer().then((buf) => ({ buf: buf, type: type }));
+    }
+    return new Response(blob).arrayBuffer().then((buf) => ({ buf: buf, type: type }));
+  }
+
+  function idbValueToBlob(value) {
+    if (!value) return null;
+    if (typeof Blob !== "undefined" && value instanceof Blob) {
+      return value.size ? value : null;
+    }
+    if (value && value.buf) {
+      const blob = new Blob([value.buf], { type: value.type || "application/pdf" });
+      return blob.size ? blob : null;
+    }
+    if (value instanceof ArrayBuffer) {
+      const blob = new Blob([value], { type: "application/pdf" });
+      return blob.size ? blob : null;
+    }
+    if (value instanceof Uint8Array) {
+      const blob = new Blob([value], { type: "application/pdf" });
+      return blob.size ? blob : null;
+    }
+    return null;
+  }
+
   function storePdfBlob(id, blob) {
     if (!id || !blob) return Promise.resolve(false);
-    return idbOpen()
-      .then(
-        (db) =>
-          new Promise((resolve, reject) => {
-            const tx = db.transaction(IDB_STORE, "readwrite");
-            tx.oncomplete = () => resolve(true);
-            tx.onerror = () => reject(tx.error);
-            tx.objectStore(IDB_STORE).put(blob, id);
-          })
-      )
+    return blobToIdbValue(blob)
+      .then((record) => {
+        if (!record || !record.buf || !record.buf.byteLength) return false;
+        return idbOpen().then(
+          (db) =>
+            new Promise((resolve, reject) => {
+              const tx = db.transaction(IDB_STORE, "readwrite");
+              tx.oncomplete = () => resolve(true);
+              tx.onerror = () => reject(tx.error);
+              tx.objectStore(IDB_STORE).put(record, id);
+            })
+        );
+      })
       .catch((err) => {
         console.warn("[MyFiles] PDF IDB store failed", err);
         return false;
@@ -146,7 +177,7 @@
           new Promise((resolve, reject) => {
             const tx = db.transaction(IDB_STORE, "readonly");
             const req = tx.objectStore(IDB_STORE).get(id);
-            req.onsuccess = () => resolve(req.result || null);
+            req.onsuccess = () => resolve(idbValueToBlob(req.result));
             req.onerror = () => reject(req.error);
           })
       )
@@ -196,7 +227,7 @@
   }
 
   /** Call after PDF download — metadata in localStorage, PDF bytes in IndexedDB / native archive. */
-  function saveAfterPdf(type, title, html, extra, savedResult) {
+  async function saveAfterPdf(type, title, html, extra, savedResult) {
     try {
       if (!currentUser()) return null;
       if (savedResult && savedResult.canceled) return null;
@@ -215,7 +246,8 @@
           ...(extra && extra.meta),
           pdfDownloaded: true,
           hasPdf: !!(pdfPath || hasBlob),
-          hasPdfBlob: hasBlob,
+          /* Blob flag set only after IndexedDB write succeeds */
+          hasPdfBlob: false,
           truncated: !!(html && String(html).length > MAX_HTML_CHARS),
         },
         payload: (extra && extra.payload) || null,
@@ -224,9 +256,9 @@
         pdfName: pdfName,
       });
       if (row && hasBlob) {
-        storePdfBlob(row.id, savedResult.blob).then((ok) => {
-          if (ok) markFilePdfReady(row.id, { pdfName: pdfName || row.pdfName });
-        });
+        const ok = await storePdfBlob(row.id, savedResult.blob);
+        if (ok) markFilePdfReady(row.id, { pdfName: pdfName || row.pdfName });
+        else console.warn("[MyFiles] PDF blob not stored for", row.id);
       }
       return row;
     } catch (err) {
@@ -465,18 +497,18 @@
     );
   }
 
-  function saveCurrentCover() {
+  async function saveCurrentCover() {
     if (!requireLogin("Saving this cover")) return;
     const v = typeof global.V === "function" ? global.V() : {};
     const tpl = global.currentTpl || "classic";
     const preview = document.getElementById("coverPreview");
     const inner = preview ? preview.innerHTML : "";
     const html = `<div class="cover tpl-${tpl}" style="width:794px">${inner}</div>`;
-    const row = saveCoverAuto(v, tpl, html);
+    const row = await saveCoverAuto(v, tpl, html);
     if (row) alert("Cover saved to My Files.");
   }
 
-  function saveCurrentLetter() {
+  async function saveCurrentLetter() {
     if (!requireLogin("Saving this application")) return;
     if (!global.LetterApp) return;
     global.LetterApp.drawLetter();
@@ -490,7 +522,7 @@
       typeof global.LetterApp.currentTplKey === "function"
         ? global.LetterApp.currentTplKey()
         : "general";
-    const row = saveLetterAuto(values, tpl, html);
+    const row = await saveLetterAuto(values, tpl, html);
     if (row) alert("Application saved to My Files.");
   }
 
@@ -608,9 +640,7 @@
   function previewFile(id) {
     const f = getFile(id);
     if (!f) return;
-    let html = f.html || "";
-    if (!html && f.type === "cover" && f.payload) html = rebuildCoverPreviewHtml(f.payload);
-    if (!html && f.type === "letter" && f.payload) html = rebuildLetterPreviewHtml(f.payload);
+    const html = resolveFileHtml(f);
     if (!html) {
       if (fileHasPdf(f)) {
         alert("No HTML preview for this item. Use Share PDF / Download to open the stored PDF.");
@@ -643,6 +673,165 @@
     }
   }
 
+  function resolveFileHtml(f) {
+    if (!f) return "";
+    if (f.html) return f.html;
+    if (f.type === "cover" && f.payload) return rebuildCoverPreviewHtml(f.payload);
+    if (f.type === "letter" && f.payload) return rebuildLetterPreviewHtml(f.payload);
+    return "";
+  }
+
+  async function deliverPdfBlob(blob, pdfName, fileId, existing) {
+    if (!blob || !blob.size) throw new Error("Nothing to download");
+    let saved = null;
+    if (global.ULC_SAVE && typeof global.ULC_SAVE.saveBlob === "function") {
+      saved = await global.ULC_SAVE.saveBlob(blob, pdfName);
+    } else if (global.ULC_SAVE && typeof global.ULC_SAVE.triggerBrowserDownload === "function") {
+      global.ULC_SAVE.triggerBrowserDownload(blob, pdfName);
+    } else {
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = pdfName;
+      a.style.display = "none";
+      document.body.appendChild(a);
+      a.click();
+      setTimeout(() => {
+        URL.revokeObjectURL(url);
+        a.remove();
+      }, 1500);
+    }
+    if (saved && saved.canceled) return saved;
+    if (fileId) {
+      markFilePdfReady(fileId, {
+        pdfName: (saved && saved.filename) || pdfName,
+        pdfPath: (saved && saved.archivePath) || (existing && existing.pdfPath) || null,
+        pdfDir: (saved && saved.archiveDirectory) || (existing && existing.pdfDir) || "DATA",
+      });
+      if (saved && saved.blob) await storePdfBlob(fileId, saved.blob);
+      else await storePdfBlob(fileId, blob);
+    }
+    return saved;
+  }
+
+  async function regeneratePdfFromHtml(f, html, pdfName) {
+    if (!html) throw new Error("No HTML to regenerate from");
+    if (typeof html2canvas === "undefined" || !global.jspdf) {
+      throw new Error("PDF_LIBS_MISSING");
+    }
+    const landscape = f.orientation === "l";
+    const w = landscape ? 1122 : 794;
+    const holder =
+      global.ULC_SAVE && typeof global.ULC_SAVE.prepareCaptureHost === "function"
+        ? global.ULC_SAVE.prepareCaptureHost(w)
+        : (() => {
+            const d = document.createElement("div");
+            d.style.cssText =
+              "position:fixed;left:0;top:0;width:" +
+              w +
+              "px;opacity:0.01;pointer-events:none;z-index:-1;background:#fff;";
+            return d;
+          })();
+    const wrap = document.createElement("div");
+    wrap.innerHTML = html;
+    const sheet = wrap.firstElementChild || wrap;
+    sheet.style.width = w + "px";
+    sheet.style.boxShadow = "none";
+    sheet.style.border = "none";
+    holder.appendChild(sheet);
+    document.body.appendChild(holder);
+    try {
+      await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
+      const canvas =
+        global.ULC_SAVE && typeof global.ULC_SAVE.captureElement === "function"
+          ? await global.ULC_SAVE.captureElement(sheet, { width: w, windowWidth: w })
+          : await html2canvas(
+              sheet,
+              global.ULC_SAVE && global.ULC_SAVE.captureOpts
+                ? global.ULC_SAVE.captureOpts({ width: w, windowWidth: w })
+                : {
+                    scale: 2,
+                    useCORS: true,
+                    allowTaint: false,
+                    backgroundColor: "#ffffff",
+                    logging: false,
+                    width: w,
+                    windowWidth: w,
+                  }
+            );
+      const { jsPDF } = global.jspdf;
+      const pdf = new jsPDF(landscape ? "l" : "p", "mm", "a4");
+      const pageW = pdf.internal.pageSize.getWidth();
+      const pageH = pdf.internal.pageSize.getHeight();
+      const dataUrl = canvas.toDataURL("image/jpeg", 0.9);
+      if (!dataUrl || dataUrl.length < 100) throw new Error("Blank PDF capture (CORS/taint)");
+      pdf.addImage(dataUrl, "JPEG", 0, 0, pageW, pageH);
+      if (global.ULC_SAVE && typeof global.ULC_SAVE.patchJsPdf === "function") {
+        global.ULC_SAVE.patchJsPdf();
+      }
+      const saved =
+        global.ULC_SAVE && typeof global.ULC_SAVE.saveJsPdf === "function"
+          ? await global.ULC_SAVE.saveJsPdf(pdf, pdfName)
+          : await pdf.save(pdfName);
+      if (saved && saved.canceled) return saved;
+      try {
+        const u = currentUser();
+        const key = accountKey(u);
+        if (key) {
+          const all = getStore();
+          const list = all[key] || [];
+          const idx = list.findIndex((x) => x.id === f.id);
+          if (idx >= 0) {
+            list[idx] = {
+              ...list[idx],
+              pdfPath: (saved && saved.archivePath) || list[idx].pdfPath || null,
+              pdfDir: (saved && saved.archiveDirectory) || list[idx].pdfDir || "DATA",
+              pdfName: (saved && saved.filename) || pdfName,
+              meta: {
+                ...(list[idx].meta || {}),
+                hasPdf: true,
+                hasPdfBlob: !!(saved && saved.blob),
+              },
+            };
+            all[key] = list;
+            setStore(all);
+          }
+        }
+        if (saved && saved.blob) await storePdfBlob(f.id, saved.blob);
+      } catch (_) {}
+      return saved;
+    } finally {
+      holder.remove();
+    }
+  }
+
+  function downloadHtmlFallback(f, html) {
+    const name =
+      String(f.title || f.type || "ULC").replace(/[^\w\-]+/g, "_").slice(0, 60) + ".html";
+    const blob = new Blob(
+      [
+        '<!DOCTYPE html><html><head><meta charset="utf-8"><title>' +
+          esc(f.title || "ULC") +
+          "</title></head><body>" +
+          html +
+          "</body></html>",
+      ],
+      { type: "text/html;charset=utf-8" }
+    );
+    if (global.ULC_SAVE && typeof global.ULC_SAVE.triggerBrowserDownload === "function") {
+      global.ULC_SAVE.triggerBrowserDownload(blob, name);
+    } else if (global.ULC_SAVE && typeof global.ULC_SAVE.saveBlob === "function") {
+      return global.ULC_SAVE.saveBlob(blob, name);
+    } else {
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = name;
+      a.click();
+      setTimeout(() => URL.revokeObjectURL(url), 1500);
+    }
+  }
+
   async function downloadSavedFile(id) {
     const f = getFile(id);
     if (!f) {
@@ -660,6 +849,7 @@
         await global.ULC_SAVE.shareArchivedPdf(f.pdfPath, pdfName, f.pdfDir || "DATA");
         return;
       } catch (err) {
+        if (/cancel/i.test(String((err && err.message) || err || ""))) return;
         console.warn("[MyFiles] archive share failed", err);
       }
     }
@@ -668,31 +858,47 @@
     try {
       const blob = await getPdfBlob(f.id);
       if (blob && blob.size) {
-        let saved = null;
-        if (global.ULC_SAVE && typeof global.ULC_SAVE.saveBlob === "function") {
-          saved = await global.ULC_SAVE.saveBlob(blob, pdfName);
-        } else if (global.ULC_SAVE && typeof global.ULC_SAVE.triggerBrowserDownload === "function") {
-          global.ULC_SAVE.triggerBrowserDownload(blob, pdfName);
-        } else {
-          const url = URL.createObjectURL(blob);
-          const a = document.createElement("a");
-          a.href = url;
-          a.download = pdfName;
-          a.click();
-          setTimeout(() => URL.revokeObjectURL(url), 1500);
-        }
-        markFilePdfReady(f.id, {
-          pdfName: (saved && saved.filename) || pdfName,
-          pdfPath: (saved && saved.archivePath) || f.pdfPath || null,
-          pdfDir: (saved && saved.archiveDirectory) || f.pdfDir || "DATA",
-        });
+        await deliverPdfBlob(blob, pdfName, f.id, f);
         return;
       }
     } catch (err) {
-      console.warn("[MyFiles] IDB PDF read failed", err);
+      if (/cancel/i.test(String((err && err.message) || err || ""))) return;
+      console.warn("[MyFiles] IDB PDF read/share failed", err);
     }
 
-    /* 3) Cover / letter with payload — reopen editor so user can Download PDF again */
+    /* 3) Regenerate from stored / rebuilt HTML (older items + cover/letter with payload) */
+    const html = resolveFileHtml(f);
+    if (html) {
+      try {
+        await regeneratePdfFromHtml(f, html, pdfName);
+        return;
+      } catch (e) {
+        if (/cancel/i.test(String((e && e.message) || e || ""))) return;
+        if (e && e.message === "PDF_LIBS_MISSING") {
+          if (global.ULC_SAVE && global.ULC_SAVE.isNative && global.ULC_SAVE.isNative()) {
+            alert("PDF libraries failed to load. Check your connection and reopen the app.");
+            return;
+          }
+          downloadHtmlFallback(f, html);
+          return;
+        }
+        console.error(e);
+        try {
+          downloadHtmlFallback(f, html);
+          return;
+        } catch (_) {}
+        const diag =
+          global.ULC_SAVE && global.ULC_SAVE.diagnose ? "\n\n" + global.ULC_SAVE.diagnose() : "";
+        if (global.ULC_SAVE && typeof global.ULC_SAVE.alertPdfFailed === "function") {
+          global.ULC_SAVE.alertPdfFailed(e, diag);
+        } else if (!(e && e.__ulcAlerted)) {
+          alert("Could not generate PDF. " + (e && e.message ? e.message : "Try again.") + diag);
+        }
+        return;
+      }
+    }
+
+    /* 4) Cover / letter with payload only — reopen editor so user can Download PDF again */
     if ((f.type === "cover" || f.type === "letter") && f.payload) {
       openFile(id);
       alert(
@@ -701,103 +907,9 @@
       return;
     }
 
-    /* 4) HTML preview → generate PDF, then keep blob in IndexedDB */
-    if (!f.html) {
-      alert(
-        "No PDF copy is stored for this item yet.\n\nOpen the tool, generate the document again, and tap Download PDF once — a local copy will appear here."
-      );
-      return;
-    }
-    if (typeof html2canvas === "undefined" || !global.jspdf) {
-      if (global.ULC_SAVE && global.ULC_SAVE.isNative && global.ULC_SAVE.isNative()) {
-        alert("PDF libraries failed to load. Check your connection and reopen the app.");
-        return;
-      }
-      const host = document.getElementById("printhost");
-      if (host) {
-        host.innerHTML = f.html;
-        host.style.display = "block";
-      }
-      window.print();
-      return;
-    }
-    const landscape = f.orientation === "l";
-    const w = landscape ? 1122 : 794;
-    const holder =
-      global.ULC_SAVE && typeof global.ULC_SAVE.prepareCaptureHost === "function"
-        ? global.ULC_SAVE.prepareCaptureHost(w)
-        : (() => {
-            const d = document.createElement("div");
-            d.style.cssText =
-              "position:fixed;left:0;top:0;width:" +
-              w +
-              "px;opacity:0.01;pointer-events:none;z-index:-1;background:#fff;";
-            return d;
-          })();
-    const wrap = document.createElement("div");
-    wrap.innerHTML = f.html;
-    const sheet = wrap.firstElementChild || wrap;
-    sheet.style.width = w + "px";
-    sheet.style.boxShadow = "none";
-    sheet.style.border = "none";
-    holder.appendChild(sheet);
-    document.body.appendChild(holder);
-    try {
-      await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
-      const canvas = await html2canvas(
-        sheet,
-        global.ULC_SAVE && global.ULC_SAVE.captureOpts
-          ? global.ULC_SAVE.captureOpts({ width: w, windowWidth: w })
-          : {
-              scale: 2,
-              useCORS: true,
-              allowTaint: false,
-              backgroundColor: "#ffffff",
-              logging: false,
-              width: w,
-              windowWidth: w,
-            }
-      );
-      const { jsPDF } = global.jspdf;
-      const pdf = new jsPDF(landscape ? "l" : "p", "mm", "a4");
-      const pageW = pdf.internal.pageSize.getWidth();
-      const pageH = pdf.internal.pageSize.getHeight();
-      const dataUrl = canvas.toDataURL("image/jpeg", 0.9);
-      if (!dataUrl || dataUrl.length < 100) throw new Error("Blank PDF capture (CORS/taint)");
-      pdf.addImage(dataUrl, "JPEG", 0, 0, pageW, pageH);
-      const safe = String(f.title || f.type || "ULC").replace(/[^\w\-]+/g, "_").slice(0, 60);
-      if (global.ULC_SAVE && typeof global.ULC_SAVE.patchJsPdf === "function") {
-        global.ULC_SAVE.patchJsPdf();
-      }
-      const saved = await pdf.save(safe + ".pdf");
-      /* Persist local PDF + archive path for next open */
-      try {
-        const u = currentUser();
-        const key = accountKey(u);
-        if (key) {
-          const all = getStore();
-          const list = all[key] || [];
-          const idx = list.findIndex((x) => x.id === f.id);
-          if (idx >= 0) {
-            list[idx] = {
-              ...list[idx],
-              pdfPath: (saved && saved.archivePath) || list[idx].pdfPath || null,
-              pdfDir: (saved && saved.archiveDirectory) || list[idx].pdfDir || "DATA",
-              pdfName: (saved && saved.filename) || safe + ".pdf",
-              meta: { ...(list[idx].meta || {}), hasPdf: true, hasPdfBlob: !!(saved && saved.blob) },
-            };
-            all[key] = list;
-            setStore(all);
-          }
-        }
-        if (saved && saved.blob) await storePdfBlob(f.id, saved.blob);
-      } catch (_) {}
-    } catch (e) {
-      console.error(e);
-      alert("Could not generate PDF. " + (e && e.message ? e.message : "Try again."));
-    } finally {
-      holder.remove();
-    }
+    alert(
+      "No PDF copy is stored for this item yet.\n\nOpen the tool, generate the document again, and tap Download PDF once — a local copy will appear here."
+    );
   }
 
   function fmtWhen(iso) {

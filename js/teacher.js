@@ -1512,19 +1512,27 @@
       });
 
       const slug = ("ULC_" + (c.subject || "Class") + "_Sem" + c.semester + "_Attendance").replace(/\s+/g, "_");
-      if (global.ULC_SAVE && typeof global.ULC_SAVE.patchJsPdf === "function") {
-        global.ULC_SAVE.patchJsPdf();
-      }
-      const savedAtt = await pdf.save(slug + ".pdf");
+      const fname = slug + ".pdf";
+      const savedAtt =
+        global.ULC_SAVE && typeof global.ULC_SAVE.saveJsPdf === "function"
+          ? await global.ULC_SAVE.saveJsPdf(pdf, fname)
+          : await pdf.save(fname);
+      if (savedAtt && savedAtt.canceled) return;
       try {
         if (global.MyFiles) {
           const title = (c.subject || "Class") + " · Sem " + c.semester + " · Attendance";
-          global.MyFiles.saveAttendanceAuto(title, "", savedAtt);
+          await global.MyFiles.saveAttendanceAuto(title, "", savedAtt);
         }
       } catch (_) {}
     } catch (e) {
       console.error(e);
-      alert("Could not download attendance PDF. Please hard-refresh (Ctrl+F5) and try again.");
+      const diag =
+        global.ULC_SAVE && global.ULC_SAVE.diagnose ? "\n\n" + global.ULC_SAVE.diagnose() : "";
+      if (global.ULC_SAVE && typeof global.ULC_SAVE.alertPdfFailed === "function") {
+        global.ULC_SAVE.alertPdfFailed(e, diag);
+      } else if (!(e && e.__ulcAlerted)) {
+        alert("PDF failed: " + (e && e.message ? e.message : "Try again.") + diag);
+      }
     } finally {
       if (btn) {
         btn.disabled = false;
@@ -1765,7 +1773,11 @@
       opts.height = heightPx;
       opts.windowHeight = heightPx;
     }
-    return html2canvas(sheet, opts);
+    return global.ULC_SAVE && typeof global.ULC_SAVE.captureElement === "function"
+      ? global.ULC_SAVE.captureElement(sheet, opts)
+      : global.ULC_SAVE && typeof global.ULC_SAVE.withTimeout === "function"
+        ? global.ULC_SAVE.withTimeout(html2canvas(sheet, opts), 45000)
+        : html2canvas(sheet, opts);
   }
 
   function placeCanvasOnA4Landscape(pdf, canvas, marginMm) {
@@ -1846,19 +1858,28 @@
       if (global.ULC_SAVE && typeof global.ULC_SAVE.patchJsPdf === "function") {
         global.ULC_SAVE.patchJsPdf();
       }
-      const savedAward = await pdf.save((pdfFileSlug(cols) + ".pdf").replace(/\s+/g, "_"));
+      const awardName = (pdfFileSlug(cols) + ".pdf").replace(/\s+/g, "_");
+      const savedAward =
+        global.ULC_SAVE && typeof global.ULC_SAVE.saveJsPdf === "function"
+          ? await global.ULC_SAVE.saveJsPdf(pdf, awardName)
+          : await pdf.save(awardName);
+      if (savedAward && savedAward.canceled) return;
       try {
         if (global.MyFiles) {
           const c = activeClass();
           const title = ((c && c.subject) || "Class") + " · Sem " + ((c && c.semester) || "") + " · Award list";
-          global.MyFiles.saveAwardAuto(title, "", savedAward);
+          await global.MyFiles.saveAwardAuto(title, "", savedAward);
         }
       } catch (_) {}
     } catch (e) {
       console.error(e);
       const diag =
         global.ULC_SAVE && global.ULC_SAVE.diagnose ? "\n\n" + global.ULC_SAVE.diagnose() : "";
-      alert("PDF failed: " + (e && e.message ? e.message : "Try again.") + diag);
+      if (global.ULC_SAVE && typeof global.ULC_SAVE.alertPdfFailed === "function") {
+        global.ULC_SAVE.alertPdfFailed(e, diag);
+      } else if (!(e && e.__ulcAlerted)) {
+        alert("PDF failed: " + (e && e.message ? e.message : "Try again.") + diag);
+      }
       if (!(global.ULC_SAVE && global.ULC_SAVE.isNative && global.ULC_SAVE.isNative())) {
         const html = partial ? buildPartialMarksHtml(cols) : buildAwardHtml();
         const w = window.open("", "_blank");

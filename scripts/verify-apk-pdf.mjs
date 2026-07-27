@@ -48,10 +48,10 @@ try {
 }
 
 const checks = [
-  ["native-save.js", "assets/public/js/native-save.js", ["ULC-PDF-2.0.0", "finishAndShare", "captureOpts", "no encoding"]],
+  ["native-save.js", "assets/public/js/native-save.js", ["ULC-PDF-2.0.1", "finishAndShare", "captureOpts", "no encoding", "saveJsPdf"]],
   ["my-files.js", "assets/public/js/my-files.js", ["pdfPath", "shareArchivedPdf"]],
   ["index.html", "assets/public/index.html", ["downloadPDF", "native-save.js", "allowTaint:false"]],
-  ["build stamp", "assets/public/ULC_BUILD.txt", ["ULC-PDF-2.0.0"]],
+  ["build stamp", "assets/public/ULC_BUILD.txt", ["ULC-PDF-2.0.1"]],
 ];
 
 let pass = 0;

@@ -49,8 +49,8 @@ for (const d of dirs) {
 /* Prove the APK web shell is fresh (stale-JS trap). */
 await fs.writeFile(
   path.join(dest, "ULC_BUILD.txt"),
-  `ULC-PDF-2.0.0\nsynced=${new Date().toISOString()}\n`,
+  `ULC-PDF-2.0.1\nsynced=${new Date().toISOString()}\n`,
   "utf8"
 );
 
-console.log(`Copied app shell → ${path.relative(root, dest)}/ (ULC-PDF-2.0.0)`);
+console.log(`Copied app shell → ${path.relative(root, dest)}/ (ULC-PDF-2.0.1)`);

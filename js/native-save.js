@@ -1,16 +1,18 @@
-/* Native PDF save for Capacitor Android (build: ULC-PDF-2.0.0).
+/* Native PDF save for Capacitor Android (build: ULC-PDF-2.0.1).
  *
  * Rules applied:
  * 1) Always cap:sync before APK rebuild (see npm run android:release)
  * 2) Filesystem.writeFile: NEVER pass encoding — Cap treats bare data as base64
  * 3) Strip data:…;base64, prefix before write
  * 4) UlcPdfSaver must be registered in MainActivity (checked via ping)
- * 5) All saves await + surface errors with alert
+ * 5) All saves await + surface errors with alert('PDF failed: …')
  * 6) html2canvas: useCORS true, allowTaint false (avoids blank/tainted canvas)
+ * 7) Prefer UlcPdfSaver → ULCNative → Filesystem+Share (never bare <a download> on native)
  */
 (function (global) {
-  var BUILD_ID = "ULC-PDF-2.0.0";
+  var BUILD_ID = "ULC-PDF-2.0.1";
   var CHUNK_CHARS = 200000;
+  var CAPTURE_TIMEOUT_MS = 45000;
 
   function isNative() {
     try {
@@ -311,7 +313,7 @@
   }
 
   async function saveBlob(blob, filename) {
-    if (!blob) throw new Error("Nothing to save");
+    if (!blob || !blob.size) throw new Error("Nothing to download");
     var name = safeName(filename, "ULC_file.pdf");
 
     if (isNative()) {
@@ -350,28 +352,68 @@
 
   async function saveJsPdf(pdf, filename) {
     var name = safeName(filename, "ULC.pdf");
+    patchJsPdf();
     var blob = await pdfToBlob(pdf);
     if (!blob || !blob.size) throw new Error("Generated PDF is empty (blank capture?)");
     /* Web + native: always go through saveBlob so My Files gets a Blob back */
     return saveBlob(blob, name);
   }
 
+  function markAlerted(err) {
+    if (err && typeof err === "object") err.__ulcAlerted = true;
+    return err;
+  }
+
+  function wasAlerted(err) {
+    return !!(err && err.__ulcAlerted);
+  }
+
   function alertSaveHelp(detail) {
     alert(
       "PDF failed: " +
         (detail || "unknown") +
-        "\n\nFix: uninstall app → install ULC-Toolkit-v2.0.0-CAP-SYNC.apk\n" +
-        "(built with npm run cap:sync + assembleRelease)\n\n" +
+        "\n\nFix: uninstall app → install fresh APK after npm run android:release\n" +
+        "(cap:sync + assembleRelease)\n\n" +
         "Build: " +
         BUILD_ID
     );
+  }
+
+  /** Single place for user-facing PDF errors (avoids silent Generating… hangs). */
+  function alertPdfFailed(err, extra) {
+    if (wasAlerted(err)) return;
+    var detail = errMsg(err) + (extra ? String(extra) : "");
+    if (isNative()) alertSaveHelp(detail);
+    else alert("PDF failed: " + detail);
+    markAlerted(err);
+  }
+
+  function withTimeout(promise, ms, message) {
+    var msN = ms == null ? CAPTURE_TIMEOUT_MS : ms;
+    return Promise.race([
+      promise,
+      new Promise(function (_, reject) {
+        setTimeout(function () {
+          reject(new Error(message || "PDF preview timed out on this phone. Try again."));
+        }, msN);
+      }),
+    ]);
+  }
+
+  /** html2canvas with native-safe opts + hard timeout so UI never sticks on Generating… */
+  function captureElement(el, extraOpts) {
+    if (typeof global.html2canvas !== "function") {
+      return Promise.reject(new Error("html2canvas missing"));
+    }
+    var opts = captureOpts(extraOpts || {});
+    return withTimeout(global.html2canvas(el, opts), CAPTURE_TIMEOUT_MS);
   }
 
   function patchJsPdf() {
     var ns = global.jspdf || global.jsPDF;
     var Ctor = ns && ns.jsPDF ? ns.jsPDF : typeof ns === "function" ? ns : null;
     if (!Ctor || !Ctor.prototype) return false;
-    if (Ctor.prototype.__ulcSavePatchedV5) return true;
+    if (Ctor.prototype.__ulcSavePatchedV6) return true;
 
     var orig = Ctor.prototype.save;
     Ctor.prototype.__ulcOrigSave = orig;
@@ -380,14 +422,14 @@
       return saveJsPdf(self, filename).catch(function (err) {
         if (isCancelError(err)) return { canceled: true };
         console.error("[ulc-save] PDF failed", err);
-        if (isNative()) alertSaveHelp(errMsg(err));
-        else alert("PDF failed: " + errMsg(err));
+        alertPdfFailed(err);
         throw err;
       });
     };
     Ctor.prototype.__ulcSavePatched = true;
     Ctor.prototype.__ulcSavePatchedV4 = true;
     Ctor.prototype.__ulcSavePatchedV5 = true;
+    Ctor.prototype.__ulcSavePatchedV6 = true;
     console.info("[ulc-save] patched", BUILD_ID);
     return true;
   }
@@ -462,6 +504,10 @@
     prepareCaptureHost: prepareCaptureHost,
     captureScale: captureScale,
     captureOpts: captureOpts,
+    captureElement: captureElement,
+    withTimeout: withTimeout,
+    alertPdfFailed: alertPdfFailed,
+    wasAlerted: wasAlerted,
     diagnose: diagnose,
     shareArchivedPdf: shareArchivedPdf,
     stripBase64: stripBase64,

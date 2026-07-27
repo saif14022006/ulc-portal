@@ -54,7 +54,7 @@ public class UlcPdfSaverPlugin extends Plugin {
     public void ping(PluginCall call) {
         JSObject ret = new JSObject();
         ret.put("ok", true);
-        ret.put("version", "1.8");
+        ret.put("version", "1.9");
         call.resolve(ret);
     }
 
@@ -330,7 +330,7 @@ public class UlcPdfSaverPlugin extends Plugin {
 
         getActivity().runOnUiThread(() -> {
             Intent chooser = Intent.createChooser(send, "Save or share PDF");
-            chooser.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            /* Stay in the same task so Share reliably appears over the WebView */
             getActivity().startActivity(chooser);
         });
     }

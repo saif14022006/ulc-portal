@@ -1434,25 +1434,32 @@
         window.print();
         return;
       }
-      const canvas = await html2canvas(
-        cert,
-        global.ULC_SAVE && global.ULC_SAVE.captureOpts
-          ? global.ULC_SAVE.captureOpts({
+      const canvas =
+        global.ULC_SAVE && typeof global.ULC_SAVE.captureElement === "function"
+          ? await global.ULC_SAVE.captureElement(cert, {
               width: 1122,
               windowWidth: 1122,
               imageTimeout: 8000,
             })
-          : {
-              scale: 2,
-              useCORS: true,
-              allowTaint: false,
-              backgroundColor: "#ffffff",
-              logging: false,
-              width: 1122,
-              windowWidth: 1122,
-              imageTimeout: 8000,
-            }
-      );
+          : await html2canvas(
+              cert,
+              global.ULC_SAVE && global.ULC_SAVE.captureOpts
+                ? global.ULC_SAVE.captureOpts({
+                    width: 1122,
+                    windowWidth: 1122,
+                    imageTimeout: 8000,
+                  })
+                : {
+                    scale: 2,
+                    useCORS: true,
+                    allowTaint: false,
+                    backgroundColor: "#ffffff",
+                    logging: false,
+                    width: 1122,
+                    windowWidth: 1122,
+                    imageTimeout: 8000,
+                  }
+            );
       const { jsPDF } = global.jspdf;
       const pdf = new jsPDF("l", "mm", "a4");
       const pageW = pdf.internal.pageSize.getWidth();
@@ -1461,19 +1468,24 @@
       if (!dataUrl || dataUrl.length < 100) throw new Error("Blank PDF capture (CORS/taint)");
       pdf.addImage(dataUrl, "JPEG", 0, 0, pageW, pageH);
       const safe = String(u.name || "ULC").replace(/\s+/g, "_");
-      if (global.ULC_SAVE && typeof global.ULC_SAVE.patchJsPdf === "function") {
-        global.ULC_SAVE.patchJsPdf();
-      }
-      const saved = await pdf.save(`${safe}_Sem${sem}_Provisional.pdf`);
+      const fname = `${safe}_Sem${sem}_Provisional.pdf`;
+      const saved =
+        global.ULC_SAVE && typeof global.ULC_SAVE.saveJsPdf === "function"
+          ? await global.ULC_SAVE.saveJsPdf(pdf, fname)
+          : await pdf.save(fname);
+      if (saved && saved.canceled) return;
       try {
-        if (global.MyFiles) global.MyFiles.saveTranscriptAuto(sem, html, saved);
+        if (global.MyFiles) await global.MyFiles.saveTranscriptAuto(sem, html, saved);
       } catch (_) {}
     } catch (e) {
       console.error(e);
       const diag =
         global.ULC_SAVE && global.ULC_SAVE.diagnose ? "\n\n" + global.ULC_SAVE.diagnose() : "";
       if (global.ULC_SAVE && global.ULC_SAVE.isNative && global.ULC_SAVE.isNative()) {
-        alert("PDF failed: " + (e && e.message ? e.message : "Try again.") + diag);
+        if (global.ULC_SAVE.alertPdfFailed) global.ULC_SAVE.alertPdfFailed(e, diag);
+        else if (!(e && e.__ulcAlerted)) {
+          alert("PDF failed: " + (e && e.message ? e.message : "Try again.") + diag);
+        }
       } else {
         const host = document.getElementById("printhost");
         if (host) {
