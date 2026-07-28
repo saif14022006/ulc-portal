@@ -1,0 +1,227 @@
+{
+  "Administrative and Services Law": {
+    "outcomes": [
+      "Identify and understand the core principles of administrative law, including natural justice, delegated legislation, and judicial review.",
+      "Comprehend knowledge of key service laws in Pakistan, including the Civil Servants Act, 1973, E&D Rules, and related constitutional provisions.",
+      "Critically analyze the judicial remedies, ouster clauses, and doctrines such as ultra vires and promissory estoppel in administrative governance.",
+      "Apply administrative and service law principles to real-life cases involving writ jurisdiction, public service disputes, and tribunal procedures."
+    ]
+  },
+  "Alternate Dispute Resolution": {
+    "outcomes": [
+      "Identify and understand the significance and types of dispute resolution methods alternative to formal court systems.",
+      "Comprehend the skills, procedures, and techniques involved in negotiation, mediation, conciliation, and arbitration.",
+      "Critically analyze the laws, research, and case studies on ADR to improve justice delivery mechanisms.",
+      "Apply appropriate ADR techniques to effectively resolve disputes in real or simulated settings."
+    ]
+  },
+  "Criminal Law": {
+    "outcomes": [
+      "Identify and understand the core principles of criminal liability, including actus reus, mens rea, general defenses, and classifications of offenses under PPC 1860.",
+      "Comprehend knowledge of major criminal offenses, punishments, and Islamic criminal law principles, including crime types, intent, and liability.",
+      "Critically analyze the judicial interpretations, statutory provisions, and distinctions among criminal acts such as theft, abduction, and defamation.",
+      "Apply criminal law doctrines to real-life scenarios involving investigation, charging, and legal evaluation of offenses under the PPC and Islamic law."
+    ]
+  },
+  "Cyber Law": {
+    "outcomes": [
+      "Identify and understand the evolution, scope, and categories of cybercrimes, including recent legislative amendments in Pakistan.",
+      "Comprehend knowledge of key cyber laws such as PECA 2016 and its 2025 amendments, focusing on offenses, penalties, and regulatory frameworks.",
+      "Critically analyze the implications of cyber laws on freedom of expression, privacy rights, and the balance between security and civil liberties.",
+      "Apply cyber law principles to real-world scenarios, including case studies on cyber offenses, digital evidence handling, and regulatory compliance."
+    ]
+  },
+  "Civil Procedure Code-I": {
+    "outcomes": [
+      "Identify and understand the structure and foundational provisions of the Code of Civil Procedure, 1908, including jurisdiction, institution of suits, and issuance of summons.",
+      "Comprehend procedural rules on pleadings, appearance of parties, framing of issues, and the trial process.",
+      "Critically analyze the fairness and efficiency of civil proceedings with reference to case law and reform initiatives.",
+      "Apply civil procedure rules to draft pleadings, frame issues, and prepare trial strategies in practical scenarios."
+    ]
+  },
+  "Civil Procedure Code-II": {
+    "outcomes": [
+      "Identify and understand the structure and foundational provisions of the Code of Civil Procedure, 1908, including jurisdiction, institution of suits, and issuance of summons.",
+      "Comprehend procedural rules on pleadings, appearance of parties, framing of issues, and the trial process.",
+      "Critically analyze the fairness and efficiency of civil proceedings with reference to case law and reform initiatives.",
+      "Apply civil procedure rules to draft pleadings, frame issues, and prepare trial strategies in practical scenarios."
+    ]
+  },
+  "Criminal Procedure Code-I": {
+    "outcomes": [
+      "Identify and understand the foundational provisions of the Code of Criminal Procedure, 1898, including courts, powers and procedural stages.",
+      "Comprehend the legal processes relating to arrest, investigation, unlawful assemblies, public nuisance and pre-trial mechanisms.",
+      "Critically analyze the Pakistan’s criminal procedure in comparison with English and inquisitorial systems, focusing on the right to fair trial.",
+      "Apply procedural knowledge to assess criminal proceedings, FIR registration, inquiries and pre-challan practices in legal or clinical settings."
+    ]
+  },
+  "Criminal Procedure Code-II": {
+    "outcomes": [
+      "Identify and understand the procedural framework of criminal trials, charges, evidence, bail, appeals and case disposal under the Code of Criminal Procedure, 1898.",
+      "Comprehend the role of medical jurisprudence in criminal trials, including medico-legal evidence and post-mortem procedures.",
+      "Critically analyze the right to fair trial and comparing procedural practices in Pakistan with English and inquisitorial legal systems.",
+      "Apply procedural and evidentiary principles in evaluating criminal cases and medico-legal scenarios in court or clinical legal settings."
+    ]
+  },
+  "Constitutional Law of Pakistan (Ideology and Constitution of Pakistan)": {
+    "outcomes": [
+      "Identify and understand the ideological foundations of Pakistan, including the Two-Nation Theory and Muslim nationalism, as responses to colonial rule and as part of broader anti-colonial movements in the Sub-continent.",
+      "Comprehend the structure, features, and guiding principles of the Constitution of Pakistan, 1973, including federalism, separation of powers, and fundamental rights.",
+      "Critically analyze the constitutional developments, major amendments, and landmark judgments interpreting the 1973 Constitution.",
+      "Apply constitutional provisions and case law to assess legal questions relating to state institutions, citizen rights, and governance under the 1973 Constitution."
+    ]
+  },
+  "Equity, Trusts and Specific Relief": {
+    "outcomes": [
+      "Identify and understand the historical development, maxims and core principles of equity, trust law and specific relief.",
+      "Comprehend key doctrines and legal procedures under the Specific Relief Act 1877, Trust laws, waqf laws and comparative equity in Islam.",
+      "Critically analyze the relevance and evolution of equitable principles in modern legal systems, including Pakistani and Islamic contexts.",
+      "Apply equitable doctrines and remedies to practical cases involving trust, waqf, injunctions and specific performance."
+    ]
+  },
+  "Environmental Law": {
+    "outcomes": [
+      "Identify and understand the evolution, sources, and principles of international and Pakistani environmental law.",
+      "Comprehend awareness of global and domestic legal frameworks for environmental governance, including the Pakistan Environmental Protection Act, 1997.",
+      "Critically analyze the role of international courts, soft law, and landmark judgments in shaping environmental jurisprudence.",
+      "Apply environmental law principles and legal remedies to real-world cases, including judicial decisions like Shehla Zia v WAPDA and international cases such as Lopez Ostra v Spain."
+    ]
+  },
+  "Introduction to Law and Legal Systems": {
+    "outcomes": [
+      "Identify and understand the origins, classifications, and sources of law within historical and modern legal systems.",
+      "Comprehend knowledge of the relationship between law and ethics, religion, morality, and its institutional application in Pakistan.",
+      "Critically analyze the role of legal systems, fundamental rights, and rule of law in shaping state-citizen relations.",
+      "Apply foundational legal concepts to real-life scenarios involving legal interpretation, case law, and court processes."
+    ]
+  },
+  "Islamic Jurisprudence": {
+    "outcomes": [
+      "Identify and understand the historical development and primary sources of Islamic Jurisprudence, including the Qur’an, Sunnah, Ijma and Qiyas.",
+      "Comprehend key legal concepts such as rights, obligations, legal capacity, contracts and court procedures in Islamic law.",
+      "Critically analyze the Islamic legal schools, reasoning methods, and their application in modern constitutional and international contexts.",
+      "Apply Islamic legal principles to interpret sources, resolve disputes and evaluate legal issues in practical settings."
+    ]
+  },
+  "International Law": {
+    "outcomes": [
+      "Identify and understand the scope, nature, and general principles of International Law.",
+      "Comprehend important notions in International Law surrounded by state, organizations, society, and individuals.",
+      "Critically analyze the instrumental role of International Law in international disputes, alliances, and global cooperation.",
+      "Apply and recommend the most suitable/correct course of action to help resolve an international dispute."
+    ]
+  },
+  "Islamic Personal Law-I": {
+    "outcomes": [
+      "Identify and understand the principles and Islamic Law governing conjugal/matrimonial life, such as – marriage, dower, divorce etc. - of a Muslim.",
+      "Comprehend and demonstrating knowledge of the Islamic Laws on matrimonial matters.",
+      "Critically analyze the Islamic Personal Law to adapt to the needs of the transforming society in the Muslim context.",
+      "Apply the knowledge and skills of Islamic Personal Law in legal practice/mediation to provide relief to the aggrieved party."
+    ]
+  },
+  "Islamic Personal Law-II": {
+    "outcomes": [
+      "Identify and understand the Islamic Personal Law governing property of a deceased Muslim; their Gift, Will and Waqf and its legal consequences.",
+      "Comprehend the knowledge of Islamic Law of Inheritance including transfer of property through Gift, Will and Waqf and its implementation.",
+      "Critically analyze the different perspectives and approaches to Islamic Law, including the different school of thoughts and the role of contemporary scholars to meeting the needs of the contemporary Muslim society.",
+      "Apply the knowledge and skills of Islamic Law of Inheritance in legal practice/mediation process to provide relief to the aggrieved party."
+    ]
+  },
+  "Jurisprudence": {
+    "outcomes": [
+      "Identify and understand the major jurisprudential schools including natural law, positivism, realism, and sociological theories.",
+      "Comprehend the philosophical foundations of legal systems through the work of major jurists and theorists.",
+      "Critically analyze the interplay between law, morality, justice, and social change using contemporary debates and theories.",
+      "Apply jurisprudential theories to interpret statutes, judicial decisions, and legal principles in their ethical and socio-political context."
+    ]
+  },
+  "Law of Contract": {
+    "outcomes": [
+      "Identify and understand the core principles of the Law of Contract in Pakistan under the Contract Act, 1872, including offer, acceptance, consideration, and free consent.",
+      "Comprehend the legal requirements for contract formation, performance, discharge, and remedies for breach.",
+      "Critically analyze the contractual doctrines through case law and international comparisons to assess enforceability and fairness.",
+      "Apply contract law principles to draft agreements, evaluate breaches, and advise on remedies in real-life and hypothetical disputes."
+    ]
+  },
+  "Law of Torts": {
+    "outcomes": [
+      "Identify and understand the general principles of Law of Torts.",
+      "Comprehend important torts against persons and properties.",
+      "Critically analyze the role of intention & negligence surrounding torts against persons and properties.",
+      "Apply the most suitable/correct course of action in a dispute before a civil court/mediation system."
+    ]
+  },
+  "Law of Evidence": {
+    "outcomes": [
+      "Identify and understand the foundational principles of the Qanoon-e-Shahadat Order, 1984, including relevancy, admissibility and types of evidence.",
+      "Comprehend key rules on witnesses, burden of proof, privileged communication, estoppel and examination processes in criminal and civil cases.",
+      "Critically analyze the admissibility of modern evidence, judicial interpretation and evolving trends in Pakistan’s evidence law.",
+      "Apply evidentiary principles in assessing legal disputes, evaluating witness credibility and interpreting facts in trial and pre-trial settings."
+    ]
+  },
+  "Law of Property": {
+    "outcomes": [
+      "Identify and understand key concepts and classifications of property, transfer methods and core provisions of the Transfer of Property Act, 1882.",
+      "Comprehend the laws relating to sale, mortgage, lease, gift, exchange, actionable claims and mandatory/optional registration under the Registration Act, 1908.",
+      "Critically analyze the rights and liabilities of parties involved in property transactions and assess judicial interpretations and legislative developments.",
+      "Apply legal knowledge to evaluate property disputes, draft compliant transactions, and advise on issues arising from immovable property dealings."
+    ]
+  },
+  "Legal Drafting and Pleadings": {
+    "outcomes": [
+      "Identify and understand the working knowledge of the rules and conventions governing legal drafting in Pakistan.",
+      "Comprehend the core principles of legal drafting, including clarity, precision, and consistency. Also analyze and interpret legal documents to identify key provisions and their implications. Evaluate and revise legal documents to ensure accuracy, coherence, and compliance with relevant laws and regulations.",
+      "Critically analyze the scenarios in light of the prevalent laws to write effective documents for the court/mediation system.",
+      "Apply legal drafting & pleading skills for better understanding of judges/mediators/lawyers/clients.",
+      "Equip students with the basic knowledge and skills required for drafting and pleadings in Urdu language."
+    ]
+  },
+  "Legal Ethics and Moot Cases": {
+    "outcomes": [
+      "Identify and understand the ethical responsibilities of legal professionals, judicial conduct, and professional codes of behavior.",
+      "Comprehend legal skills in advocacy, client counselling, drafting, e-filing, and alternative dispute resolution processes.",
+      "Critically analyze the legal dilemmas, courtroom scenarios, and access to justice challenges through roleplays, case studies, and mock trials.",
+      "Apply ethical standards and courtroom procedures in moot courts and simulations, reflecting professional decorum and legal reasoning."
+    ]
+  },
+  "Land Law": {
+    "outcomes": [
+      "Identify and understand the basic concepts behind the Land Law applicable to agricultural land in Pakistan.",
+      "Comprehend the laws and procedures related to the collection of land revenue in Pakistan.",
+      "Critically analyze the Land Law (substantive & procedural) to further improve its operation and governance through automation and digitization in Pakistan.",
+      "Apply legal skills to adopt the right course of action providing relief to the aggrieved party in Pakistan."
+    ]
+  },
+  "Law of Business Organizations-I": {
+    "outcomes": [
+      "Possess knowledge of the basic philosophical and legal concepts of business organizations including sole proprietorship, limited liability partnerships and general legal partnerships and companies.",
+      "Comprehend and distinguish the legal frameworks relating to formation, governance including the rights and duties of stakeholders and dissolution of the business organizations.",
+      "Critically analyze the specific legal provisions of relevant Acts relating to business organizations in the light of modern legislative, judicial and socio business developments.",
+      "Apply legal principles by doctrinal and socio legal methods and to advise on legal issues to assess the legal implications of laws of business organizations in hypothetical and real-world business scenarios."
+    ]
+  },
+  "Law of Business Organizations-II": {
+    "outcomes": [
+      "Possess knowledge of the basic philosophical and legal concepts of business organizations including the separate legal personality and limited liability of corporate form of businesses.",
+      "Comprehend the complete legal framework relating to formation including drafting of constitutional documents, legal practices in corporate governance and finance and winding up of companies.",
+      "Critically analyze the specific legal provisions of relevant corporate and securities Acts relating to corporate organizations, financial markets and regulatory bodies considering the modern legislative, judicial and socio legal developments.",
+      "Apply legal principles by doctrinal and socio legal methods and to advise on contemporary corporate legal issues to assess the legal implications of corporate laws in hypothetical and real-world business scenarios."
+    ]
+  },
+  "Principles of Constitutional Law": {
+    "outcomes": [
+      "Identify and understand the foundations of constitutional design, structure, and the evolution of constitutional formation across jurisdictions.",
+      "Comprehend the doctrine and function of judicial review as a tool of constitutional interpretation.",
+      "Critically analyze comparative constitutional jurisprudence, highlighting key similarities and divergences across legal systems.",
+      "Apply constitutional principles and major Pakistani cases such as Maulvi Tamizuddin Khan, Asma Jilani, and Sindh High Court Bar Association, to real-world constitutional contexts."
+    ]
+  },
+  "Research Methodology": {
+    "outcomes": [
+      "Identify and understand the relationship amongst legal research methods, methodology, and theory across law and allied disciplines.",
+      "Comprehend doctrinal and non-doctrinal research methodologies and acquiring core research skills for academic writing.",
+      "Critically analyze existing literature using appropriate research approaches and frameworks.",
+      "Apply legal research techniques to investigate, assess, and formulate evidence-based arguments and recommendations."
+    ]
+  }
+}

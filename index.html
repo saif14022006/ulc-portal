@@ -424,6 +424,29 @@ body.tools-drawer-open .tools-drawer-bg{display:block}
 .subj .code{font-family:var(--sans);font-size:12px;font-weight:600;color:var(--slate);min-width:72px;flex:none;letter-spacing:.02em}
 .subj .nm{flex:1;font-size:13px;color:var(--navy);font-weight:500;line-height:1.3}
 .subj .ch{font-size:12px;color:var(--slate);font-weight:600;flex:none}
+.subj-btn{width:100%;text-align:left;border:none;background:transparent;cursor:pointer;border-radius:10px;font:inherit}
+.subj-btn:hover,.subj-btn:focus-visible{background:#f5f0e4;outline:none}
+.subj-hint{display:block;font-size:10.5px;color:var(--slate);font-weight:500;margin-top:3px}
+.elec-link{display:block;width:100%;text-align:left;border:none;background:none;padding:2px 0;font:inherit;font-size:11.5px;color:var(--navy);cursor:pointer}
+.elec-link:hover{text-decoration:underline}
+.course-sheet{display:none;position:fixed;inset:0;z-index:10050;align-items:flex-end;justify-content:center}
+.course-sheet.show{display:flex}
+.course-sheet-bg{position:absolute;inset:0;background:rgba(8,39,68,.45)}
+.course-sheet-card{position:relative;z-index:1;width:min(560px,100%);max-height:min(88vh,720px);overflow:auto;background:#fff;border-radius:18px 18px 0 0;box-shadow:0 -12px 40px rgba(0,0,0,.2);padding:18px 16px 28px}
+.course-sheet-head{display:flex;gap:12px;align-items:flex-start;margin-bottom:12px}
+.course-sheet-head h3{font-family:var(--serif);font-size:18px;color:var(--navy);margin:4px 0}
+.course-sheet-code{font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--gold-deep)}
+.course-sheet-meta{font-size:12px;color:var(--slate);margin:0}
+.course-sheet-x{border:none;background:#eef1f5;width:36px;height:36px;border-radius:10px;font-size:22px;cursor:pointer;color:var(--navy);flex:none;line-height:1}
+.course-sheet-body section{margin:14px 0}
+.course-sheet-body h4{font-family:var(--serif);font-size:14px;color:var(--navy);margin:0 0 8px}
+.course-sheet-body ul{padding-left:1.15rem;margin:0;color:var(--ink);font-size:13px;line-height:1.5}
+.course-sheet-body li{margin-bottom:6px}
+.course-sheet-note{font-size:12px;color:var(--slate);line-height:1.45;background:#f7f9fc;border:1px solid var(--line);border-radius:10px;padding:10px 12px;margin:0 0 8px}
+@media (min-width:720px){
+  .course-sheet{align-items:center;padding:24px}
+  .course-sheet-card{border-radius:18px;max-height:min(84vh,760px)}
+}
 .intern{background:#fff7e8;border:1px dashed var(--gold);border-radius:10px;padding:11px 12px;margin-top:8px;font-size:12px;color:var(--gold-deep);line-height:1.5}
 .elec-wrap{margin-top:8px}
 .elec-wrap summary{padding:10px 4px;font-size:13px;font-weight:600;color:var(--navy);cursor:pointer}
@@ -1386,9 +1409,9 @@ html.ulc-native .landing-install{display:none!important}
         <div class="max-narrow">
         <div class="eyebrow">Study tools</div>
         <h2 class="view-title">LLB &amp; LLM Syllabus</h2>
-        <p class="view-sub">HEC national curricula. Tap LLB or LLM to expand either programme, then open a semester / section.</p>
+        <p class="view-sub">HEC curricula for LLB 5 Years, LLB 4 Years (2025), and LLM. Tap a programme, then a course for learning outcomes, outline topics and recommended books.</p>
         <div class="syl-root" id="sylRoot"></div>
-        <div class="note">LLB follows the HEC five-year scheme (Revised 2015). LLM follows the HEC LL.M. curriculum (Revised 2006) extracted from the official HEC document.</div>
+        <div class="note">LLB 5 Years follows the HEC five-year scheme (Revised 2015). LLB 4 Years follows the HEC Bachelor of Laws curriculum (2025). LLM follows the HEC LL.M. curriculum (Revised 2006). Course books/outlines may vary by university.</div>
         </div>
       </section>
 
@@ -2068,7 +2091,11 @@ const LS_GRADES="ulc_grades_v1";
 const LS_SLOTS="ulc_slots_v1";
 window.SYLLABUS=SYLLABUS;
 window.LLM_SYLLABUS=LLM_SYLLABUS;
-
+window.ELECTIVES=ELECTIVES;
+</script>
+<script src="js/syllabus-catalog.js"></script>
+<script src="js/syllabus-app.js"></script>
+<script>
 function isTeacher(u){ return (u||currentUser())?.role==='teacher'; }
 
 function go(t){
@@ -3687,75 +3714,9 @@ function renderSlots(){
   document.getElementById('slotList').innerHTML=list.map(x=>`<div class="slot"><div class="tm">${fmtTime(x.time)}</div><div><div class="nm">${esc(x.subj)}</div><div class="rm">${esc(x.room)||'—'}</div></div><button type="button" onclick="delSlot('${x.id}')">Remove</button></div>`).join('');
 }
 
-/* -------- Syllabus accordion (LLB + LLM) -------- */
-function renderLlbSemestersHtml(){
-  return `<div class="sem-acc">`+Object.keys(SYLLABUS).map(n=>{
-    const subs=SYLLABUS[n], cr=subs.reduce((a,x)=>a+x[2],0);
-    let body=subs.map(x=>`<div class="subj"><div class="code">${x[0]}</div><div class="nm">${x[1]}</div><div class="ch">${x[2]} CH</div></div>`).join('');
-    if(+n===8) body+=`<div class="intern"><b>Internship (3 CH)</b> — compulsory 10–12 weeks after Semester 8.</div>`;
-    if(+n===9||+n===10) body+=`<details class="elec-wrap"><summary>Elective courses — choose any four</summary><div class="elec-list">${ELECTIVES.map(e=>`<div>• ${e}</div>`).join('')}</div></details>`;
-    return `<details>
-      <summary>
-        <div class="sem-num">${n}</div>
-        <div class="sem-meta"><div class="ttl">Semester ${n}</div><div class="sub">${subs.length} courses · ${cr} credit hours</div></div>
-        <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
-      </summary>
-      <div class="sem-body">${body}</div>
-    </details>`;
-  }).join('')+`</div>`;
-}
-function renderLlmHtml(){
-  const c=LLM_SYLLABUS.compulsory.map(x=>`<div class="subj"><div class="code">${esc(x[0])}</div><div class="nm">${esc(x[1])}</div><div class="ch">${x[2]} CH</div></div>`).join('');
-  const t=LLM_SYLLABUS.thesis.map(x=>`<div class="subj"><div class="code">${esc(x[0])}</div><div class="nm">${esc(x[1])}</div><div class="ch">${x[2]} CH</div></div>`).join('');
-  const o=LLM_SYLLABUS.optional.map(x=>`<div class="subj"><div class="code">${esc(x[0])}</div><div class="nm">${esc(x[1])}</div><div class="ch">${x[2]} CH</div></div>`).join('');
-  return `<p class="syl-note">${esc(LLM_SYLLABUS.note)}</p>
-    <div class="sem-acc">
-      <details open>
-        <summary>
-          <div class="sem-num">C</div>
-          <div class="sem-meta"><div class="ttl">Compulsory</div><div class="sub">Required for all LL.M. students</div></div>
-          <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
-        </summary>
-        <div class="sem-body">${c}</div>
-      </details>
-      <details>
-        <summary>
-          <div class="sem-num">O</div>
-          <div class="sem-meta"><div class="ttl">Optional courses</div><div class="sub">${LLM_SYLLABUS.optional.length} HEC titles · 4 CH each</div></div>
-          <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
-        </summary>
-        <div class="sem-body">${o}</div>
-      </details>
-      <details>
-        <summary>
-          <div class="sem-num">T</div>
-          <div class="sem-meta"><div class="ttl">Thesis</div><div class="sub">Research component</div></div>
-          <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
-        </summary>
-        <div class="sem-body">${t}</div>
-      </details>
-    </div>`;
-}
+/* -------- Syllabus accordion (LLB 5Y + LLB 4Y + LLM) — see js/syllabus-app.js -------- */
 function renderSyllabusAcc(){
-  const el=document.getElementById('sylRoot')||document.getElementById('semAcc');
-  if(!el) return;
-  el.innerHTML=`
-    <details class="syl-prog" id="sylLlb">
-      <summary>
-        <div class="syl-badge">LLB</div>
-        <div class="syl-meta"><div class="ttl">LLB Syllabus</div><div class="sub">5-Year · HEC Revised 2015 · 166 CH</div></div>
-        <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
-      </summary>
-      <div class="syl-body">${renderLlbSemestersHtml()}</div>
-    </details>
-    <details class="syl-prog" id="sylLlm">
-      <summary>
-        <div class="syl-badge">LLM</div>
-        <div class="syl-meta"><div class="ttl">LLM Syllabus</div><div class="sub">HEC LL.M. Revised 2006 · coursework + thesis</div></div>
-        <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
-      </summary>
-      <div class="syl-body">${renderLlmHtml()}</div>
-    </details>`;
+  if(window.SyllabusApp && typeof SyllabusApp.render==='function') SyllabusApp.render();
 }
 
 /* init */
