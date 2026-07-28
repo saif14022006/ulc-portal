@@ -10,7 +10,7 @@
  * 7) Prefer UlcPdfSaver → ULCNative → Filesystem+Share (never bare <a download> on native)
  */
 (function (global) {
-  var BUILD_ID = "ULC-PDF-2.0.3";
+  var BUILD_ID = "ULC-XLS-2.1.3";
   var CHUNK_CHARS = 200000;
   var CAPTURE_TIMEOUT_MS = 45000;
 
@@ -46,20 +46,78 @@
     return /\.pdf$/i.test(String(n || ""));
   }
 
+  function isExcelName(n) {
+    return /\.xlsx?$/i.test(String(n || ""));
+  }
+
+  /** Excel-only filename: never ends with .pdf (fixes Award.xls.pdf / Award.xls (1).pdf). */
+  function excelSafeName(filename) {
+    var n = String(filename || "ULC_award.xls")
+      .replace(/[\\/:*?"<>|]+/g, "_")
+      .replace(/\s+/g, "_");
+    while (/\.pdf$/i.test(n)) n = n.replace(/\.pdf$/i, "");
+    /* Keep stem + real excel ext; drop Chrome duplicate junk after .xls */
+    if (/\.xlsx?/i.test(n)) {
+      n = n.replace(/(\.xlsx?).*$/i, "$1");
+    } else {
+      n = n.replace(/\.+$/g, "") + ".xls";
+    }
+    var m = n.match(/(\.xlsx?)$/i);
+    var ext = m ? m[1] : ".xls";
+    var stem = n.slice(0, n.length - ext.length).replace(/\.+$/g, "");
+    if (stem.length > 100) stem = stem.slice(0, 100);
+    if (!stem) stem = "ULC_award";
+    return stem + ext;
+  }
+
   function safeName(filename, fallback) {
     var fb = fallback || "ULC_file.pdf";
     var n = String(filename || fb)
       .replace(/[\\/:*?"<>|]+/g, "_")
-      .replace(/\s+/g, "_")
-      .slice(0, 120);
+      .replace(/\s+/g, "_");
     /* Undo legacy double-extension bug: Award.xls.pdf → Award.xls */
     n = n.replace(/\.(xls|xlsx|csv)\.pdf$/i, ".$1");
-    /* Preserve real extensions (.xls, .xlsx, …). Only default when none present. */
+    if (/\.xlsx?$/i.test(String(filename || "")) || /\.xlsx?$/i.test(fb)) {
+      return excelSafeName(n);
+    }
+    var m = n.match(/(\.[a-z0-9]{2,5})$/i);
+    var ext = m ? m[1] : "";
+    var stem = ext ? n.slice(0, -ext.length) : n;
+    if (stem.length > 100) stem = stem.slice(0, 100);
+    n = stem + ext;
     if (!hasKnownExt(n)) {
       var fbExt = (String(fb).match(/\.[a-z0-9]+$/i) || [".pdf"])[0];
       n += fbExt;
     }
     return n;
+  }
+
+  /** Dedicated Excel download — never routes through UlcPdfSaver / PDF MIME. */
+  async function saveExcelBlob(blob, filename) {
+    if (!blob || !blob.size) throw new Error("Nothing to download");
+    var name = excelSafeName(filename);
+    var excelBlob =
+      blob.type && /excel|spreadsheetml|csv/i.test(blob.type)
+        ? blob
+        : new Blob([blob], { type: "application/vnd.ms-excel;charset=utf-8" });
+
+    if (isNative()) {
+      try {
+        return await saveViaFilesystemShare(excelBlob, name);
+      } catch (err) {
+        if (isCancelError(err)) return { canceled: true };
+        console.warn("[ulc-save] excel share failed", errMsg(err));
+      }
+      try {
+        triggerBrowserDownload(excelBlob, name);
+        return { browser: true, blob: excelBlob, filename: name, downloaded: true, via: "browser-excel", build: BUILD_ID };
+      } catch (err2) {
+        throw new Error("Excel save failed: " + errMsg(err2));
+      }
+    }
+
+    triggerBrowserDownload(excelBlob, name);
+    return { browser: true, blob: excelBlob, filename: name, downloaded: true, via: "browser-excel", build: BUILD_ID };
   }
 
   function errMsg(err) {
@@ -552,6 +610,8 @@
   global.ULC_SAVE = {
     BUILD_ID: BUILD_ID,
     saveBlob: saveBlob,
+    saveExcelBlob: saveExcelBlob,
+    excelSafeName: excelSafeName,
     saveJsPdf: saveJsPdf,
     patchJsPdf: patchJsPdf,
     isNative: isNative,

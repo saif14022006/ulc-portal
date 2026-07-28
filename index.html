@@ -1386,7 +1386,7 @@ html.ulc-native .landing-install{display:none!important}
         <div class="max-narrow">
         <div class="eyebrow">Study tools</div>
         <h2 class="view-title">LLB &amp; LLM Syllabus</h2>
-        <p class="view-sub">HEC national curricula. LLB opens by default — tap LLB or LLM to collapse or expand either programme.</p>
+        <p class="view-sub">HEC national curricula. Tap LLB or LLM to expand either programme, then open a semester / section.</p>
         <div class="syl-root" id="sylRoot"></div>
         <div class="note">LLB follows the HEC five-year scheme (Revised 2015). LLM follows the HEC LL.M. curriculum (Revised 2006) extracted from the official HEC document.</div>
         </div>
@@ -3573,12 +3573,12 @@ function renderSlots(){
 
 /* -------- Syllabus accordion (LLB + LLM) -------- */
 function renderLlbSemestersHtml(){
-  return `<div class="sem-acc">`+Object.keys(SYLLABUS).map((n,i)=>{
+  return `<div class="sem-acc">`+Object.keys(SYLLABUS).map(n=>{
     const subs=SYLLABUS[n], cr=subs.reduce((a,x)=>a+x[2],0);
     let body=subs.map(x=>`<div class="subj"><div class="code">${x[0]}</div><div class="nm">${x[1]}</div><div class="ch">${x[2]} CH</div></div>`).join('');
     if(+n===8) body+=`<div class="intern"><b>Internship (3 CH)</b> — compulsory 10–12 weeks after Semester 8.</div>`;
     if(+n===9||+n===10) body+=`<details class="elec-wrap"><summary>Elective courses — choose any four</summary><div class="elec-list">${ELECTIVES.map(e=>`<div>• ${e}</div>`).join('')}</div></details>`;
-    return `<details${i===0?' open':''}>
+    return `<details>
       <summary>
         <div class="sem-num">${n}</div>
         <div class="sem-meta"><div class="ttl">Semester ${n}</div><div class="sub">${subs.length} courses · ${cr} credit hours</div></div>
@@ -3624,7 +3624,7 @@ function renderSyllabusAcc(){
   const el=document.getElementById('sylRoot')||document.getElementById('semAcc');
   if(!el) return;
   el.innerHTML=`
-    <details class="syl-prog" id="sylLlb" open>
+    <details class="syl-prog" id="sylLlb">
       <summary>
         <div class="syl-badge">LLB</div>
         <div class="syl-meta"><div class="ttl">LLB Syllabus</div><div class="sub">5-Year · HEC Revised 2015 · 166 CH</div></div>
@@ -3640,9 +3640,6 @@ function renderSyllabusAcc(){
       </summary>
       <div class="syl-body">${renderLlmHtml()}</div>
     </details>`;
-  /* LLB starts expanded; both program blocks stay collapsible */
-  const llb=document.getElementById('sylLlb');
-  if(llb) llb.open=true;
 }
 
 /* init */

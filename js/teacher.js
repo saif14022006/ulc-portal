@@ -2093,20 +2093,23 @@
         '<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40"><head><meta charset="utf-8"></head><body><table border="1">' +
         table +
         "</table></body></html>";
-      const blob = new Blob([html], { type: "application/vnd.ms-excel;charset=utf-8" });
+      const blob = new Blob(["\ufeff" + html], { type: "application/vnd.ms-excel;charset=utf-8" });
       const fname = (pdfFileSlug(cols) + ".xls").replace(/\s+/g, "_");
-      if (global.ULC_SAVE && typeof global.ULC_SAVE.saveBlob === "function") {
-        const saved = await global.ULC_SAVE.saveBlob(blob, fname);
+      /* Never use saveBlob — that path is PDF-oriented and produced *.xls.pdf */
+      if (global.ULC_SAVE && typeof global.ULC_SAVE.saveExcelBlob === "function") {
+        const saved = await global.ULC_SAVE.saveExcelBlob(blob, fname);
         if (saved && saved.canceled) return;
-      } else if (global.ULC_SAVE && typeof global.ULC_SAVE.triggerBrowserDownload === "function") {
-        global.ULC_SAVE.triggerBrowserDownload(blob, fname);
       } else {
+        const name = fname.replace(/\.pdf$/ig, "").replace(/\.(xls)\.pdf$/i, ".$1");
         const url = URL.createObjectURL(blob);
         const a = document.createElement("a");
         a.href = url;
-        a.download = fname;
+        a.download = /\.xlsx?$/i.test(name) ? name : name + ".xls";
+        a.rel = "noopener";
+        a.style.display = "none";
+        document.body.appendChild(a);
         a.click();
-        setTimeout(function () { URL.revokeObjectURL(url); }, 1500);
+        setTimeout(function () { URL.revokeObjectURL(url); a.remove(); }, 1500);
       }
     } catch (e) {
       console.error(e);
