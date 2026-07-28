@@ -1262,7 +1262,8 @@
       { t: "aggregate", label: "Admission Aggregate" },
       { t: "gpa", label: "GPA Tracker" },
       { t: "timetable", label: "Timetable" },
-      { t: "account", label: "Account" }
+      { t: "account", label: "Account" },
+      { t: "developer", label: "About the developer" }
     );
     return items.map((item) => ({ ...item, icon: ico[item.t] || ico.home }));
   }

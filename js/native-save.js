@@ -52,7 +52,9 @@
       .replace(/[\\/:*?"<>|]+/g, "_")
       .replace(/\s+/g, "_")
       .slice(0, 120);
-    /* Preserve real extensions (.xls, .xlsx, …). Only default to .pdf when none present. */
+    /* Undo legacy double-extension bug: Award.xls.pdf → Award.xls */
+    n = n.replace(/\.(xls|xlsx|csv)\.pdf$/i, ".$1");
+    /* Preserve real extensions (.xls, .xlsx, …). Only default when none present. */
     if (!hasKnownExt(n)) {
       var fbExt = (String(fb).match(/\.[a-z0-9]+$/i) || [".pdf"])[0];
       n += fbExt;

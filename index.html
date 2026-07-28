@@ -876,6 +876,7 @@ html.ulc-native .landing-install{display:none!important}
       <button class="side-item" data-t="timetable" onclick="go('timetable')"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>Timetable</button>
       <button class="side-item" data-t="teacher" onclick="go('teacher')"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>Teacher desk</button>
       <button class="side-item" data-t="account" onclick="go('account')"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c1.5-3.5 4-5 8-5s6.5 1.5 8 5"/></svg>Account</button>
+      <button class="side-item" data-t="developer" onclick="go('developer')"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c1.5-3.5 4-5 8-5s6.5 1.5 8 5"/></svg>About the developer</button>
     </aside>
 
     <main>
@@ -1385,7 +1386,7 @@ html.ulc-native .landing-install{display:none!important}
         <div class="max-narrow">
         <div class="eyebrow">Study tools</div>
         <h2 class="view-title">LLB &amp; LLM Syllabus</h2>
-        <p class="view-sub">HEC national curricula. Expand LLB or LLM, then open a semester / section.</p>
+        <p class="view-sub">HEC national curricula. LLB opens by default — tap LLB or LLM to collapse or expand either programme.</p>
         <div class="syl-root" id="sylRoot"></div>
         <div class="note">LLB follows the HEC five-year scheme (Revised 2015). LLM follows the HEC LL.M. curriculum (Revised 2006) extracted from the official HEC document.</div>
         </div>
@@ -3572,12 +3573,12 @@ function renderSlots(){
 
 /* -------- Syllabus accordion (LLB + LLM) -------- */
 function renderLlbSemestersHtml(){
-  return `<div class="sem-acc">`+Object.keys(SYLLABUS).map(n=>{
+  return `<div class="sem-acc">`+Object.keys(SYLLABUS).map((n,i)=>{
     const subs=SYLLABUS[n], cr=subs.reduce((a,x)=>a+x[2],0);
     let body=subs.map(x=>`<div class="subj"><div class="code">${x[0]}</div><div class="nm">${x[1]}</div><div class="ch">${x[2]} CH</div></div>`).join('');
     if(+n===8) body+=`<div class="intern"><b>Internship (3 CH)</b> — compulsory 10–12 weeks after Semester 8.</div>`;
     if(+n===9||+n===10) body+=`<details class="elec-wrap"><summary>Elective courses — choose any four</summary><div class="elec-list">${ELECTIVES.map(e=>`<div>• ${e}</div>`).join('')}</div></details>`;
-    return `<details>
+    return `<details${i===0?' open':''}>
       <summary>
         <div class="sem-num">${n}</div>
         <div class="sem-meta"><div class="ttl">Semester ${n}</div><div class="sub">${subs.length} courses · ${cr} credit hours</div></div>
@@ -3623,7 +3624,7 @@ function renderSyllabusAcc(){
   const el=document.getElementById('sylRoot')||document.getElementById('semAcc');
   if(!el) return;
   el.innerHTML=`
-    <details class="syl-prog" open>
+    <details class="syl-prog" id="sylLlb" open>
       <summary>
         <div class="syl-badge">LLB</div>
         <div class="syl-meta"><div class="ttl">LLB Syllabus</div><div class="sub">5-Year · HEC Revised 2015 · 166 CH</div></div>
@@ -3631,7 +3632,7 @@ function renderSyllabusAcc(){
       </summary>
       <div class="syl-body">${renderLlbSemestersHtml()}</div>
     </details>
-    <details class="syl-prog">
+    <details class="syl-prog" id="sylLlm">
       <summary>
         <div class="syl-badge">LLM</div>
         <div class="syl-meta"><div class="ttl">LLM Syllabus</div><div class="sub">HEC LL.M. Revised 2006 · coursework + thesis</div></div>
@@ -3639,6 +3640,9 @@ function renderSyllabusAcc(){
       </summary>
       <div class="syl-body">${renderLlmHtml()}</div>
     </details>`;
+  /* LLB starts expanded; both program blocks stay collapsible */
+  const llb=document.getElementById('sylLlb');
+  if(llb) llb.open=true;
 }
 
 /* init */
