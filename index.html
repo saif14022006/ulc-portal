@@ -1581,13 +1581,13 @@ html.ulc-native .landing-install{display:none!important}
               </span>
               <span class="settings-txt">
                 <strong>Settings</strong>
-                <small>Change password or email</small>
+                <small>Password, email, or delete account</small>
               </span>
               <svg class="settings-chev" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
             </button>
             <div id="accSecurityPanel" style="display:none" hidden>
               <h3 style="margin-bottom:8px">Security</h3>
-              <p class="hint" style="margin-bottom:12px">Change your password or email. Applies to students and teachers.</p>
+              <p class="hint" style="margin-bottom:12px">Change your password or email, or permanently delete your account. Applies to students and teachers.</p>
               <div class="msg" id="secMsg"></div>
 
               <h4 style="font-size:13px;color:var(--navy);margin:4px 0 10px">Change password</h4>
@@ -1603,6 +1603,14 @@ html.ulc-native .landing-install{display:none!important}
               <div class="field"><label>Confirm new email</label><input id="ch-email-new2" type="email" autocomplete="email"></div>
               <div class="field"><label>Current password (confirm it’s you)</label><input id="ch-email-pass" type="password" autocomplete="current-password" placeholder="Current password"></div>
               <button class="btn btn-gold" type="button" id="chEmailBtn" onclick="doChangeEmail()">Update email</button>
+
+              <hr style="border:none;border-top:1px solid var(--line);margin:18px 0">
+
+              <h4 style="font-size:13px;color:var(--danger);margin:0 0 8px">Delete my account</h4>
+              <p class="hint" style="margin-bottom:12px">Permanently removes your login and cloud data (profile, workspace, awards). This cannot be undone.</p>
+              <div class="field"><label>Type DELETE to confirm</label><input id="del-acc-confirm" type="text" autocomplete="off" placeholder="DELETE"></div>
+              <div class="field"><label>Current password</label><input id="del-acc-pass" type="password" autocomplete="current-password" placeholder="Current password"></div>
+              <button class="btn btn-danger" type="button" id="delAccBtn" onclick="doDeleteAccount()">Delete my account</button>
             </div>
           </div>
 
@@ -2895,6 +2903,113 @@ async function doLogout(){
   }
   go('home');
 }
+
+function clearLocalDataForUser(u){
+  if(!u) return;
+  const email=normalizeEmail(u.email);
+  const roll=String(u.roll||'').trim();
+  /* Local auth user */
+  if(email){
+    const users=getUsers();
+    const found=findLocalUserByEmail(email);
+    if(found){
+      delete users[found.key];
+      setUsers(users);
+    }
+  }
+  /* Awards keyed by roll */
+  if(roll){
+    const awards=loadJSON('ulc_awards_v2', {});
+    if(awards[roll]){ delete awards[roll]; saveJSON('ulc_awards_v2', awards); }
+  }
+  /* Teacher desk */
+  try{
+    const allT=loadJSON('ulc_teacher_data_v1', {});
+    const keys=Object.keys(allT);
+    keys.forEach((k)=>{
+      if(k===roll || (email && k.toLowerCase().includes(email.replace(/[^a-z0-9]/g,'')))) delete allT[k];
+    });
+    if(roll && allT[roll]) delete allT[roll];
+    /* Also remove by common teacher key patterns */
+    if(email){
+      const ek='E-'+email.replace(/[^a-z0-9]/g,'').toUpperCase().slice(0,40);
+      delete allT[ek];
+      delete allT[roll];
+    }
+    saveJSON('ulc_teacher_data_v1', allT);
+  }catch(_){}
+  /* Student profile / records / marks */
+  try{
+    const ak=email || roll;
+    ['ulc_student_profile_v1','ulc_semester_records_v1','ulc_subject_marks_v1'].forEach((ls)=>{
+      const all=loadJSON(ls, {});
+      Object.keys(all).forEach((k)=>{
+        if(k===roll || k===ak || (email && String(k).toLowerCase()===email)) delete all[k];
+      });
+      saveJSON(ls, all);
+    });
+  }catch(_){}
+  /* My Files */
+  try{
+    if(window.MyFiles?.replaceUserFiles) MyFiles.replaceUserFiles([]);
+    else {
+      const all=loadJSON('ulc_my_files_v1', {});
+      Object.keys(all).forEach((k)=>{
+        if(k===roll || (email && String(k).toLowerCase().includes(email.split('@')[0]))) delete all[k];
+      });
+      saveJSON('ulc_my_files_v1', all);
+    }
+  }catch(_){}
+}
+
+async function doDeleteAccount(){
+  const u=currentUser();
+  if(!u){ showSecMsg('Login first.'); return; }
+  const typed=String(document.getElementById('del-acc-confirm')?.value||'').trim();
+  const pass=document.getElementById('del-acc-pass')?.value||'';
+  if(typed!=='DELETE'){ showSecMsg('Type DELETE in capital letters to confirm.'); return; }
+  if(!pass){ showSecMsg('Enter your current password.'); return; }
+
+  const ok=confirm('Delete your account permanently?\n\nAll cloud profile and saved desk/dashboard data for this login will be removed. This cannot be undone.');
+  if(!ok) return;
+
+  const btn=document.getElementById('delAccBtn');
+  if(btn){ btn.disabled=true; btn.textContent='Deleting…'; }
+  showSecMsg('Verifying and deleting…', true);
+
+  try{
+    const valid=await verifyCurrentPassword(u.email, pass);
+    if(!valid){ showSecMsg('Incorrect password.'); return; }
+
+    if(u.cloud && u.id){
+      const sb=getSb();
+      if(!sb){ showSecMsg('Cloud is not available. Try again online.'); return; }
+      const { error }=await sb.rpc('delete_own_account');
+      if(error){
+        const msg=String(error.message||error||'');
+        if(/function .*delete_own_account|schema cache|does not exist/i.test(msg)){
+          showSecMsg('Account delete is not enabled on the server yet. Ask the developer to run migrate-delete-own-account.sql in Supabase.');
+          return;
+        }
+        showSecMsg(friendlyError(error));
+        return;
+      }
+      await sb.auth.signOut().catch(()=>{});
+    }
+
+    clearLocalDataForUser(u);
+    document.getElementById('del-acc-confirm').value='';
+    document.getElementById('del-acc-pass').value='';
+    showSecMsg('Account deleted.', true);
+    await doLogout();
+    alert('Your account has been deleted.');
+  }catch(err){
+    showSecMsg(friendlyError(err));
+  }finally{
+    if(btn){ btn.disabled=false; btn.textContent='Delete my account'; }
+  }
+}
+
 async function restoreCloudSession(){
   const sb=getSb(); if(!sb) return;
   const {data}=await sb.auth.getSession();
