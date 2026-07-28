@@ -1,0 +1,40 @@
+ULC Toolkit is the campus companion for University Law College, Quetta — built for students and teachers who need clean, print-ready documents and classroom tools in one place.
+
+Independent toolkit (not affiliated with ULC or the University of Balochistan). Designed to solve real student and teacher problems.
+
+STUDENT TOOLS (many work without login)
+• Assignment Cover Page — multiple professional templates, download as PDF
+• Application / Letter Generator — leave, rechecking, apology, fee issues, character certificate, hostel leave, migration, ID card, and general applications
+• LLB & LLM Syllabus — browse HEC five-year LLB and LL.M. courses
+• Award List — quizzes, assignments, mid & final using the official ULC formula
+• Admission Aggregate — Matric · Intermediate · LAT merit calculator
+• GPA Tracker — course marks, semester GPA, and CGPA
+• Timetable — keep your weekly class schedule on your phone
+
+STUDENT ACCOUNT
+• Personal dashboard with profile and photo
+• Semester records and subject marks
+• Transcript PDF ready to print or share
+• My Files — saved covers, applications, and documents
+• Cloud sync when signed in
+
+TEACHER / FACULTY DESK
+• Manage classes by subject and semester
+• Import student roster from PDF or photo (OCR), or add manually
+• Session roster shares roll number and name for classroom coordination
+• Attendance tracking with PDF export
+• Marks entry for quizzes, assignments, mid and final
+• Award list PDF and Excel export
+• Marks and attendance stay private in your teacher workspace
+
+WHY ULC TOOLKIT
+• Mobile-friendly and fast
+• Print-ready PDFs for college submission
+• Free tools without an account; sign in to save and sync
+• Built for law college workflows in Quetta
+
+Download ULC Toolkit and get campus paperwork done faster — from covers and applications to award lists and teacher records.
+
+Privacy: https://ulc-student-portal.vercel.app/privacy.html
+Delete account: https://ulc-student-portal.vercel.app/delete-account.html
+Support: saifagha389@outlook.com
