@@ -32,6 +32,8 @@
     const marksAll = loadJSON(LS_SUBJECT_MARKS, {});
     const subjectMarks = marksAll[accountKey(u)] || {};
     await global.ULC_CLOUD.saveWorkspace(uid, {
+      email: u.email || null,
+      full_name: u.name || "",
       official_name: u.name || "",
       data: {
         kind: "student",
@@ -51,7 +53,7 @@
     if (!u || !uid || u.role === "teacher" || !global.ULC_CLOUD?.loadWorkspace) return false;
     if (studentPullDone && !force) return false;
     try {
-      const remote = await global.ULC_CLOUD.loadWorkspace(uid);
+      const remote = await global.ULC_CLOUD.loadWorkspace(uid, { kind: "student" });
       studentPullDone = true;
       if (!remote || !remote.data || remote.data.kind !== "student") return false;
       const d = remote.data;

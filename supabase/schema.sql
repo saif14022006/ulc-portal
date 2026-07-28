@@ -49,10 +49,13 @@ create table if not exists public.award_lists (
 create index if not exists award_lists_user_idx on public.award_lists(user_id);
 
 -- Teacher workspace: classes, roster, attendance, marks — private to that teacher only
--- (never shared to student award_lists)
+-- (never shared to student award_lists). View in Table Editor → teacher_workspaces
 create table if not exists public.teacher_workspaces (
   user_id uuid primary key references auth.users(id) on delete cascade,
+  email text,
+  full_name text,
   official_name text,
+  class_count integer not null default 0,
   data jsonb not null default '{}'::jsonb,
   updated_at timestamptz default now()
 );

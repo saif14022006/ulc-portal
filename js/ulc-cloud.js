@@ -214,31 +214,118 @@
     } catch (_) { /* non-fatal */ }
   }
 
-  /** Generic per-user JSON workspace (table: teacher_workspaces). Used by teachers AND students. */
-  async function saveWorkspace(userId, payload) {
-    if (!userId) throw new Error("saveWorkspace: missing user id");
+  function workspaceKind(payload) {
+    const k = payload?.data?.kind || payload?.kind || "";
+    return k === "student" ? "student" : "teacher";
+  }
+
+  function workspaceTable(kind) {
+    return kind === "student" ? "student_workspaces" : "teacher_workspaces";
+  }
+
+  function buildWorkspaceRow(userId, payload) {
+    const data = payload.data != null ? payload.data : (payload.user_id ? payload.data : {});
+    const kind = workspaceKind(payload);
+    const classes = Array.isArray(data?.classes) ? data.classes : [];
     const row = {
       user_id: userId,
-      official_name: payload.official_name || payload.officialName || null,
-      data: payload.data != null ? payload.data : {},
-      updated_at: new Date().toISOString(),
+      email: payload.email || null,
+      full_name: payload.full_name || payload.fullName || null,
+      data: data || {},
+      updated_at: payload.updated_at || new Date().toISOString(),
     };
+    if (kind === "teacher") {
+      row.official_name = payload.official_name || payload.officialName || data?.officialName || null;
+      row.class_count = Number(payload.class_count != null ? payload.class_count : classes.length) || 0;
+      if (!row.full_name) row.full_name = row.official_name;
+    }
+    return { kind, row };
+  }
+
+  /** Per-user JSON workspace. Teachers → teacher_workspaces; students → student_workspaces (fallback teacher_workspaces). */
+  async function saveWorkspace(userId, payload) {
+    if (!userId) throw new Error("saveWorkspace: missing user id");
+    // Queue flush may pass already-built row (with user_id)
+    const incoming = payload && payload.user_id ? { data: payload.data, email: payload.email, full_name: payload.full_name, official_name: payload.official_name, class_count: payload.class_count, updated_at: payload.updated_at, kind: payload.data?.kind } : payload;
+    const { kind, row } = buildWorkspaceRow(userId, incoming || {});
+    const table = workspaceTable(kind);
     try {
-      return await sbCall("workspace.upsert", (sb) =>
-        sb.from("teacher_workspaces").upsert(row, { onConflict: "user_id" }).select("user_id,updated_at").single()
+      return await sbCall("workspace.upsert." + table, (sb) =>
+        sb.from(table).upsert(row, { onConflict: "user_id" }).select("user_id,updated_at").single()
       );
     } catch (err) {
+      // Older projects may not have student_workspaces yet — fall back for students
+      if (kind === "student") {
+        try {
+          const teacherRow = {
+            user_id: row.user_id,
+            email: row.email,
+            full_name: row.full_name,
+            official_name: row.full_name,
+            class_count: 0,
+            data: row.data,
+            updated_at: row.updated_at,
+          };
+          return await sbCall("workspace.upsert.teacher_workspaces.fallback", (sb) =>
+            sb.from("teacher_workspaces").upsert(teacherRow, { onConflict: "user_id" }).select("user_id,updated_at").single()
+          );
+        } catch (err2) {
+          if (isRetryable(err2)) enqueue({ type: "workspace_upsert", userId, payload: row });
+          throw err2;
+        }
+      }
+      // If new columns missing, retry with classic columns only
+      const msg = String(err?.message || err || "").toLowerCase();
+      if (msg.includes("email") || msg.includes("full_name") || msg.includes("class_count") || msg.includes("column") || msg.includes("schema cache")) {
+        try {
+          const classic = {
+            user_id: row.user_id,
+            official_name: row.official_name || row.full_name || null,
+            data: row.data,
+            updated_at: row.updated_at,
+          };
+          return await sbCall("workspace.upsert.classic", (sb) =>
+            sb.from(table).upsert(classic, { onConflict: "user_id" }).select("user_id,updated_at").single()
+          );
+        } catch (err3) {
+          if (isRetryable(err3)) enqueue({ type: "workspace_upsert", userId, payload: row });
+          throw err3;
+        }
+      }
       if (isRetryable(err)) enqueue({ type: "workspace_upsert", userId, payload: row });
       throw err;
     }
   }
 
-  async function loadWorkspace(userId) {
+  async function loadWorkspace(userId, opts) {
     if (!userId) return null;
-    const { data } = await sbCall("workspace.load", (sb) =>
-      sb.from("teacher_workspaces").select("user_id,official_name,data,updated_at").eq("user_id", userId).maybeSingle()
-    );
-    return data || null;
+    const prefer = opts?.kind === "student" ? "student" : opts?.kind === "teacher" ? "teacher" : null;
+    const tables = prefer === "student"
+      ? ["student_workspaces", "teacher_workspaces"]
+      : prefer === "teacher"
+        ? ["teacher_workspaces"]
+        : ["teacher_workspaces", "student_workspaces"];
+    for (const table of tables) {
+      try {
+        const { data } = await sbCall("workspace.load." + table, (sb) =>
+          sb.from(table).select("user_id,email,full_name,official_name,class_count,data,updated_at").eq("user_id", userId).maybeSingle()
+        );
+        if (data) return data;
+      } catch (err) {
+        const msg = String(err?.message || err || "").toLowerCase();
+        if (msg.includes("column") || msg.includes("schema cache")) {
+          const { data } = await sbCall("workspace.load.classic." + table, (sb) =>
+            sb.from(table).select("user_id,official_name,data,updated_at").eq("user_id", userId).maybeSingle()
+          );
+          if (data) return data;
+        } else if (table === "student_workspaces") {
+          continue;
+        } else {
+          throw err;
+        }
+      }
+    }
+    return null;
   }
 
   async function fetchProfile(userId) {

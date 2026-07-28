@@ -106,13 +106,18 @@
     if (!uid || !global.ULC_CLOUD?.saveWorkspace) return;
     const data = st || getStore();
     if (!data) return;
+    const u = global.currentUser && global.currentUser();
+    const classes = data.classes || [];
     await global.ULC_CLOUD.saveWorkspace(uid, {
-      official_name: data.officialName || "",
+      email: u?.email || null,
+      full_name: u?.name || data.officialName || null,
+      official_name: data.officialName || u?.name || "",
+      class_count: classes.length,
       data: {
         kind: "teacher",
         version: 1,
         officialName: data.officialName || "",
-        classes: data.classes || [],
+        classes,
         activeClassId: data.activeClassId || null,
         profileComplete: !!data.profileComplete,
         myFiles: global.MyFiles?.exportUserFiles ? global.MyFiles.exportUserFiles() : [],
@@ -126,7 +131,7 @@
     if (!uid || !global.ULC_CLOUD?.loadWorkspace) return false;
     if (cloudPullDone && !force) return false;
     try {
-      const remote = await global.ULC_CLOUD.loadWorkspace(uid);
+      const remote = await global.ULC_CLOUD.loadWorkspace(uid, { kind: "teacher" });
       cloudPullDone = true;
       if (!remote || !remote.data) return false;
       const d = remote.data;
@@ -2191,6 +2196,10 @@
     await pullTeacherWorkspace(false);
     const st = getStore();
     if (!st) return;
+    /* Always push latest local desk to Supabase when signed in */
+    if (cloudUserId() && (st.profileComplete || (st.classes || []).length)) {
+      pushTeacherWorkspace(st).catch((e) => console.warn("[teacher] cloud push on open", e?.message || e));
+    }
     if (!st.profileComplete || !st.classes.length) openTeacherSetup(false);
     else renderTeacherHome();
   }
