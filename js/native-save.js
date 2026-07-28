@@ -10,7 +10,7 @@
  * 7) Prefer UlcPdfSaver → ULCNative → Filesystem+Share (never bare <a download> on native)
  */
 (function (global) {
-  var BUILD_ID = "ULC-PDF-2.0.2";
+  var BUILD_ID = "ULC-PDF-2.0.3";
   var CHUNK_CHARS = 200000;
   var CAPTURE_TIMEOUT_MS = 45000;
 
@@ -38,12 +38,25 @@
     return null;
   }
 
+  function hasKnownExt(n) {
+    return /\.(pdf|xls|xlsx|csv|doc|docx|txt|png|jpg|jpeg|webp|zip)$/i.test(String(n || ""));
+  }
+
+  function isPdfName(n) {
+    return /\.pdf$/i.test(String(n || ""));
+  }
+
   function safeName(filename, fallback) {
-    var n = String(filename || fallback || "ULC_file.pdf")
+    var fb = fallback || "ULC_file.pdf";
+    var n = String(filename || fb)
       .replace(/[\\/:*?"<>|]+/g, "_")
       .replace(/\s+/g, "_")
       .slice(0, 120);
-    if (!/\.pdf$/i.test(n)) n += ".pdf";
+    /* Preserve real extensions (.xls, .xlsx, …). Only default to .pdf when none present. */
+    if (!hasKnownExt(n)) {
+      var fbExt = (String(fb).match(/\.[a-z0-9]+$/i) || [".pdf"])[0];
+      n += fbExt;
+    }
     return n;
   }
 
@@ -231,7 +244,7 @@
       await Share.share({
         title: filename,
         files: [uri],
-        dialogTitle: "Save or share PDF",
+        dialogTitle: "Save or share file",
       });
       return {
         uri: uri,
@@ -286,19 +299,23 @@
   async function saveBlobNative(blob, filename) {
     var safe = safeName(filename, "ULC_file.pdf");
     var errors = [];
+    /* PDF plugins force application/pdf — skip them for Excel and other non-PDF files */
+    var pdfPath = isPdfName(safe);
 
-    try {
-      return await saveViaUlcPdfSaver(blob, safe);
-    } catch (err) {
-      errors.push("plugin: " + errMsg(err));
-      console.warn("[ulc-save]", errors[errors.length - 1]);
-    }
+    if (pdfPath) {
+      try {
+        return await saveViaUlcPdfSaver(blob, safe);
+      } catch (err) {
+        errors.push("plugin: " + errMsg(err));
+        console.warn("[ulc-save]", errors[errors.length - 1]);
+      }
 
-    try {
-      return await saveViaULCNative(blob, safe);
-    } catch (err) {
-      errors.push("native: " + errMsg(err));
-      console.warn("[ulc-save]", errors[errors.length - 1]);
+      try {
+        return await saveViaULCNative(blob, safe);
+      } catch (err) {
+        errors.push("native: " + errMsg(err));
+        console.warn("[ulc-save]", errors[errors.length - 1]);
+      }
     }
 
     try {
@@ -309,12 +326,23 @@
       console.warn("[ulc-save]", errors[errors.length - 1]);
     }
 
+    /* Last resort on native: browser-style download keeps the real extension */
+    try {
+      triggerBrowserDownload(blob, safe);
+      return { browser: true, blob: blob, filename: safe, downloaded: true, via: "browser", build: BUILD_ID };
+    } catch (err) {
+      errors.push("browser: " + errMsg(err));
+    }
+
     throw new Error(errors.join(" | "));
   }
 
   async function saveBlob(blob, filename) {
     if (!blob || !blob.size) throw new Error("Nothing to download");
-    var name = safeName(filename, "ULC_file.pdf");
+    var fallback = /\.xls[x]?$/i.test(String(filename || ""))
+      ? "ULC_award.xls"
+      : "ULC_file.pdf";
+    var name = safeName(filename, fallback);
 
     if (isNative()) {
       var result = await saveBlobNative(blob, name);

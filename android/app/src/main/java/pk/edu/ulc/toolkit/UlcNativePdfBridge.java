@@ -145,7 +145,13 @@ public class UlcNativePdfBridge {
     private static String sanitize(String filename) {
         if (filename == null || filename.trim().isEmpty()) filename = "ULC.pdf";
         filename = filename.replaceAll("[\\\\/:*?\"<>|]+", "_").trim();
-        if (!filename.toLowerCase().endsWith(".pdf")) filename = filename + ".pdf";
+        String lower = filename.toLowerCase();
+        boolean known =
+            lower.endsWith(".pdf")
+                || lower.endsWith(".xls")
+                || lower.endsWith(".xlsx")
+                || lower.endsWith(".csv");
+        if (!known) filename = filename + ".pdf";
         return filename;
     }
 

@@ -296,7 +296,7 @@ public class UlcPdfSaverPlugin extends Plugin {
         ContentResolver resolver = getContext().getContentResolver();
         ContentValues values = new ContentValues();
         values.put(MediaStore.MediaColumns.DISPLAY_NAME, filename);
-        values.put(MediaStore.MediaColumns.MIME_TYPE, "application/pdf");
+        values.put(MediaStore.MediaColumns.MIME_TYPE, mimeForFilename(filename));
         values.put(
             MediaStore.MediaColumns.RELATIVE_PATH,
             Environment.DIRECTORY_DOWNLOADS + "/ULC Toolkit"
@@ -322,14 +322,14 @@ public class UlcPdfSaverPlugin extends Plugin {
             file
         );
         Intent send = new Intent(Intent.ACTION_SEND);
-        send.setType("application/pdf");
+        send.setType(mimeForFilename(filename));
         send.putExtra(Intent.EXTRA_STREAM, uri);
         send.putExtra(Intent.EXTRA_SUBJECT, filename);
         send.putExtra(Intent.EXTRA_TITLE, filename);
         send.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
 
         getActivity().runOnUiThread(() -> {
-            Intent chooser = Intent.createChooser(send, "Save or share PDF");
+            Intent chooser = Intent.createChooser(send, "Save or share file");
             /* Stay in the same task so Share reliably appears over the WebView */
             getActivity().startActivity(chooser);
         });
@@ -357,10 +357,29 @@ public class UlcPdfSaverPlugin extends Plugin {
         out.flush();
     }
 
+    private static String mimeForFilename(String filename) {
+        String n = filename == null ? "" : filename.toLowerCase();
+        if (n.endsWith(".xls")) return "application/vnd.ms-excel";
+        if (n.endsWith(".xlsx")) return "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+        if (n.endsWith(".csv")) return "text/csv";
+        if (n.endsWith(".png")) return "image/png";
+        if (n.endsWith(".jpg") || n.endsWith(".jpeg")) return "image/jpeg";
+        return "application/pdf";
+    }
+
     private static String sanitizeFilename(String filename) {
         if (filename == null || filename.trim().isEmpty()) filename = "ULC.pdf";
         filename = filename.replaceAll("[\\\\/:*?\"<>|]+", "_").trim();
-        if (!filename.toLowerCase().endsWith(".pdf")) filename = filename + ".pdf";
+        String lower = filename.toLowerCase();
+        boolean known =
+            lower.endsWith(".pdf")
+                || lower.endsWith(".xls")
+                || lower.endsWith(".xlsx")
+                || lower.endsWith(".csv")
+                || lower.endsWith(".png")
+                || lower.endsWith(".jpg")
+                || lower.endsWith(".jpeg");
+        if (!known) filename = filename + ".pdf";
         return filename;
     }
 
