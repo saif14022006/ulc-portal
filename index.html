@@ -498,24 +498,35 @@ body.tools-drawer-open .tools-drawer-bg{display:block}
 .site-footer .ft-col:last-child{grid-column:1/-1}
 .site-footer .ft-meta{font-size:12px;line-height:1.55;color:#9fb3c9}
 .site-footer .ft-bottom{border-top:1px solid rgba(255,255,255,.12);padding-top:14px;display:grid;gap:10px}
-.site-footer .ft-copy{font-size:11px;color:#8aa0b8}
+.site-footer .ft-copy{font-size:11px;color:#8aa0b8;line-height:1.5}
+.site-footer .ft-disclaimer{font-size:11.5px;line-height:1.55;color:#9fb3c9;max-width:52ch}
 .site-footer .ft-dev-link{display:inline-block;width:auto;margin:0;padding:0;background:none;border:none;font-family:var(--sans);font-size:13px;font-weight:650;color:var(--gold-lt);cursor:pointer;text-align:left;text-decoration:none}
 .site-footer .ft-dev-link:hover{color:#fff;text-decoration:underline}
 .dev-page{display:grid;gap:22px}
 .dev-hero{display:grid;gap:18px;justify-items:center;text-align:center;padding:8px 0 4px}
-.dev-photo-wrap{width:132px;height:132px;border-radius:50%;padding:3px;background:linear-gradient(145deg,#e8c76a,var(--gold),#8a6a1a);box-shadow:0 12px 30px rgba(12,40,72,.18)}
-.dev-photo{width:100%;height:100%;object-fit:cover;object-position:center 12%;border-radius:50%;display:block;background:radial-gradient(circle at 35% 25%,#1a4a7a,#0a2f56)}
+.dev-photo-wrap{
+  width:156px;height:156px;border-radius:0;padding:5px;
+  background:linear-gradient(145deg,#f0d78a,var(--gold),#8a6a1a);
+  box-shadow:0 14px 34px rgba(12,40,72,.22),inset 0 0 0 1px rgba(255,255,255,.25);
+}
+.dev-photo{
+  width:100%;height:100%;object-fit:cover;object-position:center 8%;
+  border-radius:0;display:block;background:#0b3a6b;
+  box-shadow:inset 0 0 0 1px rgba(11,58,107,.35);
+}
 .dev-hero h2{margin:0;font-family:var(--serif);font-size:28px;color:var(--navy);line-height:1.15}
 .dev-role{margin:0;font-size:13px;color:var(--muted);letter-spacing:.02em}
 .dev-prose{display:grid;gap:16px}
 .dev-prose p{margin:0;font-size:14.5px;line-height:1.72;color:#2a3b4d}
+.dev-prose a{color:var(--navy);font-weight:650;text-decoration:none;border-bottom:1px solid rgba(198,161,60,.5)}
+.dev-prose a:hover{color:var(--gold)}
 .dev-contact{display:flex;flex-wrap:wrap;gap:10px 16px;padding-top:4px;border-top:1px solid rgba(12,40,72,.1)}
 .dev-contact a,.dev-contact span{font-size:13px;color:var(--navy);text-decoration:none}
 .dev-contact a{border-bottom:1px solid rgba(198,161,60,.45)}
 .dev-contact a:hover{color:var(--gold)}
 @media(min-width:720px){
-  .dev-hero{grid-template-columns:140px 1fr;justify-items:start;text-align:left;align-items:center;gap:22px 28px}
-  .dev-photo-wrap{width:140px;height:140px}
+  .dev-hero{grid-template-columns:168px 1fr;justify-items:start;text-align:left;align-items:center;gap:22px 28px}
+  .dev-photo-wrap{width:168px;height:168px}
   .dev-hero h2{font-size:32px}
 }
 @media (min-width:900px){
@@ -577,6 +588,11 @@ body.landing-open .app{visibility:hidden;pointer-events:none}
 .landing-ctas-stack .btn{box-shadow:0 8px 24px rgba(0,0,0,.25)}
 .landing-ctas-stack .btn-ghost{background:rgba(255,255,255,.12);color:#fff;border-color:rgba(226,197,104,.45)}
 .landing-ctas-stack .btn-faculty{background:rgba(255,255,255,.16);color:#fff;border:1px solid rgba(226,197,104,.55)}
+.landing-install{display:grid;gap:6px;width:100%;margin-top:2px;animation:landIn .7s .3s ease both}
+.landing-install .btn-install{background:linear-gradient(135deg,#1a5f9e,#0d3d6b);color:#fff;border:1px solid rgba(226,197,104,.5);font-weight:700}
+.landing-install .btn-install:hover{filter:brightness(1.08)}
+.landing-install .li-note{font-size:11.5px;color:rgba(255,255,255,.72);text-align:center;line-height:1.4;margin:0}
+html.ulc-native .landing-install{display:none!important}
 .landing-scroll-hint{display:flex;flex-direction:column;align-items:center;gap:4px;padding:8px 16px calc(18px + env(safe-area-inset-bottom));color:rgba(255,255,255,.85);font-size:12px;font-weight:600;letter-spacing:.04em;animation:landIn .7s .32s ease both}
 .landing-scroll-hint span{opacity:.9}
 .landing-scroll-hint svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;animation:landBounce 1.4s ease-in-out infinite}
@@ -730,6 +746,10 @@ body.landing-open .app{visibility:hidden;pointer-events:none}
           <button type="button" class="btn btn-faculty" onclick="StudentDash.openAuthFromLanding('signup','teacher')">Create faculty account</button>
         </div>
         <button type="button" class="btn btn-ghost" onclick="StudentDash.openAuthFromLanding('login')">Login</button>
+        <div class="landing-install">
+          <a class="btn btn-install" href="https://github.com/saif14022006/ulc-portal/releases/latest/download/ulc-toolkit.apk" rel="noopener noreferrer">Download Android app</a>
+          <p class="li-note">APK for Android phones · install from this site (not the Play Store yet)</p>
+        </div>
       </div>
     </div>
     <a class="landing-scroll-hint" href="#landingFeatures" onclick="event.preventDefault();document.getElementById('landingFeatures')?.scrollIntoView({behavior:'smooth'})">
@@ -812,7 +832,7 @@ body.landing-open .app{visibility:hidden;pointer-events:none}
         </div>
         <div class="ft-col">
           <h4>About this toolkit</h4>
-          <p class="ft-meta">Built for students and teachers of University Law College, Quetta — assignment covers, results, and study tools in one place.</p>
+          <p class="ft-meta">Independent campus toolkit for students and teachers — built to ease real classroom work: covers, results, syllabus, and more.</p>
           <button type="button" onclick="StudentDash.openToolFromLanding('developer')" style="margin-top:10px">About the developer</button>
           <button type="button" onclick="StudentDash.openAuthFromLanding('signup','student')">Create student account</button>
           <button type="button" onclick="StudentDash.openAuthFromLanding('signup','teacher')">Create faculty account</button>
@@ -820,8 +840,11 @@ body.landing-open .app{visibility:hidden;pointer-events:none}
         </div>
       </div>
       <div class="ft-bottom">
-        <button type="button" class="ft-dev-link" onclick="StudentDash.openToolFromLanding('developer')">About the developer</button>
-        <div class="ft-copy">© University Law College Quetta · ULC Toolkit</div>
+        <div>
+          <button type="button" class="ft-dev-link" onclick="StudentDash.openToolFromLanding('developer')">About the developer</button>
+          <p class="ft-disclaimer" style="margin:8px 0 0">ULC Toolkit is not affiliated with University Law College or the University of Balochistan. It was designed to solve real-life problems faced by students and teachers.</p>
+        </div>
+        <div class="ft-copy">© ULC Toolkit</div>
       </div>
     </div>
   </footer>
@@ -1585,10 +1608,14 @@ body.landing-open .app{visibility:hidden;pointer-events:none}
           <div class="card">
             <h3>Quick actions</h3>
             <div class="btn-row" id="accQuickStudent">
-              <button class="btn btn-primary" onclick="go('home')">Student dashboard</button>
-              <button class="btn btn-ghost" onclick="prefillCoverFromAccount()">Fill cover form</button>
+              <button class="btn btn-primary" type="button" onclick="go('home')">Student dashboard</button>
+              <button class="btn btn-ghost" type="button" onclick="prefillCoverFromAccount()">Fill cover form</button>
             </div>
-            <button class="btn btn-danger" style="margin-top:10px" onclick="doLogout()">Logout</button>
+            <div class="btn-row" id="accQuickTeacher" style="display:none">
+              <button class="btn btn-primary" type="button" onclick="go('home')">Teacher dashboard</button>
+              <button class="btn btn-ghost" type="button" onclick="go('teacher')">Open Teacher desk</button>
+            </div>
+            <button class="btn btn-danger" type="button" style="margin-top:10px" onclick="doLogout()">Logout</button>
           </div>
         </div>
         </div>
@@ -1643,6 +1670,7 @@ body.landing-open .app{visibility:hidden;pointer-events:none}
         <div class="t-panel" id="tp-roster">
           <div class="card">
             <h3>Import students</h3>
+            <p class="hint">Students are shared by <b>session</b> (e.g. 2025-29). Upload once — other teachers of the same session can add those rolls automatically.</p>
             <p class="hint">Tap <b>Analyze file</b>. For each row: find the <b>Roll</b>, then take the <b>next column on the same row</b> — up to <b>20 characters without counting spaces</b> as the student name.</p>
             <div class="roster-drop">
               <div class="field">
@@ -1690,7 +1718,7 @@ body.landing-open .app{visibility:hidden;pointer-events:none}
                 <div class="pill ok" id="tr-att-summary" style="margin-top:8px">—</div>
               </div>
             </div>
-            <p class="hint" id="tr-att-hint">Daily: mark each class P / A / L — totals roll into weekly. Weekly: enter attended classes yourself.</p>
+            <p class="hint" id="tr-att-hint">Daily: mark each class P / A / L — totals roll into weekly. Weekly: enter attended classes yourself. Attendance stays on your teacher account only.</p>
             <div class="btn-row" style="margin-bottom:12px">
               <button class="btn btn-gold" type="button" id="tr-att-pdf-btn" onclick="TeacherApp.exportAttendancePdf()">Download attendance PDF</button>
             </div>
@@ -1701,6 +1729,7 @@ body.landing-open .app{visibility:hidden;pointer-events:none}
         <div class="t-panel" id="tp-marks">
           <div class="card">
             <h3>Upload marks</h3>
+            <p class="hint" style="margin-top:0">Marks and award results stay on your teacher account only — they are not shared with other teachers.</p>
             <div class="field"><label>Show fields for</label>
               <select id="tr-marks-mode" onchange="TeacherApp.renderMarks(this.value)">
                 <option value="quiz">Quizzes only (Q1–Q5)</option>
@@ -1718,7 +1747,7 @@ body.landing-open .app{visibility:hidden;pointer-events:none}
         <div class="t-panel" id="tp-pdf">
           <div class="card">
             <h3>Award list</h3>
-            <p class="hint">Downloads as <b>A4 landscape</b>. Rows stay readable (not stretched) and split across as many pages as needed for clear printing.</p>
+            <p class="hint">Official ULC award-list template (A4 landscape). Partial exports use the <b>same sheet</b> — only the marks you select are filled; other columns stay blank.</p>
             <div class="field"><label>What to include</label>
               <select id="tr-pdf-mode" onchange="TeacherApp.onPdfModeChange()">
                 <option value="full">Full official award list</option>
@@ -1751,9 +1780,13 @@ body.landing-open .app{visibility:hidden;pointer-events:none}
                 <label class="chk"><input type="checkbox" value="final"> Final</label>
               </div>
             </div>
-            <button class="btn btn-gold" type="button" id="tr-pdf-btn" onclick="TeacherApp.exportAwardPdf()">Download award list PDF</button>
+            <div class="btn-row">
+              <button class="btn btn-gold" type="button" id="tr-pdf-btn" onclick="TeacherApp.exportAwardPdf()">Download award list PDF</button>
+              <button class="btn btn-primary" type="button" id="tr-xls-btn" onclick="TeacherApp.exportAwardExcel()">Download Excel</button>
+            </div>
+            <p class="hint" style="margin-top:12px">When the share menu appears: send the file straight to your WhatsApp, choose Print and save as PDF, or upload it to Drive — print-ready in seconds.</p>
           </div>
-          <div class="note">Teacher results stay on this teacher account only. They are not pushed into student award lists.</div>
+          <div class="note">Your official award sheet is always one template away — download PDF or Excel and share it with the same polish every time.</div>
         </div>
         </div>
       </section>
@@ -1767,15 +1800,16 @@ body.landing-open .app{visibility:hidden;pointer-events:none}
           <div class="card dev-page">
             <div class="dev-hero">
               <div class="dev-photo-wrap">
-                <img class="dev-photo" src="assets/developer-saif.png" width="280" height="280" alt="Syed Saif Ur Rahman" loading="lazy" decoding="async">
+                <img class="dev-photo" src="assets/developer-saif.png" width="336" height="336" alt="Syed Saif Ur Rahman (Saif Agha)" loading="lazy" decoding="async">
               </div>
               <div>
                 <h2>Syed Saif Ur Rahman</h2>
-                <p class="dev-role">LLB student · University Law College, Quetta · Batch 2025–29, Section A</p>
+                <p class="dev-role">LLB student · University Law College, Quetta · Batch 2025–29, Section A<br>Founder &amp; CEO · Mumzy Kids, BA Mall Quetta</p>
               </div>
             </div>
             <div class="dev-prose">
-              <p>Syed Saif Ur Rahman is an LLB student at University Law College, Quetta, and the developer of the ULC Toolkit. He built this platform so students and teachers can prepare assignment covers, formal applications, award lists, and everyday study tools in one place — clean, print-ready, and easy to use on both the website and the Android app.</p>
+              <p>Syed Saif Ur Rahman — known as Saif Agha — is an LLB student at University Law College, Quetta, and the developer of the ULC Toolkit. He built this platform so students and teachers can prepare assignment covers, formal applications, award lists, and everyday study tools in one place — clean, print-ready, and easy to use on both the website and the Android app.</p>
+              <p>Saif Agha is also the Founder and CEO of Mumzy Kids at BA Mall, Quetta. He personally developed the full Mumzy Kids digital stack himself — the public website at <a href="https://www.mumzykids.com" target="_blank" rel="noopener noreferrer">www.mumzykids.com</a>, the point-of-sale (POS) system, and the entire operational setup that keeps the store running day to day.</p>
               <p>He is currently studying law at University Law College, with particular attention to constitutional law, civil procedure, and legal research. From January to February 2026 he interned with Inter Services Public Relations (ISPR) in Quetta, where he contributed to media relations, content creation, and strategic communication work.</p>
               <p>His academic path began with Matriculation in General Science from Government Boys High School Prince Road, Quetta, completed in 2022 with 79%. He then completed Intermediate in Computer Science at Government Postgraduate Science College, Quetta, in 2024 with 87%. He is now pursuing the five-year LLB at University Law College, Quetta, with an expected graduation in 2029 and a CGPA of 4.0 out of 4.0.</p>
               <p>Alongside his legal studies, he works at the meeting point of design, data, and the web. That mix is what shaped the ULC Toolkit: practical campus software that feels clear on screen and professional on paper. He is based in Chilton Housing Society, Quetta, and can be reached by email or phone below.</p>
@@ -1800,7 +1834,7 @@ body.landing-open .app{visibility:hidden;pointer-events:none}
           <div class="ft-tag">Faculty of Law</div>
           <h3>University Law College</h3>
           <p>Quetta · Affiliated with the University of Balochistan. A student toolkit for covers, award lists, syllabus, GPA, and classroom work.</p>
-          <p class="ft-meta" style="margin-top:10px">Sariab Road area · Quetta, Balochistan<br>LLB (5-Year) · HEC scheme</p>
+          <p class="ft-meta" style="margin-top:10px">Khojak Road Quetta Cantt · Balochistan, Pakistan<br>Ph: 0092-81-920-3851 · ulc.qta@gmail.com</p>
         </div>
       </div>
       <div class="ft-cols">
@@ -1825,7 +1859,7 @@ body.landing-open .app{visibility:hidden;pointer-events:none}
         </div>
         <div class="ft-col">
           <h4>About this toolkit</h4>
-          <p class="ft-meta">Built for students and teachers of University Law College, Quetta — assignment covers, results, and study tools in one place.</p>
+          <p class="ft-meta">Independent campus toolkit for students and teachers — built to ease real classroom work: covers, results, syllabus, and more.</p>
           <button type="button" onclick="go('developer')" style="margin-top:10px">About the developer</button>
           <button type="button" onclick="StudentDash.openAuthFromLanding('signup','student')">Create student account</button>
           <button type="button" onclick="StudentDash.openAuthFromLanding('signup','teacher')">Create faculty account</button>
@@ -1834,8 +1868,11 @@ body.landing-open .app{visibility:hidden;pointer-events:none}
         </div>
       </div>
       <div class="ft-bottom">
-        <button type="button" class="ft-dev-link" onclick="go('developer')">About the developer</button>
-        <div class="ft-copy">© University Law College Quetta · ULC Toolkit</div>
+        <div>
+          <button type="button" class="ft-dev-link" onclick="go('developer')">About the developer</button>
+          <p class="ft-disclaimer" style="margin:8px 0 0">ULC Toolkit is not affiliated with University Law College or the University of Balochistan. It was designed to solve real-life problems faced by students and teachers.</p>
+        </div>
+        <div class="ft-copy">© ULC Toolkit</div>
       </div>
     </div>
   </footer>
@@ -1960,7 +1997,7 @@ body.landing-open .app{visibility:hidden;pointer-events:none}
 <div class="overlay" id="teacherSetupOverlay" aria-hidden="true">
   <div class="sheet">
     <h2>Set up your class</h2>
-    <p class="lead">Enter your official instructor name and the subject you teach. Most teachers have one class — you can add more later. Results stay on your teacher account only.</p>
+    <p class="lead">Enter your official name, subject, and <b>session</b> (required). Students are shared by session — so if another teacher already uploaded the same batch, their rolls appear here automatically.</p>
     <div class="field"><label>Official instructor name</label><input id="ob-t-name" placeholder="As on award list"></div>
     <div class="field"><label>Semester</label><select id="ob-t-sem" onchange="TeacherApp.fillTeacherSubjList()"></select></div>
     <div class="field"><label>Subject</label>
@@ -1972,7 +2009,10 @@ body.landing-open .app{visibility:hidden;pointer-events:none}
       <div class="field"><label>Subject code</label><input id="ob-t-code" placeholder="e.g. LLB 211"></div>
       <div class="field"><label>Credit hours</label><input id="ob-t-ch" type="number" min="1" max="6" step="1" value="3"></div>
     </div>
-    <div class="field"><label>Session</label><input id="ob-t-session" placeholder="2025-2029"></div>
+    <div class="field"><label>Session <span style="color:var(--danger)">*</span></label>
+      <input id="ob-t-session" placeholder="2025-29" autocomplete="off">
+      <p class="hint">Required. Use the short form <b>YYYY-YY</b> (example: <b>2025-29</b>), not 2025-2029.</p>
+    </div>
     <button class="btn btn-primary" type="button" onclick="TeacherApp.saveTeacherSetup()">Save class</button>
     <button class="btn btn-ghost" type="button" style="margin-top:8px" onclick="TeacherApp.closeTeacherSetup()">Cancel</button>
   </div>
@@ -2634,18 +2674,24 @@ function onSignupRoleChange(){
   const mot=document.getElementById('su-motivate');
   if(mot){
     mot.textContent=isTeacher
-      ? 'Join ULC Toolkit and run your classes every day — roster, attendance, marks, and award sheets in one place.'
+      ? 'Create your faculty account and run every class from one desk — roster, attendance, marks, and award lists ready whenever you teach.'
       : 'Create your account and make ULC Toolkit part of your daily study routine — covers, marks, GPA, and more in one tap.';
   }
 }
 let _signupWelcomePending=false;
-function showSignupWelcome(name){
+let _signupWelcomeRole=null;
+function showSignupWelcome(name, role){
   const ov=document.getElementById('signupWelcome');
   const title=document.getElementById('signupWelcomeTitle');
   const text=document.getElementById('signupWelcomeText');
   const first=(String(name||'').trim().split(/\s+/)[0])||'there';
+  _signupWelcomeRole=role==='teacher'?'teacher':'student';
   if(title) title.textContent='Congratulations, '+first+'!';
-  if(text) text.textContent='Welcome to ULC Toolkit — your study companion for every day at University Law College. Covers, marks, GPA, timetable, and more are ready when you are.';
+  if(text){
+    text.textContent=_signupWelcomeRole==='teacher'
+      ? 'Welcome to ULC Toolkit. Your faculty desk is ready — next you’ll set up your class (session, subject, and students) and start teaching with clarity every day.'
+      : 'Welcome to ULC Toolkit — your study companion for every day at University Law College. Covers, marks, GPA, timetable, and more are ready when you are.';
+  }
   _signupWelcomePending=true;
   if(ov){
     ov.classList.add('show');
@@ -2659,6 +2705,14 @@ function finishSignupWelcome(){
     ov.setAttribute('aria-hidden','true');
   }
   _signupWelcomePending=false;
+  const role=_signupWelcomeRole;
+  _signupWelcomeRole=null;
+  if(role==='teacher'){
+    const u=currentUser();
+    if(window.StudentDash) StudentDash.syncLanding();
+    if(u) go('teacher');
+    return;
+  }
   afterAuthLanding();
 }
 function afterAuthLanding(){
@@ -2708,7 +2762,7 @@ async function signupLocal({ name, roll, email, pass, role }){
     ? 'Teacher account created.'
     : 'Account created.', true);
   refreshAccountView(); refreshTopAcc();
-  showSignupWelcome(name);
+  showSignupWelcome(name, role);
   return true;
 }
 async function doSignup(){
@@ -2766,7 +2820,7 @@ async function doSignup(){
     setSession({ email, roll, cloud:true });
     showAuthMsg('Account created.', true);
     refreshAccountView(); refreshTopAcc();
-    showSignupWelcome(name);
+    showSignupWelcome(name, role);
     return;
   }
 
@@ -2822,11 +2876,20 @@ async function doLogout(){
   if(sb) await sb.auth.signOut().catch(()=>{});
   _sbUser=null;
   setSession(null);
+  _signupWelcomePending=false;
+  _signupWelcomeRole=null;
   restoreMarksPanelHome();
-  refreshAccountView(); refreshTopAcc();
+  document.getElementById('teacherSetupOverlay')?.classList.remove('show');
+  document.getElementById('onboardOverlay')?.classList.remove('show');
+  document.getElementById('profileOverlay')?.classList.remove('show');
+  const suWel=document.getElementById('signupWelcome');
+  if(suWel){ suWel.classList.remove('show'); suWel.setAttribute('aria-hidden','true'); }
+  if(window.TeacherApp && typeof TeacherApp.resetSession==='function') TeacherApp.resetSession();
+  refreshAccountView(); refreshTopAcc(); syncRoleNav();
   if(window.StudentDash){
     StudentDash.refreshHomeShell();
-    StudentDash.syncLanding();
+    if(typeof StudentDash.resetLandingForGuestHome==='function') StudentDash.resetLandingForGuestHome();
+    else StudentDash.syncLanding();
   }
   go('home');
 }
@@ -2928,7 +2991,7 @@ function refreshHeroWelcome(){
     if(u){
       title.textContent='Welcome '+u.name;
       if(u.role==='teacher'){
-        sub.textContent=(u.email||'Teacher')+' · Teacher desk for classes, attendance & award lists — private to your account.';
+        sub.textContent=(u.email||'Teacher')+' · Teacher desk for classes, attendance & award lists — built for every lecture.';
       } else {
         sub.textContent=(u.email||('Roll '+u.roll))+' · Your law-study toolkit for University Law College, Quetta.';
       }
@@ -2953,6 +3016,11 @@ function refreshAccountView(){
   document.getElementById('accountLoggedIn').style.display=u?'block':'none';
   syncRoleNav();
   if(window.StudentDash) StudentDash.syncLanding();
+  if(!u){
+    const quickTeacher=document.getElementById('accQuickTeacher');
+    if(quickTeacher) quickTeacher.style.display='none';
+    return;
+  }
   if(u){
     const teacher=u.role==='teacher';
     document.getElementById('accAv').textContent=(u.name||'U').charAt(0).toUpperCase();
@@ -2964,6 +3032,8 @@ function refreshAccountView(){
     document.getElementById('accStudentCard').style.display=teacher?'none':'block';
     document.getElementById('accTeacherCard').style.display=teacher?'block':'none';
     document.getElementById('accQuickStudent').style.display=teacher?'none':'grid';
+    const quickTeacher=document.getElementById('accQuickTeacher');
+    if(quickTeacher) quickTeacher.style.display=teacher?'grid':'none';
     const settingsCard=document.getElementById('accSettingsCard');
     if(settingsCard) settingsCard.style.display='block';
     setAccountSettingsOpen(false);

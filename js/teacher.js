@@ -1,13 +1,30 @@
 /* ULC Portal — Teacher workspace
-   Classes, roster (OCR), attendance, marks, award-list PDF.
-   Data stays on the teacher account only (localStorage).
+   Classes, roster (OCR), attendance, marks, award-list PDF / Excel.
+   Session rosters (roll + name ONLY) are shared across teachers of the same session.
+   Marks, attendance, and award records stay private in each teacher's account/workspace.
 */
 (function (global) {
   const LS_TEACHER = "ulc_teacher_data_v1";
-  const LS_SEM_ROSTER = "ulc_semester_rosters_v1";
+  const LS_SESSION_ROSTER = "ulc_session_rosters_v1";
+  const LS_SEM_ROSTER_LEGACY = "ulc_semester_rosters_v1";
   const DEFAULT_CLASSES = 30;
   const ORD = ["", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10"];
   function semLabel(n) { return n ? ("Semester " + n) : "—"; }
+
+  /** Standard session form: 2025-29 (not 2025-2029). */
+  function normalizeSession(raw) {
+    const s = String(raw || "").trim().replace(/\s+/g, "");
+    if (!s) return "";
+    const m = s.match(/^(\d{4})\s*[-–—/]\s*(\d{2}|\d{4})$/);
+    if (!m) return "";
+    const start = m[1];
+    let end = m[2];
+    if (end.length === 4) end = end.slice(-2);
+    return start + "-" + end;
+  }
+  function isValidSession(raw) {
+    return /^\d{4}-\d{2}$/.test(normalizeSession(raw));
+  }
 
   let pendingOcr = [];
   let editingStudentRoll = null;
@@ -187,6 +204,10 @@
     if (!c.students) c.students = [];
     if (!c.attendance) c.attendance = {};
     if (!c.marks) c.marks = {};
+    if (c.session) {
+      const norm = normalizeSession(c.session);
+      if (norm) c.session = norm;
+    }
   }
   function normalizeAtt(att) {
     if (!att || typeof att !== "object") return emptyAttendance();
@@ -210,26 +231,65 @@
     return presentFromDaily(a, total);
   }
 
-  /* Shared semester roster — roll + name only, across teachers of same semester */
-  function getSemesterRoster(sem) {
-    const all = loadJSON(LS_SEM_ROSTER, {});
-    return Array.isArray(all[String(sem)]) ? all[String(sem)] : [];
-  }
-  function publishSemesterRoster(sem, students) {
-    const all = loadJSON(LS_SEM_ROSTER, {});
-    const key = String(sem);
-    const map = new Map((all[key] || []).map((s) => [s.roll, s]));
-    (students || []).forEach((s) => {
+  /* Shared session roster — roll + name only (never marks/attendance), across teachers of the same session */
+  function rosterMapFromList(list) {
+    const map = new Map();
+    (list || []).forEach((s) => {
       if (!s?.roll || !s?.name) return;
-      map.set(s.roll, { roll: String(s.roll).toUpperCase(), name: String(s.name).toUpperCase() });
+      const roll = String(s.roll).trim().toUpperCase();
+      const name = String(s.name).trim().toUpperCase();
+      if (!roll || !name) return;
+      /* Strip any accidental extra fields — shared store must stay roll+name only */
+      const prev = map.get(roll);
+      if (!prev || name.length > prev.name.length) map.set(roll, { roll, name });
     });
-    all[key] = [...map.values()].sort((a, b) => {
+    return map;
+  }
+  function sortRosterList(list) {
+    return [...list].sort((a, b) => {
       const na = parseInt(String(a.roll).replace(/\D/g, ""), 10);
       const nb = parseInt(String(b.roll).replace(/\D/g, ""), 10);
       if (!isNaN(na) && !isNaN(nb) && na !== nb) return na - nb;
       return String(a.roll).localeCompare(String(b.roll), undefined, { numeric: true });
     });
-    saveJSON(LS_SEM_ROSTER, all);
+  }
+  function collectSessionStudents(sessionRaw) {
+    const key = normalizeSession(sessionRaw);
+    if (!key) return [];
+    const map = rosterMapFromList([]);
+    const stored = loadJSON(LS_SESSION_ROSTER, {});
+    rosterMapFromList(stored[key] || []).forEach((s, roll) => map.set(roll, s));
+    /* Also harvest from every teacher workspace on this device */
+    const allTeachers = loadJSON(LS_TEACHER, {});
+    Object.values(allTeachers || {}).forEach((st) => {
+      (st?.classes || []).forEach((cls) => {
+        if (normalizeSession(cls.session) !== key) return;
+        rosterMapFromList(cls.students).forEach((s, roll) => map.set(roll, s));
+      });
+    });
+    return sortRosterList([...map.values()]);
+  }
+  function getSessionRoster(sessionRaw) {
+    return collectSessionStudents(sessionRaw);
+  }
+  function publishSessionRoster(sessionRaw, students) {
+    const key = normalizeSession(sessionRaw);
+    if (!key) return;
+    const all = loadJSON(LS_SESSION_ROSTER, {});
+    const map = rosterMapFromList(all[key] || []);
+    rosterMapFromList(students).forEach((s, roll) => map.set(roll, s));
+    all[key] = sortRosterList([...map.values()]);
+    saveJSON(LS_SESSION_ROSTER, all);
+  }
+  /* Back-compat aliases used during migration */
+  function getSemesterRoster(sem) {
+    const legacy = loadJSON(LS_SEM_ROSTER_LEGACY, {});
+    return Array.isArray(legacy[String(sem)]) ? legacy[String(sem)] : [];
+  }
+  function publishSemesterRoster(sem, students) {
+    /* Legacy no-op publisher — session roster is the source of truth */
+    void sem;
+    void students;
   }
   function sortStudentsByRoll(students) {
     if (!Array.isArray(students)) return [];
@@ -243,9 +303,15 @@
     });
     return students;
   }
-  function importSemesterRoster(cls) {
+  function importSessionRoster(cls) {
     ensureClassMeta(cls);
-    const shared = getSemesterRoster(cls.semester);
+    const sessionKey = normalizeSession(cls.session);
+    let shared = sessionKey ? getSessionRoster(sessionKey) : [];
+    /* One-time bridge: if session store empty, seed from legacy semester roster */
+    if (!shared.length && cls.semester != null) {
+      shared = getSemesterRoster(cls.semester);
+      if (shared.length && sessionKey) publishSessionRoster(sessionKey, shared);
+    }
     let added = 0;
     shared.forEach((s) => {
       if (cls.students.some((x) => x.roll === s.roll)) return;
@@ -256,6 +322,9 @@
     });
     sortStudentsByRoll(cls.students);
     return added;
+  }
+  function importSemesterRoster(cls) {
+    return importSessionRoster(cls);
   }
   function addStudentsToClass(list) {
     const st = getStore();
@@ -278,7 +347,7 @@
       added++;
     }
     sortStudentsByRoll(c.students);
-    publishSemesterRoster(c.semester, c.students);
+    publishSessionRoster(c.session, c.students);
     setStore(st);
     return added;
   }
@@ -305,16 +374,16 @@
       grid.innerHTML = '<div class="empty" style="grid-column:1/-1">Set up a class to see your overview.</div>';
       return;
     }
-    const shared = getSemesterRoster(c.semester).length;
+    const shared = getSessionRoster(c.session).length;
     grid.innerHTML = `
       <div class="t-ov-stat wide"><div class="lbl">Teacher name</div><div class="val">${esc(st.officialName || "—")}</div></div>
       <div class="t-ov-stat"><div class="lbl">Semester / class</div><div class="val">Semester ${c.semester}</div></div>
-      <div class="t-ov-stat"><div class="lbl">Session</div><div class="val">${esc(c.session || "—")}</div></div>
+      <div class="t-ov-stat"><div class="lbl">Session</div><div class="val">${esc(normalizeSession(c.session) || c.session || "—")}</div></div>
       <div class="t-ov-stat wide"><div class="lbl">Subject</div><div class="val">${esc(c.subject)}${c.subjectCode ? " · " + esc(c.subjectCode) : ""}</div></div>
       <div class="t-ov-stat"><div class="lbl">Credit hours</div><div class="val">${(+c.creditHours || 3).toFixed(0)}</div></div>
       <div class="t-ov-stat"><div class="lbl">Students in roster</div><div class="val">${c.students.length}</div></div>
       <div class="t-ov-stat"><div class="lbl">Total classes (CHR)</div><div class="val">${c.totalClasses || DEFAULT_CLASSES}</div></div>
-      <div class="t-ov-stat"><div class="lbl">Shared semester rolls</div><div class="val">${shared}</div></div>
+      <div class="t-ov-stat"><div class="lbl">Shared session rolls</div><div class="val">${shared}</div></div>
     `;
   }
 
@@ -335,9 +404,9 @@
     box.innerHTML = `
       <div class="t-overview-grid">
         <div class="t-ov-stat wide"><div class="lbl">Your name</div><div class="val">${esc(st.officialName || u.name || "—")}</div></div>
-        <div class="t-ov-stat"><div class="lbl">Class</div><div class="val">Semester ${c.semester}</div></div>
+        <div class="t-ov-stat"><div class="lbl">Session</div><div class="val">${esc(normalizeSession(c.session) || c.session || "—")}</div></div>
         <div class="t-ov-stat"><div class="lbl">Students</div><div class="val">${c.students.length}</div></div>
-        <div class="t-ov-stat wide"><div class="lbl">Subject</div><div class="val">${esc(c.subject)}</div></div>
+        <div class="t-ov-stat wide"><div class="lbl">Subject</div><div class="val">${esc(c.subject)} · Sem ${c.semester}</div></div>
       </div>`;
   }
 
@@ -346,7 +415,7 @@
     const sel = document.getElementById("t-class-sel");
     if (!sel || !st) return;
     sel.innerHTML = st.classes.map((c) =>
-      `<option value="${c.id}" ${c.id === st.activeClassId ? "selected" : ""}>Sem ${c.semester} · ${esc(c.subject)}</option>`
+      `<option value="${c.id}" ${c.id === st.activeClassId ? "selected" : ""}>${esc(normalizeSession(c.session) || c.session || "Session")} · Sem ${c.semester} · ${esc(c.subject)}</option>`
     ).join("") || '<option value="">No class yet</option>';
   }
 
@@ -368,7 +437,7 @@
     ).join("");
     document.getElementById("ob-t-code").value = "";
     document.getElementById("ob-t-ch").value = "3";
-    document.getElementById("ob-t-session").value = "2025-2029";
+    document.getElementById("ob-t-session").value = "2025-29";
     fillTeacherSubjList();
     document.getElementById("ob-t-subj").value = "";
     onTeacherSubjChange();
@@ -414,14 +483,23 @@
     const subject = document.getElementById("ob-t-subj").value.trim();
     let subjectCode = document.getElementById("ob-t-code").value.trim();
     const creditHours = parseFloat(document.getElementById("ob-t-ch").value) || 3;
-    const session = document.getElementById("ob-t-session").value.trim() || "2025-2029";
+    const sessionRaw = document.getElementById("ob-t-session").value.trim();
     if (!name || !subject) { alert("Enter official name and select a subject."); return; }
+    if (!isValidSession(sessionRaw)) {
+      alert("Session is required in the standard form YYYY-YY.\nExample: 2025-29 (not 2025-2029).");
+      document.getElementById("ob-t-session")?.focus();
+      return;
+    }
+    const session = normalizeSession(sessionRaw);
 
     const hit = ((global.SYLLABUS || {})[semester] || []).find((x) => x[1] === subject);
     if (hit && !subjectCode) subjectCode = hit[0];
 
     const dup = st.classes.some(
-      (c) => c.semester === semester && c.subject.toLowerCase() === subject.toLowerCase()
+      (c) =>
+        c.semester === semester &&
+        normalizeSession(c.session) === session &&
+        c.subject.toLowerCase() === subject.toLowerCase()
     );
     if (dup) {
       alert("You already have this class. Pick another subject or use + Class for a different one.");
@@ -438,7 +516,7 @@
       attendance: {},
       marks: {},
     };
-    const imported = importSemesterRoster(cls);
+    const imported = importSessionRoster(cls);
 
     st.officialName = name;
     st.profileComplete = true;
@@ -451,7 +529,7 @@
     renderTeacherHome();
     if (global.go) global.go("teacher");
     if (imported > 0) {
-      alert(`Class saved. ${imported} student(s) from this semester’s shared roster were added automatically.`);
+      alert(`Class saved. ${imported} student(s) from session ${session} were added automatically from the shared roster.`);
     }
   }
 
@@ -528,7 +606,7 @@
         delete cls.marks[oldRoll];
       }
       sortStudentsByRoll(cls.students);
-      publishSemesterRoster(cls.semester, cls.students);
+      publishSessionRoster(cls.session, cls.students);
       setStore(st);
       cancelEditStudent();
       renderOverview();
@@ -856,7 +934,7 @@
     if (!picked.length) { alert("Select at least one student."); return; }
     const added = addStudentsToClass(picked);
     document.getElementById("tr-ocr-status").textContent =
-      `Saved ${added} new student(s). Shared with other teachers of Semester ${activeClass()?.semester}.`;
+      `Saved ${added} new student(s). Shared with other teachers of session ${normalizeSession(activeClass()?.session) || activeClass()?.session || "—"}.`;
     clearOcrPreview();
     renderOverview();
     renderRoster();
@@ -1541,13 +1619,27 @@
     }
   }
 
-  function buildAwardHtml(students, pageInfo) {
+  function buildAwardHtml(students, pageInfo, cols) {
     const st = getStore();
     const c = activeClass();
     if (!c) return "";
     const list = Array.isArray(students) ? students : c.students;
     sortStudentsByRoll(list);
     const teacher = st.officialName || "";
+    const full = !cols || !cols.length;
+    const set = full ? null : new Set(cols);
+    const show = (keys) => {
+      if (full) return true;
+      return keys.some((k) => set.has(k));
+    };
+    const showQuizAvg = full || ["q1", "q2", "q3", "q4", "q5"].every((k) => set.has(k));
+    const showAssnAvg = full || (set.has("a1") && set.has("a2"));
+    const showMidBlock = show(["mid"]);
+    const showFinBlock = show(["final"]);
+    const showResult = full;
+    const blank = "";
+    const num = (on, v, d) => (on ? (+v || 0).toFixed(d) : blank);
+
     const rows = list
       .map((s) => {
         const m = c.marks[s.roll] || emptyMarks();
@@ -1555,27 +1647,27 @@
         return `<tr>
         <td class="roll">${esc(s.roll)}</td>
         <td class="nm">${esc(String(s.name || "").toUpperCase())}</td>
-        <td class="tint">${(+m.q1 || 0).toFixed(1)}</td>
-        <td class="tint">${(+m.q2 || 0).toFixed(1)}</td>
-        <td class="tint">${(+m.q3 || 0).toFixed(1)}</td>
-        <td class="tint">${(+m.q4 || 0).toFixed(1)}</td>
-        <td class="tint">${(+m.q5 || 0).toFixed(1)}</td>
-        <td class="avg">${r.quiz.toFixed(1)}</td>
-        <td class="tint">${(+m.a1 || 0).toFixed(1)}</td>
-        <td class="tint">${(+m.a2 || 0).toFixed(1)}</td>
-        <td class="avg-a">${r.assn.toFixed(1)}</td>
-        <td>${(+m.mid_obj || 0).toFixed(1)}</td>
-        <td>${(+m.mid_sub || 0).toFixed(1)}</td>
-        <td class="obt">${r.midObt.toFixed(2)}</td>
-        <td class="pct">${r.mid30.toFixed(2)}</td>
-        <td>${(+m.fin_obj || 0).toFixed(1)}</td>
-        <td>${(+m.fin_sub || 0).toFixed(1)}</td>
-        <td class="obt">${r.finObt.toFixed(2)}</td>
-        <td class="pct-f">${r.fin40.toFixed(2)}</td>
-        <td class="grand">${r.grand.toFixed(2)}</td>
-        <td class="rnd">${r.rounded}</td>
-        <td class="grd">${esc(r.grade)}</td>
-        <td class="gp">${r.gp.toFixed(2)}</td>
+        <td class="tint">${num(show(["q1"]), m.q1, 1)}</td>
+        <td class="tint">${num(show(["q2"]), m.q2, 1)}</td>
+        <td class="tint">${num(show(["q3"]), m.q3, 1)}</td>
+        <td class="tint">${num(show(["q4"]), m.q4, 1)}</td>
+        <td class="tint">${num(show(["q5"]), m.q5, 1)}</td>
+        <td class="avg">${num(showQuizAvg, r.quiz, 1)}</td>
+        <td class="tint">${num(show(["a1"]), m.a1, 1)}</td>
+        <td class="tint">${num(show(["a2"]), m.a2, 1)}</td>
+        <td class="avg-a">${num(showAssnAvg, r.assn, 1)}</td>
+        <td>${num(showMidBlock, m.mid_obj, 1)}</td>
+        <td>${num(showMidBlock, m.mid_sub, 1)}</td>
+        <td class="obt">${num(showMidBlock, r.midObt, 2)}</td>
+        <td class="pct">${num(showMidBlock, r.mid30, 2)}</td>
+        <td>${num(showFinBlock, m.fin_obj, 1)}</td>
+        <td>${num(showFinBlock, m.fin_sub, 1)}</td>
+        <td class="obt">${num(showFinBlock, r.finObt, 2)}</td>
+        <td class="pct-f">${num(showFinBlock, r.fin40, 2)}</td>
+        <td class="grand">${num(showResult, r.grand, 2)}</td>
+        <td class="rnd">${showResult ? r.rounded : blank}</td>
+        <td class="grd">${showResult ? esc(r.grade) : blank}</td>
+        <td class="gp">${num(showResult, r.gp, 2)}</td>
         <td class="rem"></td>
       </tr>`;
       })
@@ -1585,8 +1677,10 @@
     const targetRows = 25;
     let pad = "";
     for (let i = list.length; i < targetRows; i++) {
-      pad += `<tr>${'<td>&nbsp;</td>'.repeat(24)}</tr>`;
+      pad += `<tr>${"<td>&nbsp;</td>".repeat(24)}</tr>`;
     }
+
+    const sessionLabel = normalizeSession(c.session) || c.session || "";
 
     return `<div class="award-pdf" id="awardPdfSheet">
       <div class="pdf-title">UNIVERSITY LAW COLLEGE, QUETTA</div>
@@ -1594,7 +1688,7 @@
       <div class="meta-lines">
         <div class="row">
           <span class="field grow"><span class="lab">Program Title:</span> <span class="val wide">LL.B. (Five Years) Degree Program</span></span>
-          <span class="field"><span class="lab">Session:</span> <span class="val mid">${esc(c.session || "")}</span></span>
+          <span class="field"><span class="lab">Session:</span> <span class="val mid">${esc(sessionLabel)}</span></span>
           <span class="field"><span class="lab">Semester:</span> <span class="val">${esc(semOrdinal(c.semester))}</span></span>
           <span class="field"><span class="lab">Course Code:</span> <span class="val mid">${esc(c.subjectCode || "")}</span></span>
           <span class="field"><span class="lab">Credit Hours:</span> <span class="val">${esc(String((+c.creditHours || 3).toFixed(0)))}</span></span>
@@ -1809,7 +1903,6 @@
       alert("Select at least one marks column, or choose Full official award list.");
       return;
     }
-    const partial = !!(cols && cols.length);
     const btn = document.getElementById("tr-pdf-btn");
     const label = btn ? btn.textContent : "Download award list PDF";
     if (btn) {
@@ -1822,37 +1915,18 @@
         throw new Error("libs");
       }
       const { jsPDF } = window.jspdf || global.jspdf;
-      /* A4 landscape — one official sheet ≈ 25 students per page */
       const pdf = new jsPDF({ orientation: "landscape", unit: "mm", format: "a4" });
-      const rowsPerPage = partial ? 28 : 25;
+      const rowsPerPage = 25;
       const chunks = chunkStudents(c.students, rowsPerPage);
       const pages = chunks.length;
 
       for (let i = 0; i < chunks.length; i++) {
-        if (btn) btn.textContent = `Generating PDF… ${i + 1}/${pages}`;
+        if (btn) btn.textContent = "Generating PDF… " + (i + 1) + "/" + pages;
         const pageInfo = { page: i + 1, pages };
-        const html = partial
-          ? buildPartialMarksHtml(cols, chunks[i], pageInfo)
-          : buildAwardHtml(chunks[i], pageInfo);
-        const canvas = await renderSheetToCanvas(html, partial);
+        const html = buildAwardHtml(chunks[i], pageInfo, cols);
+        const canvas = await renderSheetToCanvas(html, false);
         if (i > 0) pdf.addPage();
-        if (partial) {
-          const margin = 8;
-          const pageW = pdf.internal.pageSize.getWidth();
-          const pageH = pdf.internal.pageSize.getHeight();
-          const usableW = pageW - margin * 2;
-          const usableH = pageH - margin * 2;
-          const imgW = usableW;
-          const imgH = (canvas.height * imgW) / canvas.width;
-          if (imgH <= usableH) {
-            pdf.addImage(canvas.toDataURL("image/jpeg", 0.86), "JPEG", margin, margin, imgW, imgH);
-          } else {
-            addCanvasToPdfPages(pdf, canvas, margin);
-          }
-        } else {
-          /* Full award list: fit one sheet per page, never stretch */
-          placeCanvasOnA4Landscape(pdf, canvas, 8);
-        }
+        placeCanvasOnA4Landscape(pdf, canvas, 8);
       }
 
       if (global.ULC_SAVE && typeof global.ULC_SAVE.patchJsPdf === "function") {
@@ -1866,8 +1940,12 @@
       if (savedAward && savedAward.canceled) return;
       try {
         if (global.MyFiles) {
-          const c = activeClass();
-          const title = ((c && c.subject) || "Class") + " · Sem " + ((c && c.semester) || "") + " · Award list";
+          const c2 = activeClass();
+          const title =
+            ((c2 && c2.subject) || "Class") +
+            " · " +
+            (normalizeSession((c2 && c2.session) || "") || "Session") +
+            " · Award list";
           await global.MyFiles.saveAwardAuto(title, "", savedAward);
         }
       } catch (_) {}
@@ -1881,17 +1959,15 @@
         alert("PDF failed: " + (e && e.message ? e.message : "Try again.") + diag);
       }
       if (!(global.ULC_SAVE && global.ULC_SAVE.isNative && global.ULC_SAVE.isNative())) {
-        const html = partial ? buildPartialMarksHtml(cols) : buildAwardHtml();
+        const html = buildAwardHtml(undefined, undefined, cols);
         const w = window.open("", "_blank");
         if (w) {
           w.document.write(
-            `<html><head><title>Award List</title><style>${awardPdfCss(partial)}
-          @page{size:A4 landscape;margin:8mm}
-          @media print{
-            html,body{margin:0;padding:0}
-            .award-pdf{width:100%!important;height:auto!important;max-width:none}
-          }
-          </style></head><body>${html}</body></html>`
+            "<html><head><title>Award List</title><style>" +
+              awardPdfCss(false) +
+              "@page{size:A4 landscape;margin:8mm}@media print{html,body{margin:0;padding:0}.award-pdf{width:100%!important;height:auto!important;max-width:none}}</style></head><body>" +
+              html +
+              "</body></html>"
           );
           w.document.close();
           w.focus();
@@ -1904,6 +1980,142 @@
         btn.textContent = label;
       }
       if (host) host.innerHTML = "";
+    }
+  }
+
+  function awardExcelRows(cols) {
+    const st = getStore();
+    const c = activeClass();
+    if (!c) return { meta: {}, headers: [], rows: [] };
+    const full = !cols || !cols.length;
+    const set = full ? null : new Set(cols);
+    const show = (keys) => (full ? true : keys.some((k) => set.has(k)));
+    const showQuizAvg = full || ["q1", "q2", "q3", "q4", "q5"].every((k) => set.has(k));
+    const showAssnAvg = full || (set.has("a1") && set.has("a2"));
+    const showMid = show(["mid"]);
+    const showFin = show(["final"]);
+    const showResult = full;
+    const cell = (on, v) => (on ? v : "");
+    const list = [...c.students];
+    sortStudentsByRoll(list);
+    const headers = [
+      "Roll #", "Name of Student", "Q.01", "Q.02", "Q.03", "Q.04", "Q.05", "Quiz Average (Best 3)",
+      "A.#01", "A.#02", "Assignment Average", "Mid Obj", "Mid Sub", "Mid Marks Obt.", "Mid 30%",
+      "Fin Obj", "Fin Sub", "Fin Marks Obt.", "Fin 40%", "Grand Marks", "Rounded", "Grade", "GP", "Remarks",
+    ];
+    const rows = list.map((s) => {
+      const m = c.marks[s.roll] || emptyMarks();
+      const r = calcStudent(m);
+      return [
+        s.roll, String(s.name || "").toUpperCase(),
+        cell(show(["q1"]), (+m.q1 || 0).toFixed(1)),
+        cell(show(["q2"]), (+m.q2 || 0).toFixed(1)),
+        cell(show(["q3"]), (+m.q3 || 0).toFixed(1)),
+        cell(show(["q4"]), (+m.q4 || 0).toFixed(1)),
+        cell(show(["q5"]), (+m.q5 || 0).toFixed(1)),
+        cell(showQuizAvg, r.quiz.toFixed(1)),
+        cell(show(["a1"]), (+m.a1 || 0).toFixed(1)),
+        cell(show(["a2"]), (+m.a2 || 0).toFixed(1)),
+        cell(showAssnAvg, r.assn.toFixed(1)),
+        cell(showMid, (+m.mid_obj || 0).toFixed(1)),
+        cell(showMid, (+m.mid_sub || 0).toFixed(1)),
+        cell(showMid, r.midObt.toFixed(2)),
+        cell(showMid, r.mid30.toFixed(2)),
+        cell(showFin, (+m.fin_obj || 0).toFixed(1)),
+        cell(showFin, (+m.fin_sub || 0).toFixed(1)),
+        cell(showFin, r.finObt.toFixed(2)),
+        cell(showFin, r.fin40.toFixed(2)),
+        cell(showResult, r.grand.toFixed(2)),
+        cell(showResult, r.rounded),
+        cell(showResult, r.grade),
+        cell(showResult, r.gp.toFixed(2)),
+        "",
+      ];
+    });
+    return {
+      meta: {
+        program: "LL.B. (Five Years) Degree Program",
+        session: normalizeSession(c.session) || c.session || "",
+        semester: semOrdinal(c.semester),
+        code: c.subjectCode || "",
+        ch: String((+c.creditHours || 3).toFixed(0)),
+        subject: c.subject || "",
+        teacher: st.officialName || "",
+        mid: c.midExamDate || "",
+        fin: c.finExamDate || "",
+      },
+      headers,
+      rows,
+    };
+  }
+
+  function xmlEsc(s) {
+    return String(s == null ? "" : s)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;");
+  }
+
+  async function exportAwardExcel() {
+    const c = activeClass();
+    if (!c || !c.students.length) {
+      alert("Add students and marks first.");
+      return;
+    }
+    const cols = selectedPdfColumns();
+    if (cols && !cols.length) {
+      alert("Select at least one marks column, or choose Full official award list.");
+      return;
+    }
+    const btn = document.getElementById("tr-xls-btn");
+    const label = btn ? btn.textContent : "Download Excel";
+    if (btn) {
+      btn.disabled = true;
+      btn.textContent = "Preparing Excel…";
+    }
+    try {
+      const data = awardExcelRows(cols);
+      const metaRows = [
+        ["UNIVERSITY LAW COLLEGE, QUETTA — AWARD LIST"],
+        ["Program Title", data.meta.program, "Session", data.meta.session, "Semester", data.meta.semester],
+        ["Course Code", data.meta.code, "Credit Hours", data.meta.ch, "Course Title", data.meta.subject],
+        ["Teacher", data.meta.teacher, "Mid Exam Date", data.meta.mid, "Fin. Exam Date", data.meta.fin],
+        [],
+      ];
+      const allRows = metaRows.concat([data.headers], data.rows);
+      const table = allRows
+        .map(function (row) {
+          return "<tr>" + row.map(function (cell) { return "<td>" + xmlEsc(cell) + "</td>"; }).join("") + "</tr>";
+        })
+        .join("");
+      const html =
+        '<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40"><head><meta charset="utf-8"></head><body><table border="1">' +
+        table +
+        "</table></body></html>";
+      const blob = new Blob([html], { type: "application/vnd.ms-excel;charset=utf-8" });
+      const fname = (pdfFileSlug(cols) + ".xls").replace(/\s+/g, "_");
+      if (global.ULC_SAVE && typeof global.ULC_SAVE.saveBlob === "function") {
+        const saved = await global.ULC_SAVE.saveBlob(blob, fname);
+        if (saved && saved.canceled) return;
+      } else if (global.ULC_SAVE && typeof global.ULC_SAVE.triggerBrowserDownload === "function") {
+        global.ULC_SAVE.triggerBrowserDownload(blob, fname);
+      } else {
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = fname;
+        a.click();
+        setTimeout(function () { URL.revokeObjectURL(url); }, 1500);
+      }
+    } catch (e) {
+      console.error(e);
+      alert("Excel export failed: " + (e && e.message ? e.message : "Try again."));
+    } finally {
+      if (btn) {
+        btn.disabled = false;
+        btn.textContent = label;
+      }
     }
   }
 
@@ -1924,11 +2136,12 @@
     const st = getStore();
     const u = global.currentUser && global.currentUser();
     if (!st || !u || u.role !== "teacher") return;
-    // Pull shared semester students (roll + name only) + keep roll numbers ascending
+    // Pull shared session students (roll + name only) + keep roll numbers ascending
     st.classes.forEach((cls) => {
       ensureClassMeta(cls);
-      importSemesterRoster(cls);
+      importSessionRoster(cls);
       sortStudentsByRoll(cls.students);
+      if (cls.session) publishSessionRoster(cls.session, cls.students);
     });
     setStore(st);
 
@@ -1940,7 +2153,7 @@
     const meta = document.getElementById("t-class-meta");
     if (meta) {
       meta.textContent = c
-        ? `Semester ${c.semester} · ${c.subject}${c.subjectCode ? " (" + c.subjectCode + ")" : ""} · ${c.students.length} students · ${c.totalClasses || DEFAULT_CLASSES} CHR`
+        ? `Session ${normalizeSession(c.session) || c.session || "—"} · Semester ${c.semester} · ${c.subject}${c.subjectCode ? " (" + c.subjectCode + ")" : ""} · ${c.students.length} students · ${c.totalClasses || DEFAULT_CLASSES} CHR`
         : "No class configured";
     }
     const mid = document.getElementById("tr-mid-date");
@@ -2005,6 +2218,7 @@
     setMark,
     renderMarks,
     exportAwardPdf,
+    exportAwardExcel,
     exportAttendancePdf,
     onPdfModeChange,
     initTeacherView,
@@ -2015,6 +2229,7 @@
     saveClassDates,
     getStore,
     activeClass,
+    resetSession: function () { cloudPullDone = false; },
     notifyFilesChanged: () => scheduleTeacherCloudSync(getStore()),
   };
 })(window);
