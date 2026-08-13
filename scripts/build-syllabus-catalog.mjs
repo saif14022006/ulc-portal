@@ -504,6 +504,114 @@ for (const list of Object.values(scheme.electiveClusters || {})) {
   for (const t of list) ensureCourse(t, "LLB 4 Years Elective");
 }
 
+/* ── Google Drive book PDFs ── */
+const driveBooks = {
+  "Fundamentals of Economics": [
+    { title: "Mankiw — Principles of Economics (PDF)", url: "https://drive.google.com/file/d/14WD3T8v1-FAYdQHYxloqhrSUI7TbQA3a/view?usp=sharing", free: true, drive: true },
+  ],
+  "Islamic Jurisprudence": [
+    { title: "Islamic Jurisprudence — Usul al-Fiqh (PDF)", url: "https://drive.google.com/file/d/18vTxkzgJRHcV8BkWbbEAMkhPYQg5kRbs/view?usp=sharing", free: true, drive: true },
+  ],
+  "Introduction to Sociology": [
+    { title: "Sociology — Chapters 4, 5, 6 (PDF)", url: "https://drive.google.com/file/d/1IxQlQajzJH5-QugylBYmwzfRX_hLNMEe/view?usp=sharing", free: true, drive: true },
+    { title: "Sociology — 3 Chapters (PDF)", url: "https://drive.google.com/file/d/1tm3LSHJ9KbSfD5h7OOmX9AaDr0qOYECp/view?usp=sharing", free: true, drive: true },
+  ],
+  "Introduction to Logic & Reasoning": [
+    { title: "A Concise Introduction to Logic (PDF)", url: "https://drive.google.com/file/d/1J4o-Rchx2IqgeTjokt10vypuiuIDhCmJ/view?usp=sharing", free: true, drive: true },
+  ],
+  "Skills Development": [
+    { title: "Presentation Skills (PDF)", url: "https://drive.google.com/file/d/1S7cBy2u7i6fXdWeT1INfOnW3grKJAKZV/view?usp=sharing", free: true, drive: true },
+  ],
+  "English": [
+    { title: "McGraw-Hill Handbook — Shaw (PDF)", url: "https://drive.google.com/file/d/1WJ8ZqCie2UQPXHX3k_mLipYFUH6-VH8Q/view?usp=sharing", free: true, drive: true },
+    { title: "English Grammar — Wren & Martin (PDF)", url: "https://drive.google.com/file/d/1n29gRA--TZcDcPaATzeqgpTrfBpUuHrM/view?usp=sharing", free: true, drive: true },
+  ],
+  "Introduction to Law": [
+    { title: "Phil Harris — Introduction to Law (PDF)", url: "https://drive.google.com/file/d/1g1IxBhusT2AytUWaMCK_bXRrGN3o6L4f/view?usp=sharing", free: true, drive: true },
+    { title: "CS Foundation — Introduction to Law (PDF)", url: "https://drive.google.com/file/d/1vmm-DBxlaNE_kFntBHL5p19dtSqK5TSi/view?usp=sharing", free: true, drive: true },
+    { title: "Keenan & Riches — Business Law (PDF)", url: "https://drive.google.com/file/d/144yx87pSivXoaQm5AhaLJibw5Ib3OaX_/view?usp=sharing", free: true, drive: true },
+  ],
+  "Jurisprudence": [
+    { title: "H.L.A. Hart — The Concept of Law (PDF)", url: "https://drive.google.com/file/d/1pzjdNzeTXy6W6qMB4yjVmA1Bq-LyYQ0l/view?usp=sharing", free: true, drive: true },
+    { title: "Dworkin — Taking Rights Seriously (PDF)", url: "https://drive.google.com/file/d/1guIPV17jhvZs7TfSjiq6mUl0HQZ3QnAi/view?usp=sharing", free: true, drive: true },
+  ],
+  "Human Rights Law": [
+    { title: "Dworkin — Taking Rights Seriously (PDF)", url: "https://drive.google.com/file/d/1guIPV17jhvZs7TfSjiq6mUl0HQZ3QnAi/view?usp=sharing", free: true, drive: true },
+  ],
+  "History (South Asia)": [
+    { title: "Modern South Asia — History, Culture (PDF)", url: "https://drive.google.com/file/d/1gyQkQiSlrX7OP01nFUnBIDPClMUJO6l6/view?usp=sharing", free: true, drive: true },
+  ],
+  "Legal System of Pakistan": [
+    { title: "History of Legal System in Subcontinent & Pakistan (PDF)", url: "https://drive.google.com/file/d/1l28brhsV0J56qQLBnR8K3GscfGPZdSfn/view?usp=sharing", free: true, drive: true },
+  ],
+  "Law of Torts": [
+    { title: "Law of Torts — Lecture Notes (PDF)", url: "https://drive.google.com/file/d/1I6z2aa4Sl0EznuCr7kshAdRv_fb69gh_/view?usp=sharing", free: true, drive: true },
+  ],
+};
+
+function findDriveBooks(title) {
+  const t = normalizeTitle(title);
+  const tl = t.toLowerCase();
+  const base = stripPart(t).toLowerCase();
+  for (const [pattern, books] of Object.entries(driveBooks)) {
+    const pl = pattern.toLowerCase();
+    if (tl === pl || tl.includes(pl) || pl.includes(tl) || base === pl || base.includes(pl) || pl.includes(base)) {
+      return books;
+    }
+  }
+  return [];
+}
+
+/* ── Book link resolution ── */
+const bookLinks = {
+  "Constitution of Pakistan": { url: "https://na.gov.pk/uploads/documents/1333523681_951.pdf", free: true },
+  "Constitution of the Islamic Republic of Pakistan": { url: "https://na.gov.pk/uploads/documents/1333523681_951.pdf", free: true },
+  "Pakistan Penal Code": { url: "https://www.pakistani.org/pakistan/legislation/1860/actXLVof1860.html", free: true },
+  "PPC": { url: "https://www.pakistani.org/pakistan/legislation/1860/actXLVof1860.html", free: true },
+  "Code of Criminal Procedure, 1898": { url: "https://www.pakistani.org/pakistan/legislation/1898/actVof1898.html", free: true },
+  "CrPC": { url: "https://www.pakistani.org/pakistan/legislation/1898/actVof1898.html", free: true },
+  "Code of Civil Procedure, 1908": { url: "https://www.pakistani.org/pakistan/legislation/1908/actVof1908.html", free: true },
+  "Contract Act, 1872": { url: "https://www.pakistani.org/pakistan/legislation/1872/actIXof1872.html", free: true },
+  "Qanun-e-Shahadat Order, 1984": { url: "https://www.pakistani.org/pakistan/legislation/1984/pres_order10of1984.html", free: true },
+  "Transfer of Property Act, 1882": { url: "https://www.pakistani.org/pakistan/legislation/1882/actIVof1882.html", free: true },
+  "Registration Act, 1908": { url: "https://www.pakistani.org/pakistan/legislation/1908/actXVIof1908.html", free: true },
+  "Specific Relief Act, 1877": { url: "https://www.pakistani.org/pakistan/legislation/1877/actIof1877.html", free: true },
+  "Partnership Act, 1932": { url: "https://www.pakistani.org/pakistan/legislation/1932/actIXof1932.html", free: true },
+  "Companies Act, 2017": { url: "https://www.secp.gov.pk/document/companies-act-2017/", free: true },
+  "Muslim Family Laws Ordinance, 1961": { url: "https://www.pakistani.org/pakistan/legislation/1961/actVIIIof1961.html", free: true },
+  "Prevention of Electronic Crimes Act, 2016": { url: "https://na.gov.pk/uploads/documents/1472635250_246.pdf", free: true },
+  "PECA": { url: "https://na.gov.pk/uploads/documents/1472635250_246.pdf", free: true },
+  "Pakistan Environmental Protection Act, 1997": { url: "https://www.pakistani.org/pakistan/legislation/1997/xxxivof1997.html", free: true },
+  "PEPA": { url: "https://www.pakistani.org/pakistan/legislation/1997/xxxivof1997.html", free: true },
+  "UN Charter": { url: "https://www.un.org/en/about-us/un-charter/full-text", free: true },
+  "UDHR": { url: "https://www.un.org/en/about-us/universal-declaration-of-human-rights", free: true },
+  "US Constitution": { url: "https://constitution.congress.gov/constitution/", free: true },
+  "Civil Servants Act, 1973": { url: "https://www.pakistani.org/pakistan/legislation/1973/actLXXIof1973.html", free: true },
+};
+
+function resolveBookLink(bookTitle) {
+  const t = bookTitle;
+  const tl = t.toLowerCase();
+  const hasAuthor = /—|–/.test(t) || /\b(by|ed\.|edited)\b/i.test(t);
+  for (const [key, val] of Object.entries(bookLinks)) {
+    if (tl.includes(key.toLowerCase())) {
+      if (hasAuthor && !tl.startsWith(key.toLowerCase())) continue;
+      return { title: t, url: val.url, free: val.free };
+    }
+  }
+  return {
+    title: t,
+    url: "https://www.google.com/search?tbm=bks&q=" + encodeURIComponent(t),
+    free: false,
+  };
+}
+
+for (const entry of Object.values(byTitle)) {
+  entry.booksWithLinks = (entry.books || []).map(resolveBookLink);
+  const drive = findDriveBooks(entry.title);
+  if (drive.length) entry.booksWithLinks.push(...drive);
+}
+
 const out = `/* Auto-generated — HEC LLB 4Y (2025) + 5Y scheme + LLM study aids. Run: node scripts/build-syllabus-catalog.mjs */
 window.ULC_SYLLABUS_CATALOG = ${JSON.stringify(
   {

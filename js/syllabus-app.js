@@ -90,7 +90,21 @@
     return sheet;
   }
 
+  function syllabusUnlocked() {
+    const u = typeof global.currentUser === "function" ? global.currentUser() : null;
+    return !!(u && (u.role === "student" || u.role === "teacher" || !u.role));
+  }
+
+  function requireSignIn() {
+    alert("Sign in first to view course learning outcomes, outlines, and recommended books.");
+    if (typeof global.go === "function") global.go("account");
+  }
+
   function openCourse(payload) {
+    if (!syllabusUnlocked()) {
+      requireSignIn();
+      return;
+    }
     const { code, title, ch, category, program } = payload;
     const detail = courseLookup(title);
     const sheet = ensureSheet();
@@ -138,9 +152,13 @@
     const payload = esc(
       JSON.stringify({ code, title, ch, category, program })
     );
-    return `<button type="button" class="subj subj-btn" data-course="${payload}">
+    const locked = !syllabusUnlocked();
+    const hint = locked
+      ? `<span class="subj-hint subj-hint-locked"><svg class="book-lock-ico" viewBox="0 0 24 24" width="11" height="11" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2" fill="none" stroke="currentColor" stroke-width="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg> Sign in to view outcomes, outline &amp; books</span>`
+      : `<span class="subj-hint">Tap for outcomes, outline &amp; books</span>`;
+    return `<button type="button" class="subj subj-btn${locked ? " subj-btn-locked" : ""}" data-course="${payload}">
       <div class="code">${esc(code)}</div>
-      <div class="nm">${esc(title)}<span class="subj-hint">Tap for outcomes, outline &amp; books</span></div>
+      <div class="nm">${esc(title)}${hint}</div>
       <div class="ch">${esc(String(ch))} CH</div>
     </button>`;
   }
@@ -284,14 +302,6 @@
     const el = document.getElementById("sylRoot") || document.getElementById("semAcc");
     if (!el) return;
     el.innerHTML = `
-    <details class="syl-prog" id="sylLlb5">
-      <summary>
-        <div class="syl-badge">5Y</div>
-        <div class="syl-meta"><div class="ttl">LLB 5 Years</div><div class="sub">HEC Revised 2015 · 10 semesters · 166 CH scheme</div></div>
-        <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
-      </summary>
-      <div class="syl-body">${renderLlb5Html()}</div>
-    </details>
     <details class="syl-prog" id="sylLlb4">
       <summary>
         <div class="syl-badge">4Y</div>
@@ -299,6 +309,14 @@
         <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
       </summary>
       <div class="syl-body">${renderLlb4Html()}</div>
+    </details>
+    <details class="syl-prog" id="sylLlb5">
+      <summary>
+        <div class="syl-badge">5Y</div>
+        <div class="syl-meta"><div class="ttl">LLB 5 Years</div><div class="sub">HEC Revised 2015 · 10 semesters · 166 CH scheme</div></div>
+        <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+      </summary>
+      <div class="syl-body">${renderLlb5Html()}</div>
     </details>
     <details class="syl-prog" id="sylLlm">
       <summary>
