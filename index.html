@@ -820,6 +820,11 @@ html.ulc-native .landing-install{display:none!important}
         <h4>LLB &amp; LLM Syllabus</h4>
         <p>HEC LLB five-year scheme plus LL.M. (2006) courses.</p>
       </button>
+      <button type="button" class="tool-card" onclick="StudentDash.openToolFromLanding('books')">
+        <div class="ic ic-syllabus"><svg viewBox="0 0 24 24"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg></div>
+        <h4>HEC Books</h4>
+        <p>Statutes, codes, and recommended study materials.</p>
+      </button>
       <button type="button" class="tool-card" onclick="StudentDash.openToolFromLanding('award')">
         <div class="ic ic-award"><svg viewBox="0 0 24 24"><path d="M8 21h8"/><path d="M12 17v4"/><path d="M7 4h10v8a5 5 0 0 1-10 0V4z"/><path d="M5 8H3a2 2 0 0 0 2 2"/><path d="M19 8h2a2 2 0 0 1-2 2"/></svg></div>
         <h4>Award List</h4>
@@ -863,6 +868,7 @@ html.ulc-native .landing-install{display:none!important}
           <button type="button" onclick="StudentDash.openToolFromLanding('letter')">Applications</button>
           <button type="button" onclick="StudentDash.openToolFromLanding('award')">Award List</button>
           <button type="button" onclick="StudentDash.openToolFromLanding('syllabus')">LLB &amp; LLM Syllabus</button>
+          <button type="button" onclick="StudentDash.openToolFromLanding('books')">HEC Books</button>
           <button type="button" onclick="StudentDash.openToolFromLanding('aggregate')">Admission Aggregate</button>
           <button type="button" onclick="StudentDash.openToolFromLanding('gpa')">GPA Tracker</button>
           <button type="button" onclick="StudentDash.openToolFromLanding('timetable')">Timetable</button>
@@ -961,6 +967,11 @@ html.ulc-native .landing-install{display:none!important}
               <h4>LLB &amp; LLM Syllabus</h4>
               <p>Browse LLB semesters and HEC LL.M. courses.</p>
             </button>
+            <button class="tool-card" onclick="go('books')">
+              <div class="ic ic-syllabus"><svg viewBox="0 0 24 24"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg></div>
+              <h4>HEC Books</h4>
+              <p>Statutes, codes, and recommended study materials.</p>
+            </button>
             <button class="tool-card" onclick="go('award')">
               <div class="ic ic-award"><svg viewBox="0 0 24 24"><path d="M8 21h8"/><path d="M12 17v4"/><path d="M7 4h10v8a5 5 0 0 1-10 0V4z"/><path d="M5 8H3a2 2 0 0 0 2 2"/><path d="M19 8h2a2 2 0 0 1-2 2"/></svg></div>
               <h4>Award List</h4>
@@ -1026,6 +1037,11 @@ html.ulc-native .landing-install{display:none!important}
               <div class="ic ic-syllabus"><svg viewBox="0 0 24 24"><path d="M4 5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2z"/><path d="M4 19a2 2 0 0 1 2-2h13"/><path d="M8 7h8M8 11h6"/></svg></div>
               <h4>LLB &amp; LLM Syllabus</h4>
               <p>HEC LLB scheme and LL.M. (2006) titles.</p>
+            </button>
+            <button class="tool-card" onclick="go('books')">
+              <div class="ic ic-syllabus"><svg viewBox="0 0 24 24"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg></div>
+              <h4>HEC Books</h4>
+              <p>Statutes, codes, and recommended study materials.</p>
             </button>
             <button class="tool-card" onclick="go('account')">
               <div class="ic ic-account"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c1.5-3.5 4-5 8-5s6.5 1.5 8 5"/></svg></div>
@@ -1236,6 +1252,11 @@ html.ulc-native .landing-install{display:none!important}
               <div class="ic ic-syllabus"><svg viewBox="0 0 24 24"><path d="M4 5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2z"/><path d="M4 19a2 2 0 0 1 2-2h13"/><path d="M8 7h8M8 11h6"/></svg></div>
               <h4>LLB &amp; LLM Syllabus</h4>
               <p>HEC LLB scheme and LL.M. (2006) titles.</p>
+            </button>
+            <button class="tool-card" onclick="go('books')">
+              <div class="ic ic-syllabus"><svg viewBox="0 0 24 24"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg></div>
+              <h4>HEC Books</h4>
+              <p>Statutes, codes, and recommended study materials.</p>
             </button>
             <button class="tool-card" onclick="go('aggregate')">
               <div class="ic ic-agg"><svg viewBox="0 0 24 24"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/></svg></div>
@@ -1911,6 +1932,7 @@ html.ulc-native .landing-install{display:none!important}
           <button type="button" onclick="go('files')">My Files</button>
           <button type="button" onclick="go('award')">Award List</button>
           <button type="button" onclick="go('syllabus')">LLB &amp; LLM Syllabus</button>
+          <button type="button" onclick="go('books')">HEC Books</button>
           <button type="button" onclick="go('aggregate')">Admission Aggregate</button>
           <button type="button" onclick="go('gpa')">GPA Tracker</button>
           <button type="button" onclick="go('timetable')">Timetable</button>
@@ -2143,7 +2165,8 @@ function go(t){
   if(t!=='award') restoreMarksPanelHome();
   document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
   document.getElementById('v-'+t).classList.add('active');
-  document.querySelectorAll('.tab,.side-item').forEach(b=>b.classList.toggle('active',b.dataset.t===t));
+  document.querySelectorAll('.tab,.side-item,.tools-drawer-item').forEach(b=>b.classList.toggle('active',b.dataset.t===t));
+  if(window.MyFiles && typeof MyFiles.syncToolsDrawer==='function' && document.body.classList.contains('tools-drawer-open')) MyFiles.syncToolsDrawer();
   window.scrollTo({top:0,behavior:'instant'});
   if(t==='award'){ refreshAwardView(); }
   if(t==='account') refreshAccountView();
