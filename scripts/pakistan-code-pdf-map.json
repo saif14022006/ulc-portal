@@ -1,0 +1,494 @@
+{
+  "generatedAt": "2026-08-13T08:33:42.236Z",
+  "matched": 72,
+  "missing": 5,
+  "missingDetails": [
+    {
+      "title": "Constitution of the Islamic Republic of Pakistan, 1973",
+      "reason": "no index match"
+    },
+    {
+      "title": "Oaths Act, 1873",
+      "reason": "no index match"
+    },
+    {
+      "title": "Trade Marks Act, 1940",
+      "reason": "no index match"
+    },
+    {
+      "title": "Transgender Persons (Protection of Rights) Act, 2018",
+      "reason": "no index match"
+    },
+    {
+      "title": "Trusts Act, 1882",
+      "reason": "no index match"
+    }
+  ],
+  "results": {
+    "Anti-Money Laundering Act, 2010": {
+      "pdf": "https://pakistancode.gov.pk/pdffiles/administrator47c7a5354061a54634a6246d2046ddcf.pdf",
+      "page": "https://pakistancode.gov.pk/english/UY2FqaJw1-apaUY2Fqa-apaUY2Npaplq-sg-jjjjjjjjjjjjj",
+      "matchedTitle": "Anti-Money Laundering (AML) Act, 2010",
+      "score": 165,
+      "httpStatus": 206
+    },
+    "Anti-Rape (Investigation and Trial) Act, 2021": {
+      "pdf": "https://pakistancode.gov.pk/pdffiles/administratordcbf53fa2d37ade990bcaa63630e66ff.pdf",
+      "page": "https://pakistancode.gov.pk/english/UY2FqaJw1-apaUY2Fqa-apaUY2Npa5hm-sg-jjjjjjjjjjjjj",
+      "matchedTitle": "Anti-Rape (Investigation and Trial) Act, 2021",
+      "score": 1000,
+      "httpStatus": 206
+    },
+    "Anti-Terrorism Act, 1997": {
+      "pdf": "https://pakistancode.gov.pk/pdffiles/administrator0c000814bbb1b4188b0855eb6e5dd446.pdf",
+      "page": "https://pakistancode.gov.pk/english/UY2FqaJw1-apaUY2Fqa-apaUY2Npappq-sg-jjjjjjjjjjjjj",
+      "matchedTitle": "Anti Terrorism Act (ATA),1997",
+      "score": 165
+    },
+    "Arbitration Act, 1940": {
+      "pdf": "https://pakistancode.gov.pk/pdffiles/administrator0a802e3468735238090ceede22ccfd11.pdf",
+      "page": "https://pakistancode.gov.pk/english/UY2FqaJw1-apaUY2Fqa-cJab-sg-jjjjjjjjjjjjj",
+      "matchedTitle": "Arbitration Act, 1940",
+      "score": 1000
+    },
+    "Arms Act, 1878": {
+      "pdf": "https://pakistancode.gov.pk/pdffiles/administrator95dda114739682aed8b784a819634050.pdf",
+      "page": "https://pakistancode.gov.pk/english/UY2FqaJw1-apaUY2Fqa-bZc%3D-sg-jjjjjjjjjjjjj",
+      "matchedTitle": "Arms Act, 1878",
+      "score": 1000
+    },
+    "Bankers' Books Evidence Act, 1891": {
+      "pdf": "https://pakistancode.gov.pk/pdffiles/administratorf2659375fe49533f79b277d9a770c645.pdf",
+      "page": "https://pakistancode.gov.pk/english/UY2FqaJw1-apaUY2Fqa-cJo%3D-sg-jjjjjjjjjjjjj",
+      "matchedTitle": "Bankers' Books Evidence Act, 1891",
+      "score": 1000,
+      "httpStatus": 206
+    },
+    "Banking Companies Ordinance, 1962": {
+      "pdf": "https://pakistancode.gov.pk/pdffiles/administrator53b33d7c0ff80d13e0b8f5e4bd578970.pdf",
+      "page": "https://pakistancode.gov.pk/english/UY2FqaJw1-apaUY2Fqa-cJ%2BV-sg-jjjjjjjjjjjjj",
+      "matchedTitle": "Banking Companies Ordinance, 1962",
+      "score": 1000
+    },
+    "Benami Transactions (Prohibition) Act, 2017": {
+      "pdf": "https://pakistancode.gov.pk/pdffiles/administratorc3159176d17a29e713613851233c2845.pdf",
+      "page": "https://pakistancode.gov.pk/english/UY2FqaJw1-apaUY2Fqa-apaUY2NoaJg%3D-sg-jjjjjjjjjjjjj",
+      "matchedTitle": "Benami Transactions (Prohibition) Act, 2017",
+      "score": 1000
+    },
+    "Bonded Labour System (Abolition) Act, 1992": {
+      "pdf": "https://pakistancode.gov.pk/pdffiles/administrator193484c31f7b4b5c5cbd0aae5038201e.pdf",
+      "page": "https://pakistancode.gov.pk/english/UY2FqaJw1-apaUY2Fqa-apmYag%3D%3D-sg-jjjjjjjjjjjjj",
+      "matchedTitle": "Bonded Labour System (Abolition) Act, 1992",
+      "score": 1000
+    },
+    "Cantonments Act, 1924": {
+      "pdf": "https://pakistancode.gov.pk/pdffiles/administratorab18a09560ff06aef68eb7ef0621c1c7.pdf",
+      "page": "https://pakistancode.gov.pk/english/UY2FqaJw1-apaUY2Fqa-ap2Z-sg-jjjjjjjjjjjjj",
+      "matchedTitle": "Cantonments Act, 1924",
+      "score": 1000
+    },
+    "Child Marriage Restraint Act, 1929": {
+      "pdf": "https://pakistancode.gov.pk/pdffiles/administrator0cb12b901d4304d7e5463da076d88639.pdf",
+      "page": "https://pakistancode.gov.pk/english/UY2FqaJw1-apaUY2Fqa-ap%2Bb-sg-jjjjjjjjjjjjj",
+      "matchedTitle": "Child Marriage Restraint Act, 1929",
+      "score": 1000,
+      "httpStatus": 206
+    },
+    "Civil Servants Act, 1973": {
+      "pdf": "https://pakistancode.gov.pk/pdffiles/administrator09f6f0996bae74d218dd6d1ecedd0318.pdf",
+      "page": "https://pakistancode.gov.pk/english/UY2FqaJw1-apaUY2Fqa-apaUY2NqZpY%3D-sg-jjjjjjjjjjjjj",
+      "matchedTitle": "Civil Servants Act, 1973",
+      "score": 1000
+    },
+    "Code of Civil Procedure, 1908 (CPC)": {
+      "pdf": "https://pakistancode.gov.pk/pdffiles/administrator6598dabbad120033d4d42d717dcf9755.pdf",
+      "page": "https://pakistancode.gov.pk/english/UY2FqaJw1-apaUY2Fqa-apeb-sg-jjjjjjjjjjjjj",
+      "matchedTitle": "Code of Civil Procedure (CPC) , 1908 (Under Review)",
+      "score": 887
+    },
+    "Code of Criminal Procedure, 1898 (CrPC)": {
+      "pdf": "https://pakistancode.gov.pk/pdffiles/administrator7db1e56f0f1d39a6e67573ec6b0944e2.pdf",
+      "page": "https://pakistancode.gov.pk/english/UY2FqaJw1-apaUY2Fqa-apaUY2Npa5lp-sg-jjjjjjjjjjjjj",
+      "matchedTitle": "Code of Criminal Procedure (CrPC), 1898 (Under Review)",
+      "score": 887
+    },
+    "Companies Act, 2017": {
+      "pdf": "https://pakistancode.gov.pk/pdffiles/administrator89de324eeaa53c96ff701820d2e007e4.pdf",
+      "page": "https://pakistancode.gov.pk/english/UY2FqaJw1-apaUY2Fqa-apaUY2Npa5Zm-sg-jjjjjjjjjjjjj",
+      "matchedTitle": "Companies Act, 2017",
+      "score": 1000
+    },
+    "Competition Act, 2010": {
+      "pdf": "https://pakistancode.gov.pk/pdffiles/administratore1b5ab79c2c1975670e6aa7fe57e57d6.pdf",
+      "page": "https://pakistancode.gov.pk/english/UY2FqaJw1-apaUY2Fqa-apaUY2FsbJk%3D-sg-jjjjjjjjjjjjj",
+      "matchedTitle": "Competition Act, 2010",
+      "score": 1000,
+      "httpStatus": 206
+    },
+    "Constitution of the Islamic Republic of Pakistan, 1973": {
+      "pdf": null,
+      "page": null,
+      "matchedTitle": null
+    },
+    "Contempt of Court Ordinance, 2003": {
+      "pdf": "https://pakistancode.gov.pk/pdffiles/administratorc5fa23fb5d3bbbcfb48f8fe1f13cd312.pdf",
+      "page": "https://pakistancode.gov.pk/english/UY2FqaJw1-apaUY2Fqa-apaUY2Npa5tjZg%3D%3D-sg-jjjjjjjjjjjjj",
+      "matchedTitle": "Contempt of Court Ordinance, 2003",
+      "score": 1000
+    },
+    "Contract Act, 1872": {
+      "pdf": "https://pakistancode.gov.pk/pdffiles/administrator8332a6df32386960ac7d81a5cf7aade2.pdf",
+      "page": "https://pakistancode.gov.pk/english/UY2FqaJw1-apaUY2Fqa-a50%3D-sg-jjjjjjjjjjjjj",
+      "matchedTitle": "Contract Act, 1872",
+      "score": 1000
+    },
+    "Control of Narcotic Substances Act, 1997": {
+      "pdf": "https://pakistancode.gov.pk/pdffiles/administrator739c7aa745c5afab5decf2e100caf1c5.pdf",
+      "page": "https://pakistancode.gov.pk/english/UY2FqaJw1-apaUY2Fqa-apaUY2Npaplr-sg-jjjjjjjjjjjjj",
+      "matchedTitle": "Control of Narcotic Substances Act (CNSA), 1997",
+      "score": 162
+    },
+    "Copyright Ordinance, 1962": {
+      "pdf": "https://pakistancode.gov.pk/pdffiles/administratorc8dc84cf91fcedf0a4a00fc2710945a1.pdf",
+      "page": "https://pakistancode.gov.pk/english/UY2FqaJw1-apaUY2Fqa-apaUY2Npa5pibA%3D%3D-sg-jjjjjjjjjjjjj",
+      "matchedTitle": "Copyright Ordinance, 1962",
+      "score": 1000
+    },
+    "Court Fees Act, 1870": {
+      "pdf": "https://pakistancode.gov.pk/pdffiles/administrator9d60b89fa3dd51147d677e764c8772e3.pdf",
+      "page": "https://pakistancode.gov.pk/english/UY2FqaJw1-apaUY2Fqa-apaUY2FqZps%3D-sg-jjjjjjjjjjjjj",
+      "matchedTitle": "Court-Fees Act, 1870",
+      "score": 1000,
+      "httpStatus": 206
+    },
+    "Customs Act, 1969": {
+      "pdf": "https://pakistancode.gov.pk/pdffiles/administrator6d344e569c576550c200d66afb7b28f6.pdf",
+      "page": "https://pakistancode.gov.pk/english/UY2FqaJw1-apaUY2Fqa-apaUY2Npa5lrbw%3D%3D-sg-jjjjjjjjjjjjj",
+      "matchedTitle": "Customs Act, 1969 (Same as on the official website of FBR dated 30-06-2025)",
+      "score": 150
+    },
+    "Defamation Ordinance, 2002": {
+      "pdf": "https://pakistancode.gov.pk/pdffiles/administrator741de22e0685408278606962079d12b2.pdf",
+      "page": "https://pakistancode.gov.pk/english/UY2FqaJw1-apaUY2Fqa-apaUY2FwbZ8%3D-sg-jjjjjjjjjjjjj",
+      "matchedTitle": "Defamation Ordinance, 2002",
+      "score": 1000
+    },
+    "Dissolution of Muslim Marriages Act, 1939": {
+      "pdf": "https://pakistancode.gov.pk/pdffiles/administratorfb32d6015ae887e6d6b85018961842ea.pdf",
+      "page": "https://pakistancode.gov.pk/english/UY2FqaJw1-apaUY2Fqa-cJaW-sg-jjjjjjjjjjjjj",
+      "matchedTitle": "Dissolution of Muslim Marriages Act, 1939",
+      "score": 1000
+    },
+    "Easements Act, 1882": {
+      "pdf": "https://pakistancode.gov.pk/pdffiles/administrator60670d614d75e2e43264070cfeefe0cb.pdf",
+      "page": "https://pakistancode.gov.pk/english/UY2FqaJw1-apaUY2Fqa-bpo%3D-sg-jjjjjjjjjjjjj",
+      "matchedTitle": "Easements Act, 1882",
+      "score": 1000
+    },
+    "Elections Act, 2017": {
+      "pdf": "https://pakistancode.gov.pk/pdffiles/administratorf21c97fb85cfdc593f840a4c008caa45.pdf",
+      "page": "https://pakistancode.gov.pk/english/UY2FqaJw1-apaUY2Fqa-apaUY2Npa5pkag%3D%3D-sg-jjjjjjjjjjjjj",
+      "matchedTitle": "Elections Act, 2017",
+      "score": 1000
+    },
+    "Electricity Act, 1910": {
+      "pdf": "https://pakistancode.gov.pk/pdffiles/administratorb4d981a750b5ae6c46c9351d22217c0e.pdf",
+      "page": "https://pakistancode.gov.pk/english/UY2FqaJw1-apaUY2Fqa-apeZ-sg-jjjjjjjjjjjjj",
+      "matchedTitle": "Electricity Act, 1910",
+      "score": 1000
+    },
+    "Electronic Transactions Ordinance, 2002": {
+      "pdf": "https://pakistancode.gov.pk/pdffiles/administratordbc98dd49f2df3b1d07bb986dcceb9a3.pdf",
+      "page": "https://pakistancode.gov.pk/english/UY2FqaJw1-apaUY2Fqa-apaUY2Fta5Y%3D-sg-jjjjjjjjjjjjj",
+      "matchedTitle": "Electronic Transactions Ordinance, 2002",
+      "score": 1000
+    },
+    "Explosives Act, 1884": {
+      "pdf": "https://pakistancode.gov.pk/pdffiles/administrator2f1da8cc107ec077896ca6fc93905fb3.pdf",
+      "page": "https://pakistancode.gov.pk/english/UY2FqaJw1-apaUY2Fqa-bp0%3D-sg-jjjjjjjjjjjjj",
+      "matchedTitle": "Explosives Act, 1884",
+      "score": 1000
+    },
+    "Factories Act, 1934": {
+      "pdf": "https://pakistancode.gov.pk/pdffiles/administratorf38efe0a6e760531f05b4a29ba4ba215.pdf",
+      "page": "https://pakistancode.gov.pk/english/UY2FqaJw1-apaUY2Fqa-b56X-sg-jjjjjjjjjjjjj",
+      "matchedTitle": "Factories Act, 1934",
+      "score": 1000
+    },
+    "Fatal Accidents Act, 1855": {
+      "pdf": "https://pakistancode.gov.pk/pdffiles/administratorce4c3de80f90b28e7c9548a78fb717c2.pdf",
+      "page": "https://pakistancode.gov.pk/english/UY2FqaJw1-apaUY2Fqa-cg%3D%3D-sg-jjjjjjjjjjjjj",
+      "matchedTitle": "Fatal Accidents Act, 1855",
+      "score": 1000
+    },
+    "Foreign Exchange Regulation Act, 1947": {
+      "pdf": "https://pakistancode.gov.pk/pdffiles/administrator4ef414a2433e9cd3ebe6b05800627920.pdf",
+      "page": "https://pakistancode.gov.pk/english/UY2FqaJw1-apaUY2Fqa-apaUY2Npaplm-sg-jjjjjjjjjjjjj",
+      "matchedTitle": "Foreign Exchange Regulation Act, 1947",
+      "score": 1000
+    },
+    "General Clauses Act, 1897": {
+      "pdf": "https://pakistancode.gov.pk/pdffiles/administratore8a332cad1093952d0ecb86288b38c75.pdf",
+      "page": "https://pakistancode.gov.pk/english/UY2FqaJw1-apaUY2Fqa-cZ0%3D-sg-jjjjjjjjjjjjj",
+      "matchedTitle": "General Clauses Act, 1897",
+      "score": 1000
+    },
+    "Guardians and Wards Act, 1890": {
+      "pdf": "https://pakistancode.gov.pk/pdffiles/administratord265c726d2d564a9377ed7a8e04708ae.pdf",
+      "page": "https://pakistancode.gov.pk/english/UY2FqaJw1-apaUY2Fqa-cJc%3D-sg-jjjjjjjjjjjjj",
+      "matchedTitle": "Guardians and Wards Act, 1890",
+      "score": 1000
+    },
+    "Income Tax Ordinance, 2001": {
+      "pdf": "https://pakistancode.gov.pk/pdffiles/administratorc09ecd376211abe32a7e44510f3fd719.pdf",
+      "page": "https://pakistancode.gov.pk/english/UY2FqaJw1-apaUY2Fqa-a5acag%3D%3D-sg-jjjjjjjjjjjjj",
+      "matchedTitle": "Income Tax Ordinance, 2001 (Same as on the official website of FBR dated 31-07-2026)",
+      "score": 150
+    },
+    "Industrial Relations Act, 2012": {
+      "pdf": "https://pakistancode.gov.pk/pdffiles/administrator964ce81cc171ed5dcd0960630e922422.pdf",
+      "page": "https://pakistancode.gov.pk/english/UY2FqaJw1-apaUY2Fqa-apaUY2FqaZk%3D-sg-jjjjjjjjjjjjj",
+      "matchedTitle": "Industrial Relations Act, 2012",
+      "score": 1000
+    },
+    "Juvenile Justice System Act, 2018": {
+      "pdf": "https://pakistancode.gov.pk/pdffiles/administrator01c49d3cff67abf97e39c2e1d6dacc43.pdf",
+      "page": "https://pakistancode.gov.pk/english/UY2FqaJw1-apaUY2Fqa-ap%2BVZA%3D%3D-sg-jjjjjjjjjjjjj",
+      "matchedTitle": "Juvenile Justice System Act, 2018",
+      "score": 1000,
+      "httpStatus": 206
+    },
+    "Land Acquisition Act, 1894": {
+      "pdf": "https://pakistancode.gov.pk/pdffiles/administrator306e16e98dc7d50afe4d3cc18892888b.pdf",
+      "page": "https://pakistancode.gov.pk/english/UY2FqaJw1-apaUY2Fqa-bJ6Z-sg-jjjjjjjjjjjjj",
+      "matchedTitle": "Land Acquisition Act, 1894",
+      "score": 1000
+    },
+    "Legal Practitioners and Bar Councils Act, 1973": {
+      "pdf": "https://pakistancode.gov.pk/pdffiles/administrator5d15510c6d8f928c6bbc3c27f313e44c.pdf",
+      "page": "https://pakistancode.gov.pk/english/UY2FqaJw1-apaUY2Fqa-apaUY2Npa5prbw%3D%3D-sg-jjjjjjjjjjjjj",
+      "matchedTitle": "Legal Practitioners and Bar Councils Act, 1973",
+      "score": 1000
+    },
+    "Limitation Act, 1908": {
+      "pdf": "https://pakistancode.gov.pk/pdffiles/administrator3294e35255f255ea96b3356091fb4844.pdf",
+      "page": "https://pakistancode.gov.pk/english/UY2FqaJw1-apaUY2Fqa-apab-sg-jjjjjjjjjjjjj",
+      "matchedTitle": "Limitation Act, 1908",
+      "score": 1000
+    },
+    "Minimum Wages Ordinance, 1961": {
+      "pdf": "https://pakistancode.gov.pk/pdffiles/administrator26a975453aac76e06711066e6c07e718.pdf",
+      "page": "https://pakistancode.gov.pk/english/UY2FqaJw1-apaUY2Fqa-cJ2Y-sg-jjjjjjjjjjjjj",
+      "matchedTitle": "Minimum Wages Ordinance, 1961",
+      "score": 1000
+    },
+    "Muslim Family Laws Ordinance, 1961": {
+      "pdf": "https://pakistancode.gov.pk/pdffiles/administratoreecaf3b490e2d43d2e3b50c0c068b5d7.pdf",
+      "page": "https://pakistancode.gov.pk/english/UY2FqaJw1-apaUY2Fqa-apaUY2Npa5po-sg-jjjjjjjjjjjjj",
+      "matchedTitle": "Muslim Family Laws Ordinance, 1961",
+      "score": 1000
+    },
+    "Muslim Personal Law (Shariat) Application Act, 1962": {
+      "pdf": "https://pakistancode.gov.pk/pdffiles/administrator43496aa4c309b625076eccef03abef93.pdf",
+      "page": "https://pakistancode.gov.pk/english/UY2FqaJw1-apaUY2Fqa-apaUY2Npa5tiZw%3D%3D-sg-jjjjjjjjjjjjj",
+      "matchedTitle": "West Pakistan Muslim Personal Law (Shariat) Application Act, 1962",
+      "score": 886
+    },
+    "National Accountability Ordinance, 1999 (NAB)": {
+      "pdf": "https://pakistancode.gov.pk/pdffiles/administrator889746414e53d53e4398264cda458947.pdf",
+      "page": "https://pakistancode.gov.pk/english/UY2FqaJw1-apaUY2Fqa-apaUY2Npa5ljaQ%3D%3D-sg-jjjjjjjjjjjjj",
+      "matchedTitle": "National Accountability Ordinance, 1999",
+      "score": 896
+    },
+    "Negotiable Instruments Act, 1881": {
+      "pdf": "https://pakistancode.gov.pk/pdffiles/administrator2bbb145adb573172ec68151f4e70dfb5.pdf",
+      "page": "https://pakistancode.gov.pk/english/UY2FqaJw1-apaUY2Fqa-bpc%3D-sg-jjjjjjjjjjjjj",
+      "matchedTitle": "Negotiable Instruments Act, 1881",
+      "score": 1000
+    },
+    "Notaries Ordinance, 1961": {
+      "pdf": "https://pakistancode.gov.pk/pdffiles/administrator1c90220dff082736b76ee7037c41bd8c.pdf",
+      "page": "https://pakistancode.gov.pk/english/UY2FqaJw1-apaUY2Fqa-cJyb-sg-jjjjjjjjjjjjj",
+      "matchedTitle": "Notaries Ordinance, 1961",
+      "score": 1000
+    },
+    "Oaths Act, 1873": {
+      "pdf": null,
+      "page": null,
+      "matchedTitle": null
+    },
+    "Official Secrets Act, 1923": {
+      "pdf": "https://pakistancode.gov.pk/pdffiles/administrator46c9a3c62acc16428e73999e7d30ba2a.pdf",
+      "page": "https://pakistancode.gov.pk/english/UY2FqaJw1-apaUY2Fqa-ap2W-sg-jjjjjjjjjjjjj",
+      "matchedTitle": "Official Secrets Act, 1923",
+      "score": 1000
+    },
+    "Pakistan Citizenship Act, 1951": {
+      "pdf": "https://pakistancode.gov.pk/pdffiles/administratora2b6f3407a109a491d47d649f6ff0c01.pdf",
+      "page": "https://pakistancode.gov.pk/english/UY2FqaJw1-apaUY2Fqa-ap%2BXZQ%3D%3D-sg-jjjjjjjjjjjjj",
+      "matchedTitle": "Pakistan Citizenship Act, 1951",
+      "score": 1000
+    },
+    "Pakistan Environmental Protection Act, 1997 (PEPA)": {
+      "pdf": "https://pakistancode.gov.pk/pdffiles/administrator17094efb999f9a865461eb1498175947.pdf",
+      "page": "https://pakistancode.gov.pk/english/UY2FqaJw1-apaUY2Fqa-apqaZQ%3D%3D-sg-jjjjjjjjjjjjj",
+      "matchedTitle": "Pakistan Environmental Protection Act, 1997",
+      "score": 895
+    },
+    "Pakistan Penal Code, 1860 (PPC)": {
+      "pdf": "https://pakistancode.gov.pk/pdffiles/administratord5622ea3f15bfa00b17d2cf7770a8434.pdf",
+      "page": "https://pakistancode.gov.pk/english/UY2FqaJw1-apaUY2Fqa-apaUY2Npa5lo-sg-jjjjjjjjjjjjj",
+      "matchedTitle": "Pakistan Penal Code (PPC),1860 (Under Review)",
+      "score": 887
+    },
+    "Partnership Act, 1932": {
+      "pdf": "https://pakistancode.gov.pk/pdffiles/administratorbbc0b5b0d78c35e99e3b94f6b77b69db.pdf",
+      "page": "https://pakistancode.gov.pk/english/UY2FqaJw1-apaUY2Fqa-a5ab-sg-jjjjjjjjjjjjj",
+      "matchedTitle": "Partnership Act, 1932",
+      "score": 1000
+    },
+    "Patents Ordinance, 2000": {
+      "pdf": "https://pakistancode.gov.pk/pdffiles/administrator6b30eb225e07601de7078671e1cc7022.pdf",
+      "page": "https://pakistancode.gov.pk/english/UY2FqaJw1-apaUY2Fqa-apaUY2FobZo%3D-sg-jjjjjjjjjjjjj",
+      "matchedTitle": "Patents Ordinance, 2000",
+      "score": 1000
+    },
+    "Payment of Wages Act, 1936": {
+      "pdf": "https://pakistancode.gov.pk/pdffiles/administrator8820e88efaf7eedabf5c1d8c73b3dee5.pdf",
+      "page": "https://pakistancode.gov.pk/english/UY2FqaJw1-apaUY2Fqa-b56b-sg-jjjjjjjjjjjjj",
+      "matchedTitle": "Payment of Wages Act, 1936",
+      "score": 1000
+    },
+    "Police Order, 2002": {
+      "pdf": "https://pakistancode.gov.pk/pdffiles/administrator91032d4ee5bd880388b96d54d5540865.pdf",
+      "page": "https://pakistancode.gov.pk/english/UY2FqaJw1-apaUY2Fqa-apaUY2Npa5prag%3D%3D-sg-jjjjjjjjjjjjj",
+      "matchedTitle": "Police Order, 2002",
+      "score": 1000
+    },
+    "Powers of Attorney Act, 1882": {
+      "pdf": "https://pakistancode.gov.pk/pdffiles/administratorb062eb64b9476b2fda4f4609312b273d.pdf",
+      "page": "https://pakistancode.gov.pk/english/UY2FqaJw1-apaUY2Fqa-bps%3D-sg-jjjjjjjjjjjjj",
+      "matchedTitle": "Powers-of-Attorney Act, 1882",
+      "score": 1000
+    },
+    "Prevention of Corruption Act, 1947": {
+      "pdf": "https://pakistancode.gov.pk/pdffiles/administrator6b1051bf89aaeb5e9afc3cf2b141fc0b.pdf",
+      "page": "https://pakistancode.gov.pk/english/UY2FqaJw1-apaUY2Fqa-apaUY2Npa5tn-sg-jjjjjjjjjjjjj",
+      "matchedTitle": "Prevention of Corruption Act, 1947",
+      "score": 1000
+    },
+    "Prevention of Electronic Crimes Act, 2016 (PECA)": {
+      "pdf": "https://pakistancode.gov.pk/pdffiles/administrator6a061efe0ed5bd153fa8b79b8eb4cba7.pdf",
+      "page": "https://pakistancode.gov.pk/english/UY2FqaJw1-apaUY2Fqa-apaUY2Jvbp8%3D-sg-jjjjjjjjjjjjj",
+      "matchedTitle": "Prevention of Electronic Crimes Act, 2016",
+      "score": 895
+    },
+    "Probation of Offenders Ordinance, 1960": {
+      "pdf": "https://pakistancode.gov.pk/pdffiles/administratorc59339c610e14042c34043be418621f7.pdf",
+      "page": "https://pakistancode.gov.pk/english/UY2FqaJw1-apaUY2Fqa-a5acZQ%3D%3D-sg-jjjjjjjjjjjjj",
+      "matchedTitle": "Probation of Offenders Ordinance, 1960",
+      "score": 1000
+    },
+    "Protection against Harassment of Women at the Workplace Act, 2010": {
+      "pdf": "https://pakistancode.gov.pk/pdffiles/administratorc22e81f4add9ea3dc023086953ca2b4f.pdf",
+      "page": "https://pakistancode.gov.pk/english/UY2FqaJw1-apaUY2Fqa-apaUY2Fsap0%3D-sg-jjjjjjjjjjjjj",
+      "matchedTitle": "Protection Against Harassment of Women at the Work Place Act, 2010",
+      "score": 899
+    },
+    "Qanun-e-Shahadat Order, 1984 (Law of Evidence)": {
+      "pdf": "https://pakistancode.gov.pk/pdffiles/administrator01031a2c8cddc523d08a0df0ec37d7d0.pdf",
+      "page": "https://pakistancode.gov.pk/english/UY2FqaJw1-apaUY2Fqa-apaUY2Npa5plaw%3D%3D-sg-jjjjjjjjjjjjj",
+      "matchedTitle": "Qanun-e-Shahadat Order, 1984 (QSO)",
+      "score": 888
+    },
+    "Registration Act, 1908": {
+      "pdf": "https://pakistancode.gov.pk/pdffiles/administrator0f29bc9f1e3dfed37c0034eed1e29d53.pdf",
+      "page": "https://pakistancode.gov.pk/english/UY2FqaJw1-apaUY2Fqa-apeU-sg-jjjjjjjjjjjjj",
+      "matchedTitle": "Registration Act, 1908",
+      "score": 1000
+    },
+    "Right of Access to Information Act, 2017": {
+      "pdf": "https://pakistancode.gov.pk/pdffiles/administrator3599d65bc5ecb2dd1915d04c7db91e8f.pdf",
+      "page": "https://pakistancode.gov.pk/english/UY2FqaJw1-apaUY2Fqa-apaUY2Noa5c%3D-sg-jjjjjjjjjjjjj",
+      "matchedTitle": "Right of Access to Information Act, 2017",
+      "score": 1000
+    },
+    "Sale of Goods Act, 1930": {
+      "pdf": "https://pakistancode.gov.pk/pdffiles/administrator03eadfb5474bfa7c9e45ab4558d5a926.pdf",
+      "page": "https://pakistancode.gov.pk/english/UY2FqaJw1-apaUY2Fqa-a5aU-sg-jjjjjjjjjjjjj",
+      "matchedTitle": "Sale of Goods Act, 1930",
+      "score": 1000
+    },
+    "Sales Tax Act, 1990": {
+      "pdf": "https://pakistancode.gov.pk/pdffiles/administratorf6d20932403661e059756ab223d8542b.pdf",
+      "page": "https://pakistancode.gov.pk/english/UY2FqaJw1-apaUY2Fqa-apaUY2JxaJw%3D-sg-jjjjjjjjjjjjj",
+      "matchedTitle": "Sales Tax Act, 1990 (Same as on the official website of FBR dated 30-06-2026)",
+      "score": 150
+    },
+    "Specific Relief Act, 1877": {
+      "pdf": "https://pakistancode.gov.pk/pdffiles/administratorf257754bbb3c6863d879492bc8cd8f6e.pdf",
+      "page": "https://pakistancode.gov.pk/english/UY2FqaJw1-apaUY2Fqa-bJ4%3D-sg-jjjjjjjjjjjjj",
+      "matchedTitle": "Specific Relief Act, 1877",
+      "score": 1000
+    },
+    "Stamp Act, 1899": {
+      "pdf": "https://pakistancode.gov.pk/pdffiles/administrator999043d9ce6f33fcbb5ecd8a58f5c79d.pdf",
+      "page": "https://pakistancode.gov.pk/english/UY2FqaJw1-apaUY2Fqa-cpg%3D-sg-jjjjjjjjjjjjj",
+      "matchedTitle": "Stamp Act, 1899",
+      "score": 1000
+    },
+    "Succession Act, 1925": {
+      "pdf": "https://pakistancode.gov.pk/pdffiles/administrator4a6efe2b68e892d437aea98367cf6687.pdf",
+      "page": "https://pakistancode.gov.pk/english/UY2FqaJw1-apaUY2Fqa-ap6Z-sg-jjjjjjjjjjjjj",
+      "matchedTitle": "Succession Act, 1925",
+      "score": 1000
+    },
+    "Telegraph Act, 1885": {
+      "pdf": "https://pakistancode.gov.pk/pdffiles/administratorac6862547a10cdfd7dc5f630b8f32fc3.pdf",
+      "page": "https://pakistancode.gov.pk/english/UY2FqaJw1-apaUY2Fqa-bp8%3D-sg-jjjjjjjjjjjjj",
+      "matchedTitle": "Telegraphs Act, 1885",
+      "score": 162
+    },
+    "Trade Marks Act, 1940": {
+      "pdf": null,
+      "page": null,
+      "matchedTitle": null
+    },
+    "Transfer of Property Act, 1882": {
+      "pdf": "https://pakistancode.gov.pk/pdffiles/administrator77923ce792b475e339e1f46ba0442da3.pdf",
+      "page": "https://pakistancode.gov.pk/english/UY2FqaJw1-apaUY2Fqa-bpk%3D-sg-jjjjjjjjjjjjj",
+      "matchedTitle": "Transfer of Property Act, 1882",
+      "score": 1000
+    },
+    "Transgender Persons (Protection of Rights) Act, 2018": {
+      "pdf": null,
+      "page": null,
+      "matchedTitle": null
+    },
+    "Trusts Act, 1882": {
+      "pdf": null,
+      "page": null,
+      "matchedTitle": null
+    },
+    "West Pakistan Family Courts Act, 1964": {
+      "pdf": "https://pakistancode.gov.pk/pdffiles/administratorf08eaec19066a65a1b82cb4ad49feb4d.pdf",
+      "page": "https://pakistancode.gov.pk/english/UY2FqaJw1-apaUY2Fqa-apaUY2Npa5lraQ%3D%3D-sg-jjjjjjjjjjjjj",
+      "matchedTitle": "The Family Courts Act, 1964",
+      "score": 890
+    },
+    "West Pakistan Land Revenue Act, 1967": {
+      "pdf": "https://pakistancode.gov.pk/pdffiles/administratore28b1b7332386915d9316d75e71dec83.pdf",
+      "page": "https://pakistancode.gov.pk/english/UY2FqaJw1-apaUY2Fqa-apaUY2Npa5tkaA%3D%3D-sg-jjjjjjjjjjjjj",
+      "matchedTitle": "West Pakistan Land-Revenue Act, 1967",
+      "score": 1000
+    },
+    "Workmen's Compensation Act, 1923": {
+      "pdf": "https://pakistancode.gov.pk/pdffiles/administratorc0a301ae45df31b6a4b3828a5cd57fde.pdf",
+      "page": "https://pakistancode.gov.pk/english/UY2FqaJw1-apaUY2Fqa-ap2U-sg-jjjjjjjjjjjjj",
+      "matchedTitle": "Workmen's Compensation Act, 1923",
+      "score": 1000,
+      "httpStatus": 206
+    }
+  }
+}

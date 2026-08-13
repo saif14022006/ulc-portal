@@ -1236,19 +1236,19 @@
     const u = currentUser();
     const teacher = u && u.role === "teacher";
     const ico = {
-      home: '<svg viewBox="0 0 24 24"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/></svg>',
-      cover: '<svg viewBox="0 0 24 24"><path d="M6 2h9l3 3v17H6z"/><path d="M15 2v4h4"/></svg>',
-      letter: '<svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M8 13h8M8 17h6"/></svg>',
-      files: '<svg viewBox="0 0 24 24"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>',
-      teacher: '<svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>',
-      award: '<svg viewBox="0 0 24 24"><path d="M8 21h8"/><path d="M12 17v4"/><path d="M7 4h10v8a5 5 0 0 1-10 0V4z"/><path d="M5 8H3a2 2 0 0 0 2 2"/><path d="M19 8h2a2 2 0 0 1-2 2"/></svg>',
-      syllabus: '<svg viewBox="0 0 24 24"><path d="M4 5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2z"/><path d="M4 19a2 2 0 0 1 2-2h13"/><path d="M8 7h8M8 11h6"/></svg>',
-      books: '<svg viewBox="0 0 24 24"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>',
-      aggregate: '<svg viewBox="0 0 24 24"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 7h8M8 11h8M8 15h4"/></svg>',
-      gpa: '<svg viewBox="0 0 24 24"><path d="M4 19V5"/><path d="M4 19h16"/><path d="M8 15l3-4 3 2 4-6"/></svg>',
-      timetable: '<svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>',
-      account: '<svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c1.5-3.5 4-5 8-5s6.5 1.5 8 5"/></svg>',
-      developer: '<svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c1.5-3.5 4-5 8-5s6.5 1.5 8 5"/></svg>',
+      home: '<svg viewBox="0 0 24 24"><path d="M4 10.5 12 4l8 6.5"/><path d="M6.5 9.5V20h11V9.5"/><path d="M10 20v-6h4v6"/></svg>',
+      cover: '<svg viewBox="0 0 24 24"><path d="M7 3.5h7.5L17.5 7v13.5H7z"/><path d="M14.5 3.5V7H18"/><path d="M10 12h5M10 15.5h3.5"/></svg>',
+      letter: '<svg viewBox="0 0 24 24"><path d="M14 2.5H6.5A1.5 1.5 0 0 0 5 4v16a1.5 1.5 0 0 0 1.5 1.5h11A1.5 1.5 0 0 0 19 20V8z"/><path d="M14 2.5V8H19"/><path d="M8.5 12.5h7M8.5 16h5"/></svg>',
+      files: '<svg viewBox="0 0 24 24"><path d="M3.5 8a2 2 0 0 1 2-2h3.2l1.8 1.8H18.5a2 2 0 0 1 2 2V17a2 2 0 0 1-2 2H5.5a2 2 0 0 1-2-2z"/><path d="M3.5 11.5h17"/></svg>',
+      teacher: '<svg viewBox="0 0 24 24"><path d="M16.5 20.5v-1.8a3.2 3.2 0 0 0-3.2-3.2H6.7A3.2 3.2 0 0 0 3.5 18.7v1.8"/><circle cx="10" cy="7.5" r="3.2"/><path d="M20.5 20.5v-1.6a3 3 0 0 0-2.2-2.9"/><path d="M16.2 4.4a3.2 3.2 0 0 1 0 6.2"/></svg>',
+      award: '<svg viewBox="0 0 24 24"><circle cx="12" cy="9" r="5.5"/><path d="M8.5 13.5 7 20.5l5-2.5 5 2.5-1.5-7"/><path d="M12 6.5v2.5"/></svg>',
+      syllabus: '<svg viewBox="0 0 24 24"><path d="M4.5 5a2 2 0 0 1 2-2H19v15.5H6.5a2 2 0 0 0-2 2z"/><path d="M4.5 18.5a2 2 0 0 1 2-2H19"/><path d="M8.5 7h7M8.5 10.5h5"/></svg>',
+      books: '<svg viewBox="0 0 24 24"><path d="M3 4h5.5a3.5 3.5 0 0 1 3.5 3.5V20a2.5 2.5 0 0 0-2.5-2.5H3z"/><path d="M21 4h-5.5A3.5 3.5 0 0 0 12 7.5V20a2.5 2.5 0 0 1 2.5-2.5H21z"/></svg>',
+      aggregate: '<svg viewBox="0 0 24 24"><rect x="4.5" y="3.5" width="15" height="17" rx="2"/><path d="M8.5 8h7M8.5 12h7M8.5 16h4"/></svg>',
+      gpa: '<svg viewBox="0 0 24 24"><path d="M4.5 19V5.5"/><path d="M4.5 19H19"/><path d="M8 15l3-4 3 2 4.5-6"/></svg>',
+      timetable: '<svg viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="15.5" rx="2"/><path d="M16 3.5v3.5M8 3.5v3.5M3.5 10.5h17"/><path d="M8 14h.01M12 14h.01M16 14h.01"/></svg>',
+      account: '<svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.5"/><path d="M5 19.5c1.2-3.2 3.6-4.8 7-4.8s5.8 1.6 7 4.8"/></svg>',
+      developer: '<svg viewBox="0 0 24 24"><path d="M8 8.5 4.5 12 8 15.5"/><path d="M16 8.5 19.5 12 16 15.5"/><path d="M13.5 6.5 10.5 17.5"/></svg>',
     };
     const items = [
       { t: "home", label: "Dashboard" },
