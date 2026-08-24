@@ -41,17 +41,20 @@
   function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 7); }
 
   function best3Avg(qs) {
-    const top = [...qs].map((n) => +n || 0).sort((a, b) => b - a).slice(0, 3);
+    if (global.ULC_MATH?.best3Avg) return ULC_MATH.best3Avg(qs);
+    const top = [...qs].map((n) => Math.min(15, Math.max(0, +n || 0))).sort((a, b) => b - a).slice(0, 3);
     return top.reduce((a, b) => a + b, 0) / 3;
   }
   function gpFromRounded(m) {
-    m = Math.round(+m || 0);
+    if (global.ULC_MATH?.gpFromRounded) return ULC_MATH.gpFromRounded(m);
+    m = Math.round(Math.min(100, Math.max(0, +m || 0)));
     if (m >= 80) return 4.0;
     if (m < 50) return 0.0;
     return Math.round((m - 40) * 10) / 100;
   }
   function letterFromRounded(m) {
-    m = Math.round(+m || 0);
+    if (global.ULC_MATH?.letterFromRounded) return ULC_MATH.letterFromRounded(m);
+    m = Math.round(Math.min(100, Math.max(0, +m || 0)));
     if (m >= 90) return "A";
     if (m >= 80) return "A-";
     if (m >= 75) return "B+";
@@ -63,14 +66,35 @@
     return "F";
   }
   function calcStudent(m) {
-    const qs = [m.q1, m.q2, m.q3, m.q4, m.q5].map((n) => +n || 0);
+    if (global.ULC_MATH?.calcAwardFrom) {
+      const mid =
+        m.mid != null && m.mid !== ""
+          ? +m.mid
+          : (+m.mid_obj || 0) + (+m.mid_sub || 0);
+      const fin =
+        m.final != null && m.final !== ""
+          ? +m.final
+          : (+m.fin_obj || 0) + (+m.fin_sub || 0);
+      return ULC_MATH.calcAwardFrom({
+        q1: m.q1,
+        q2: m.q2,
+        q3: m.q3,
+        q4: m.q4,
+        q5: m.q5,
+        a1: m.a1,
+        a2: m.a2,
+        mid,
+        final: fin,
+      });
+    }
+    const qs = [m.q1, m.q2, m.q3, m.q4, m.q5].map((n) => Math.min(15, Math.max(0, +n || 0)));
     const quiz = best3Avg(qs);
-    const assn = ((+m.a1 || 0) + (+m.a2 || 0)) / 2;
+    const assn = (Math.min(15, Math.max(0, +m.a1 || 0)) + Math.min(15, Math.max(0, +m.a2 || 0))) / 2;
     const midObt = Math.min(100, +m.mid || ((+m.mid_obj || 0) + (+m.mid_sub || 0)));
     const finObt = Math.min(100, +m.final || ((+m.fin_obj || 0) + (+m.fin_sub || 0)));
     const mid30 = midObt * 0.3;
     const fin40 = finObt * 0.4;
-    const grand = quiz + assn + mid30 + fin40;
+    const grand = Math.min(100, quiz + assn + mid30 + fin40);
     const rounded = Math.round(grand);
     return {
       quiz, assn, midObt, finObt, mid30, fin40, grand, rounded,

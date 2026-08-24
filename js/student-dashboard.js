@@ -133,14 +133,20 @@
   }
   function calcSemesterGpa(courses) {
     if (global.ULC_MATH?.calcSemesterGpa) return ULC_MATH.calcSemesterGpa(courses);
-    let points = 0, ch = 0, obtained = 0;
-    for (const c of courses || []) {
-      points += (+c.gp || 0) * (+c.ch || 0);
-      ch += +c.ch || 0;
-      obtained += +c.marks || 0;
+    let points = 0, ch = 0, obtained = 0, counted = 0;
+    for (const raw of courses || []) {
+      const credits = +raw.ch || 0;
+      if (credits <= 0) continue;
+      if (raw.marks === "" || raw.marks == null || !Number.isFinite(+raw.marks)) continue;
+      const marks = Math.round(Math.min(100, Math.max(0, +raw.marks || 0)));
+      const gp = gpFromRounded(marks);
+      points += gp * credits;
+      ch += credits;
+      obtained += marks;
+      counted += 1;
     }
-    const max = (courses || []).length * 100;
-    return { gpa: ch ? points / ch : 0, pct: max ? (obtained / max) * 100 : 0, obtained, ch, max };
+    const max = counted * 100;
+    return { gpa: ch ? points / ch : 0, pct: max ? (obtained / max) * 100 : 0, obtained, ch, max, counted };
   }
 
   function accountKey(u) {
@@ -172,15 +178,17 @@
 
   function calcAwardFrom(data) {
     if (global.ULC_MATH?.calcAwardFrom) return ULC_MATH.calcAwardFrom(data);
-    const qs = [data.q1, data.q2, data.q3, data.q4, data.q5].map((n) => +n || 0);
+    const qs = [data.q1, data.q2, data.q3, data.q4, data.q5].map((n) => Math.min(15, Math.max(0, +n || 0)));
     const top = [...qs].sort((a, b) => b - a).slice(0, 3);
+    while (top.length < 3) top.push(0);
     const quiz = top.reduce((a, b) => a + b, 0) / 3;
-    const assn = ((+data.a1 || 0) + (+data.a2 || 0)) / 2;
-    const midObt = Math.min(100, +data.mid || 0);
-    const finObt = Math.min(100, +data.final || 0);
+    const assn =
+      (Math.min(15, Math.max(0, +data.a1 || 0)) + Math.min(15, Math.max(0, +data.a2 || 0))) / 2;
+    const midObt = Math.min(100, Math.max(0, +data.mid || 0));
+    const finObt = Math.min(100, Math.max(0, +data.final || 0));
     const mid30 = midObt * 0.3;
     const fin40 = finObt * 0.4;
-    const grand = quiz + assn + mid30 + fin40;
+    const grand = Math.min(100, quiz + assn + mid30 + fin40);
     const rounded = Math.round(grand);
     return {
       quiz,
@@ -814,7 +822,11 @@
     }
     const filled = courses.filter((c) => c.marks !== "" && c.marks != null);
     const stats = calcSemesterGpa(
-      filled.map((c) => ({ ch: c.ch, gp: c.gp, marks: c.marks }))
+      filled.map((c) => ({
+        ch: c.ch,
+        marks: c.marks,
+        gp: gpFromRounded(c.marks),
+      }))
     );
     records[sem] = {
       courses,
@@ -1080,8 +1092,8 @@
     const stats = calcSemesterGpa(
       courses.map((c) => ({
         ch: c.ch,
-        gp: c.gp != null ? c.gp : gpFromRounded(c.marks),
         marks: +c.marks || 0,
+        gp: gpFromRounded(c.marks),
       }))
     );
     live.textContent = `GPA ${stats.gpa.toFixed(2)} · ${stats.pct.toFixed(2)}% · Obtained ${stats.obtained}`;
@@ -1112,7 +1124,11 @@
       return;
     }
     const stats = calcSemesterGpa(
-      filled.map((c) => ({ ch: c.ch, gp: c.gp, marks: c.marks }))
+      filled.map((c) => ({
+        ch: c.ch,
+        marks: c.marks,
+        gp: gpFromRounded(c.marks),
+      }))
     );
     const sem = editingSem;
     const records = getRecords(u);
@@ -1196,6 +1212,9 @@
   }
 
   function cumulativeBefore(records, sem) {
+    if (global.ULC_MATH?.calcCgpaThrough) {
+      return ULC_MATH.calcCgpaThrough(records, (+sem || 0) - 1);
+    }
     let points = 0, ch = 0;
     Object.keys(records)
       .map(Number)
@@ -1205,14 +1224,21 @@
         (records[n].courses || [])
           .filter((c) => c.marks !== "" && c.marks != null)
           .forEach((c) => {
-            points += (+c.gp || 0) * (+c.ch || 0);
-            ch += +c.ch || 0;
+            const marks = Math.round(Math.min(100, Math.max(0, +c.marks || 0)));
+            const gp = gpFromRounded(marks);
+            const credits = +c.ch || 0;
+            if (credits <= 0) return;
+            points += gp * credits;
+            ch += credits;
           });
       });
     return ch ? points / ch : 0;
   }
 
   function cumulativeThrough(records, sem) {
+    if (global.ULC_MATH?.calcCgpaThrough) {
+      return ULC_MATH.calcCgpaThrough(records, sem);
+    }
     let points = 0, ch = 0;
     Object.keys(records)
       .map(Number)
@@ -1222,8 +1248,12 @@
         (records[n].courses || [])
           .filter((c) => c.marks !== "" && c.marks != null)
           .forEach((c) => {
-            points += (+c.gp || 0) * (+c.ch || 0);
-            ch += +c.ch || 0;
+            const marks = Math.round(Math.min(100, Math.max(0, +c.marks || 0)));
+            const gp = gpFromRounded(marks);
+            const credits = +c.ch || 0;
+            if (credits <= 0) return;
+            points += gp * credits;
+            ch += credits;
           });
       });
     return ch ? points / ch : 0;
@@ -1244,7 +1274,13 @@
     const rec = records[sem];
     if (!rec) return "";
     const courses = (rec.courses || []).filter((c) => c.marks !== "" && c.marks != null);
-    const stats = calcSemesterGpa(courses.map((c) => ({ ch: c.ch, gp: c.gp, marks: c.marks })));
+    const stats = calcSemesterGpa(
+      courses.map((c) => ({
+        ch: c.ch,
+        marks: c.marks,
+        gp: gpFromRounded(c.marks),
+      }))
+    );
     const prev = cumulativeBefore(records, sem);
     const curr = cumulativeThrough(records, sem);
     const logo = global.LOGO || "icons/ulc-logo.png";

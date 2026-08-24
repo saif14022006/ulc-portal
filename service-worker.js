@@ -1,11 +1,12 @@
 /* ULC Portal service worker — offline app shell (browser + Capacitor https://localhost) */
-const CACHE = "ulc-portal-v97";
+const CACHE = "ulc-portal-v98";
 const ASSETS = [
   "./",
   "./index.html",
   "./manifest.webmanifest",
   "./favicon.png",
   "./logo.js",
+  "./version.json",
   "./js/config.js",
   "./js/award-math.js",
   "./js/ulc-cloud.js",
@@ -16,6 +17,7 @@ const ASSETS = [
   "./js/my-files.js",
   "./js/native-save.js",
   "./js/capacitor-bridge.js",
+  "./js/update-check.js",
   "./js/syllabus-catalog.js",
   "./js/syllabus-app.js",
   "./js/books-app.js",
@@ -78,7 +80,7 @@ self.addEventListener("fetch", (e) => {
     return;
   }
   const path = url.pathname || "";
-  if (/\/js\/syllabus-(catalog|app)\.js$/i.test(path) || /\/service-worker\.js$/i.test(path)) {
+  if (/\/js\/syllabus-(catalog|app)\.js$/i.test(path) || /\/service-worker\.js$/i.test(path) || /\/version\.json$/i.test(path) || /\/js\/update-check\.js$/i.test(path)) {
     e.respondWith(
       fetch(req)
         .then((res) => {

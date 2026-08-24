@@ -27,6 +27,7 @@
 <script src="js/student-dashboard.js"></script>
 <script src="js/letter-app.js"></script>
 <script src="js/my-files.js"></script>
+<script src="js/update-check.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
 <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js" defer></script>
 <style>
@@ -505,6 +506,15 @@ body.tools-drawer-open .tools-drawer-bg{display:block}
 .gp-box .l{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:#a9c1da;margin-top:4px}
 .overlay{position:fixed;inset:0;z-index:200;background:rgba(8,39,68,.55);display:none;align-items:flex-end;justify-content:center;padding:16px;padding-bottom:calc(16px + env(safe-area-inset-bottom))}
 .overlay.show{display:flex!important}
+.ulc-update-prompt{position:fixed;inset:0;z-index:320;display:none;align-items:center;justify-content:center;padding:20px;padding-bottom:calc(20px + env(safe-area-inset-bottom))}
+.ulc-update-prompt.show{display:flex}
+.ulc-update-prompt-bg{position:absolute;inset:0;background:rgba(8,39,68,.58)}
+.ulc-update-prompt-card{position:relative;width:min(420px,100%);background:var(--paper-2);border:1px solid var(--line);border-radius:16px;padding:22px 20px 18px;box-shadow:0 18px 50px rgba(8,39,68,.28)}
+.ulc-update-prompt-card h3{margin:0 0 8px;font-family:var(--display);font-size:1.55rem;color:var(--navy);font-weight:700}
+.ulc-update-prompt-card p{margin:0 0 10px;color:var(--slate);font-size:.95rem;line-height:1.45}
+.ulc-update-meta{font-size:.82rem!important;color:var(--slate);opacity:.9}
+.ulc-update-actions{display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap;margin-top:14px}
+.ulc-update-actions .btn{text-decoration:none;display:inline-flex;align-items:center;justify-content:center}
 #profileOverlay,#srOverlay,#onboardOverlay,#teacherSetupOverlay{z-index:9999}
 #profileOverlay .sheet{max-height:90dvh;overflow:auto}
 .sheet{background:var(--paper-2);border-radius:18px 18px 14px 14px;padding:20px 18px;width:100%;max-width:480px;max-height:88dvh;overflow:auto;box-shadow:0 -8px 40px rgba(0,0,0,.25)}
@@ -2211,8 +2221,8 @@ window.SYLLABUS=SYLLABUS;
 window.LLM_SYLLABUS=LLM_SYLLABUS;
 window.ELECTIVES=ELECTIVES;
 </script>
-<script src="js/syllabus-catalog.js?v=97"></script>
-<script src="js/syllabus-app.js?v=97"></script>
+<script src="js/syllabus-catalog.js?v=98"></script>
+<script src="js/syllabus-app.js?v=98"></script>
 <script src="js/books-app.js"></script>
 <script>
 function isTeacher(u){ return (u||currentUser())?.role==='teacher'; }
@@ -2304,6 +2314,34 @@ function setUsers(u){ saveJSON(LS_USERS, u); }
 function getSession(){ return loadJSON(LS_SESSION, null); }
 function setSession(s){ if(s) saveJSON(LS_SESSION,s); else localStorage.removeItem(LS_SESSION); }
 
+/** Persist full cloud user so reopen/offline still counts as logged in. */
+function persistCloudUser(u){
+  if(!u || !u.id) return;
+  _sbUser={
+    id:u.id, roll:u.roll, name:u.name, email:normalizeEmail(u.email),
+    role:u.role||'student',
+    currentSemester:u.currentSemester, prevGpa:u.prevGpa, cgpa:u.cgpa,
+    session:u.session, notes:u.notes, profileComplete:u.profileComplete
+  };
+  setSession({
+    email:_sbUser.email, roll:_sbUser.roll, cloud:true,
+    id:_sbUser.id, name:_sbUser.name, role:_sbUser.role,
+    currentSemester:_sbUser.currentSemester, prevGpa:_sbUser.prevGpa, cgpa:_sbUser.cgpa,
+    session:_sbUser.session, notes:_sbUser.notes, profileComplete:_sbUser.profileComplete
+  });
+}
+function hydrateCloudUserFromSession(){
+  const s=getSession();
+  if(!s || !s.cloud || !s.id) return false;
+  _sbUser={
+    id:s.id, roll:s.roll, name:s.name, email:normalizeEmail(s.email),
+    role:s.role||'student',
+    currentSemester:s.currentSemester, prevGpa:s.prevGpa, cgpa:s.cgpa,
+    session:s.session, notes:s.notes, profileComplete:s.profileComplete
+  };
+  return true;
+}
+
 function findLocalUserByEmail(email){
   const em=normalizeEmail(email);
   if(!em) return null;
@@ -2315,6 +2353,7 @@ function findLocalUserByEmail(email){
   return null;
 }
 function currentUser(){
+  if(!_sbUser) hydrateCloudUserFromSession();
   if(_sbUser) return {
     roll:_sbUser.roll, name:_sbUser.name, email:_sbUser.email, contact:_sbUser.email,
     id:_sbUser.id, cloud:true, role:_sbUser.role||'student',
@@ -2322,6 +2361,7 @@ function currentUser(){
     session:_sbUser.session, notes:_sbUser.notes, profileComplete:_sbUser.profileComplete
   };
   const s=getSession(); if(!s) return null;
+  if(s.cloud) return null; /* cloud session without snapshot — wait for restore */
   const key=s.email || s.roll;
   const found=s.email ? findLocalUserByEmail(s.email) : (getUsers()[key] ? { key, user:getUsers()[key] } : null);
   if(!found) return null;
@@ -2769,7 +2809,10 @@ async function doChangeEmail(){
       try{
         await sb.from('profiles').update({ contact: neu }).eq('id', sess.user.id);
       }catch(_){ /* optional */ }
-      if(_sbUser) _sbUser.email=neu;
+      if(_sbUser){
+        _sbUser.email=neu;
+        persistCloudUser(_sbUser);
+      }
     }
 
     const local=findLocalUserByEmail(u.email);
@@ -2780,9 +2823,10 @@ async function doChangeEmail(){
       prev.email=neu;
       users[neu]=prev;
       setUsers(users);
-      setSession({ email: neu, roll: prev.roll || local.key, cloud: !!(sb && sess) });
-    } else if(u){
-      setSession({ email: neu, roll: u.roll, cloud: !!(sb && sess) });
+      if(sb && sess && _sbUser) persistCloudUser({ ..._sbUser, email:neu, roll: prev.roll || local.key });
+      else setSession({ email: neu, roll: prev.roll || local.key, cloud: false });
+    } else if(u && !(sb && sess)){
+      setSession({ email: neu, roll: u.roll, cloud: false });
     }
 
     document.getElementById('ch-email-new').value='';
@@ -2799,9 +2843,24 @@ function wirePasswordRecovery(){
   if(_authRecoveryWired) return;
   const sb=getSb(); if(!sb) return;
   _authRecoveryWired=true;
-  sb.auth.onAuthStateChange((event)=>{
+  sb.auth.onAuthStateChange(async (event, session)=>{
     if(event==='PASSWORD_RECOVERY'){
       openPasswordResetForm(true);
+      return;
+    }
+    if(event==='SIGNED_OUT'){
+      _sbUser=null;
+      const s=getSession();
+      if(s?.cloud) setSession(null);
+      return;
+    }
+    if((event==='SIGNED_IN' || event==='TOKEN_REFRESHED' || event==='INITIAL_SESSION') && session?.user){
+      /* Keep UI logged in; refresh profile when we only have a thin snapshot. */
+      if(!_sbUser || !_sbUser.id){
+        try{ await restoreCloudSession({ soft:true }); }catch(_){}
+      } else if(event==='TOKEN_REFRESHED' || event==='SIGNED_IN'){
+        try{ persistCloudUser(_sbUser); }catch(_){}
+      }
     }
   });
   try{
@@ -2813,6 +2872,23 @@ function wirePasswordRecovery(){
         const { data }=await sb.auth.getSession();
         if(data?.session) openPasswordResetForm(true);
       }, 200);
+    }
+  }catch(_){ /* ignore */ }
+  try{
+    const Cap=window.Capacitor;
+    if(Cap && Cap.isNativePlatform && Cap.isNativePlatform()){
+      const App=Cap.Plugins?.App || (Cap.registerPlugin && Cap.registerPlugin('App'));
+      if(App && App.addListener){
+        App.addListener('appStateChange', ({ isActive })=>{
+          if(!isActive) return;
+          setTimeout(async ()=>{
+            try{
+              await sb.auth.refreshSession().catch(()=>{});
+              if(getSession()?.cloud) await restoreCloudSession({ soft:true });
+            }catch(_){}
+          }, 400);
+        });
+      }
     }
   }catch(_){ /* ignore */ }
 }
@@ -2974,8 +3050,7 @@ async function doSignup(){
     }catch(err){
       showAuthMsg(friendlyError(err)); return;
     }
-    _sbUser={ id:uid, roll, name, email, role, profileComplete: role==='teacher' };
-    setSession({ email, roll, cloud:true });
+    persistCloudUser({ id:uid, roll, name, email, role, profileComplete: role==='teacher' });
     showAuthMsg('Account created.', true);
     refreshAccountView(); refreshTopAcc();
     showSignupWelcome(name, role);
@@ -3012,12 +3087,11 @@ async function doLogin(){
     const role=prof?.role || data.user.user_metadata?.role || 'student';
     const roll=prof?.roll_no || data.user.user_metadata?.roll_no || email;
     const em=normalizeEmail(prof?.contact || data.user.email || email);
-    _sbUser={
+    persistCloudUser({
       id:uid, roll, name, email:em, role,
       currentSemester:prof?.current_semester, prevGpa:prof?.prev_gpa, cgpa:prof?.cgpa,
       session:prof?.session, notes:prof?.notes, profileComplete: role==='teacher' ? true : !!prof?.profile_complete
-    };
-    setSession({ email:em, roll, cloud:true });
+    });
     try {
       if (role === 'teacher' && window.TeacherApp?.pullTeacherWorkspace) await TeacherApp.pullTeacherWorkspace(true);
       else if (role !== 'teacher' && window.StudentDash?.pullStudentWorkspace) await StudentDash.pullStudentWorkspace(true);
@@ -3158,30 +3232,61 @@ async function doDeleteAccount(){
   }
 }
 
-async function restoreCloudSession(){
+async function restoreCloudSession(opts){
+  const soft=!!(opts && opts.soft);
+  hydrateCloudUserFromSession();
   const sb=getSb(); if(!sb) return;
-  const {data}=await sb.auth.getSession();
-  const sess=data?.session;
-  if(!sess){ _sbUser=null; return; }
-  const uid=sess.user.id;
-  const {data: prof}=await sb.from('profiles').select('*').eq('id', uid).maybeSingle();
-  if(!prof){ _sbUser=null; return; }
-  const role=prof.role||'student';
-  const email=normalizeEmail(prof.contact || sess.user.email || '');
-  _sbUser={
-    id:uid, roll:prof.roll_no, name:prof.full_name, email, role,
-    currentSemester:prof.current_semester, prevGpa:prof.prev_gpa, cgpa:prof.cgpa,
-    session:prof.session, notes:prof.notes, profileComplete: role==='teacher' ? true : !!prof.profile_complete
-  };
-  setSession({ email, roll:prof.roll_no, cloud:true });
-  try {
-    if (window.ULC_CLOUD) await ULC_CLOUD.flushQueue();
-    if (role === 'teacher' && window.TeacherApp?.pullTeacherWorkspace) {
-      await TeacherApp.pullTeacherWorkspace(true);
-    } else if (role !== 'teacher' && window.StudentDash?.pullStudentWorkspace) {
-      await StudentDash.pullStudentWorkspace(true);
+  try{
+    let sess=(await sb.auth.getSession()).data?.session;
+    if(!sess){
+      try{ sess=(await sb.auth.refreshSession()).data?.session; }catch(_){}
     }
-  } catch (e) { console.warn('cloud workspace pull', e); }
+    if(!sess){
+      /* Keep local snapshot so reopen stays logged in offline; SIGNED_OUT clears it. */
+      return;
+    }
+    const uid=sess.user.id;
+    let prof=null;
+    try{
+      const res=await sb.from('profiles').select('*').eq('id', uid).maybeSingle();
+      prof=res?.data||null;
+    }catch(e){
+      console.warn('restoreCloudSession profile', e);
+      return; /* keep snapshot */
+    }
+    if(!prof){
+      /* Auth ok but profile missing — keep minimal user from auth + snapshot */
+      if(!_sbUser){
+        persistCloudUser({
+          id:uid,
+          roll:sess.user.user_metadata?.roll_no || sess.user.email,
+          name:sess.user.user_metadata?.full_name || sess.user.email,
+          email:normalizeEmail(sess.user.email||''),
+          role:sess.user.user_metadata?.role || 'student',
+          profileComplete:false
+        });
+      }
+      return;
+    }
+    const role=prof.role||'student';
+    const email=normalizeEmail(prof.contact || sess.user.email || '');
+    persistCloudUser({
+      id:uid, roll:prof.roll_no, name:prof.full_name, email, role,
+      currentSemester:prof.current_semester, prevGpa:prof.prev_gpa, cgpa:prof.cgpa,
+      session:prof.session, notes:prof.notes, profileComplete: role==='teacher' ? true : !!prof.profile_complete
+    });
+    if(soft) return;
+    try {
+      if (window.ULC_CLOUD) await ULC_CLOUD.flushQueue();
+      if (role === 'teacher' && window.TeacherApp?.pullTeacherWorkspace) {
+        await TeacherApp.pullTeacherWorkspace(true);
+      } else if (role !== 'teacher' && window.StudentDash?.pullStudentWorkspace) {
+        await StudentDash.pullStudentWorkspace(true);
+      }
+    } catch (e) { console.warn('cloud workspace pull', e); }
+  }catch(e){
+    console.warn('restoreCloudSession', e);
+  }
 }
 function openOnboarding(forceEdit){
   const u=currentUser(); if(!u) return;
@@ -3223,6 +3328,7 @@ async function saveOnboarding(){
     }).eq('id', u.id);
     if(error){ alert(friendlyError(error)); return; }
     Object.assign(_sbUser, payload);
+    persistCloudUser(_sbUser);
   }else{
     const users=getUsers();
     const key=normalizeEmail(u.email)||u.roll;
@@ -3843,6 +3949,7 @@ function renderSyllabusAcc(){
 /* init */
 fillSemDropdown(); fillSubjectLists(); fillInstructorList(); onSemChange(); drawCover();
 renderSyllabusAcc(); syncDayUi(); renderGrades(); renderSlots();
+hydrateCloudUserFromSession();
 (async()=>{
   wirePasswordRecovery();
   await restoreCloudSession();

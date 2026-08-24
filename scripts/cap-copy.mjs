@@ -14,7 +14,8 @@ const files = [
   "manifest.webmanifest",
   "service-worker.js",
   "logo.js",
-  "favicon.png"
+  "favicon.png",
+  "version.json"
 ];
 
 const dirs = ["js", "icons", "assets"];
