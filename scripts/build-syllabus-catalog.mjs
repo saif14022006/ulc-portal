@@ -195,13 +195,31 @@ const books = {
     "Contract Act, 1872",
     "Avtar Singh — Law of Contract",
   ],
+  "Islamic Jurisprudence - I": [
+    "Coulson — A History of Islamic Law",
+    "Nyazee — Outlines of Islamic Jurisprudence",
+    "Nyazee — Theories of Islamic Law",
+    "Abdur Rahim — The Principles of Islamic Jurisprudence",
+    "Schacht — An Introduction to Islamic Law",
+  ],
   "Islamic Jurisprudence – I": [
-    "Imran Ahsan Khan Nyazee — Islamic Jurisprudence",
-    "Abdur Rahim — Principles of Muhammadan Jurisprudence",
+    "Coulson — A History of Islamic Law",
+    "Nyazee — Outlines of Islamic Jurisprudence",
+    "Nyazee — Theories of Islamic Law",
+    "Abdur Rahim — The Principles of Islamic Jurisprudence",
+    "Schacht — An Introduction to Islamic Law",
+  ],
+  "Islamic Jurisprudence - II": [
+    "Ahmad Hassan — Principles of Islamic Jurisprudence",
+    "Mohammad Hashim Kamali — Principles of Islamic Jurisprudence",
+    "Nyazee — Outlines of Islamic Jurisprudence",
+    "Abdur Rahim — The Principles of Islamic Jurisprudence",
   ],
   "Islamic Jurisprudence – II": [
-    "Imran Ahsan Khan Nyazee — Islamic Jurisprudence",
+    "Ahmad Hassan — Principles of Islamic Jurisprudence",
+    "Mohammad Hashim Kamali — Principles of Islamic Jurisprudence",
     "Nyazee — Outlines of Islamic Jurisprudence",
+    "Abdur Rahim — The Principles of Islamic Jurisprudence",
   ],
   "Islamic Personal Law – I": [
     "Muslim Family Laws Ordinance, 1961",
@@ -307,10 +325,46 @@ const outlines = {
     "Breach and remedies",
     "Drafting and problem-solving exercises",
   ],
+  /* Exact keys first — findOutline must not let bare "Jurisprudence" steal Islamic Jurisprudence. */
+  "Islamic Jurisprudence - I": [
+    "Islamic legal theories: philosophical, historical and sociological basis",
+    "History and growth of the Muslim legal system",
+    "Primary sources: Qur’an and Traditions (Sunnah)",
+    "Secondary sources: Ijma and custom",
+    "Juristic deduction: Qiyas, Istehsan, Istedlal, Ijtihad and Taqlid",
+  ],
+  "Islamic Jurisprudence - II": [
+    "Acts, rights and obligations in Islamic law",
+    "Legal capacity (ahliyya)",
+    "Ownership and possession",
+    "Family laws (overview within Islamic jurisprudence)",
+    "Torts and crimes; punishments",
+    "Procedure and evidence",
+    "Constitutional and administrative law in an Islamic framework",
+    "Relations between Muslims and non-Muslims",
+  ],
+  "Islamic Jurisprudence": [
+    "Primary sources: Qur’an, Sunnah, Ijma and Qiyas",
+    "History and schools of Islamic legal thought",
+    "Rights, obligations and legal capacity",
+    "Application of usul al-fiqh to contemporary issues",
+  ],
   Jurisprudence: [
     "Natural law, positivism, realism and sociological approaches",
     "Key jurists and theories of law",
     "Law, morality and justice",
+    "Application of theory to statutes and judgments",
+  ],
+  "Jurisprudence - I": [
+    "Natural law, positivism, realism and sociological approaches",
+    "Key jurists and theories of law",
+    "Law, morality and justice",
+    "Application of theory to statutes and judgments",
+  ],
+  "Jurisprudence - II": [
+    "Advanced schools of legal theory",
+    "Law, rights and the state",
+    "Critical and sociological approaches",
     "Application of theory to statutes and judgments",
   ],
   "Principles of Constitutional Law": [
@@ -421,17 +475,48 @@ function findBooks(title) {
 function findOutline(title, category) {
   const t = normalizeTitle(title);
   if (outlines[t]) return outlines[t];
+  const base = stripPart(t);
+  if (outlines[base]) return outlines[base];
+  // Longest key wins so "Islamic Jurisprudence" is not stolen by bare "Jurisprudence".
+  let best = null;
+  let bestLen = 0;
   for (const k of Object.keys(outlines)) {
     if (k === "defaultMajor" || k === "defaultGe") continue;
-    if (t.toLowerCase().includes(k.toLowerCase()) || k.toLowerCase().includes(t.toLowerCase())) {
-      return outlines[k];
+    const kn = normalizeTitle(k).toLowerCase();
+    const tl = t.toLowerCase();
+    if (tl === kn || tl.startsWith(kn + " ") || tl.startsWith(kn + "-") || kn === base.toLowerCase()) {
+      if (kn.length > bestLen) {
+        best = outlines[k];
+        bestLen = kn.length;
+      }
     }
   }
+  if (best) return best;
   if (/general education|interdisciplinary|elective|capstone|ids-/i.test(category + " " + t)) {
     return outlines.defaultGe;
   }
   return outlines.defaultMajor;
 }
+
+/** Course detail from Final Curriculum LLB.pdf (5Y) — outcomes/outline/books keyed after normalizeTitle. */
+const LLB5_DETAIL = {
+  "Islamic Jurisprudence - I": {
+    outcomes: [
+      "Explain Islamic legal theories and their philosophical, historical and sociological basis.",
+      "Identify the history and growth of the Muslim legal system and the primary and secondary sources of Islamic law (Qur’an, Traditions, Ijma and custom).",
+      "Analyse juristic deduction methods including Qiyas, Istehsan, Istedlal, Ijtihad and Taqlid.",
+      "Apply source and usul concepts to guided problem questions under the HEC five-year scheme.",
+    ],
+  },
+  "Islamic Jurisprudence - II": {
+    outcomes: [
+      "Explain the practical Islamic legal concepts that continue from Islamic Jurisprudence-I: acts, rights and obligations, legal capacity, ownership and possession.",
+      "Analyse Islamic jurisprudence on family laws, torts and crimes, punishments, procedure and evidence.",
+      "Examine constitutional and administrative dimensions of Islamic law and the rules regulating relations between Muslims and non-Muslims.",
+      "Apply these concepts to problem questions and comparative discussion with Pakistani legal practice as taught.",
+    ],
+  },
+};
 
 const byTitle = {};
 function ensureCourse(title, category, program) {
@@ -440,11 +525,16 @@ function ensureCourse(title, category, program) {
   if (byTitle[key]) return;
   const bare = normalizeTitle(title);
   // HEC 2025 CLOs apply only to the 4-year curriculum — never bleed into 5Y / LLM.
-  const outcomes = prog === "LLB 4 Years" ? findClos(bare) : null;
+  const detail5 = prog === "LLB 5 Years" || prog === "LLB 5 Years Elective" ? LLB5_DETAIL[bare] : null;
+  const outcomes =
+    prog === "LLB 4 Years" ? findClos(bare) : detail5?.outcomes || null;
   let sourceNote;
-  if (outcomes) {
+  if (prog === "LLB 4 Years" && outcomes) {
     sourceNote =
       "Course Learning Outcomes from HEC LLB Curriculum 2025 (4-year). Outline topics and books are study aids; your university may prescribe a different list.";
+  } else if (detail5) {
+    sourceNote =
+      "Course detail from HEC Final Curriculum LLB.pdf (LLB 5 Years Revised 2015). Titles and credit hours match that PDF; topics and books follow the official course description.";
   } else if (prog === "LLB 5 Years" || prog === "LLB 5 Years Elective") {
     sourceNote =
       "Scheme of studies from HEC Final Curriculum LLB.pdf (LLB 5 Years Revised 2015). Course titles and credit hours match that PDF exactly. Detailed outcomes are set by the university; outline topics and books below are common study aids and may differ by campus.";
