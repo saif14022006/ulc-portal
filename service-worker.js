@@ -1,5 +1,5 @@
 /* ULC Portal service worker — offline app shell (browser + Capacitor https://localhost) */
-const CACHE = "ulc-portal-v94";
+const CACHE = "ulc-portal-v95";
 const ASSETS = [
   "./",
   "./index.html",
@@ -72,9 +72,22 @@ self.addEventListener("fetch", (e) => {
   // Only handle same-origin (includes Capacitor https://localhost); leave Supabase/CDN alone.
   if (url.origin !== SW_ORIGIN) return;
 
-  // Network-first for navigations, cache-first for the rest.
+  // Network-first for navigations and syllabus JS (must not stick on stale course details).
   if (req.mode === "navigate") {
     e.respondWith(fetch(req).catch(() => caches.match("./index.html")));
+    return;
+  }
+  const path = url.pathname || "";
+  if (/\/js\/syllabus-(catalog|app)\.js$/i.test(path) || /\/service-worker\.js$/i.test(path)) {
+    e.respondWith(
+      fetch(req)
+        .then((res) => {
+          const copy = res.clone();
+          caches.open(CACHE).then((c) => c.put(req, copy)).catch(() => {});
+          return res;
+        })
+        .catch(() => caches.match(req))
+    );
     return;
   }
   e.respondWith(

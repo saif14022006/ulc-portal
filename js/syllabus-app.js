@@ -22,10 +22,75 @@
       .trim();
   }
 
+  /* Final Curriculum LLB.pdf (5Y) — hard overrides so SW/cache/fuzzy catalog cannot show Western Jurisprudence for Islamic Jurisprudence. */
+  const LLB5_PDF_DETAIL = {
+    "Islamic Jurisprudence - I": {
+      title: "Islamic Jurisprudence - I",
+      program: "LLB 5 Years",
+      category: "Major / scheme course",
+      outcomes: [
+        "Explain Islamic legal theories and their philosophical, historical and sociological basis.",
+        "Identify the history and growth of the Muslim legal system and the primary and secondary sources of Islamic law (Qur’an, Traditions, Ijma and custom).",
+        "Analyse juristic deduction methods including Qiyas, Istehsan, Istedlal, Ijtihad and Taqlid.",
+        "Apply source and usul concepts to guided problem questions under the HEC five-year scheme.",
+      ],
+      outline: [
+        "Islamic legal theories: philosophical, historical and sociological basis",
+        "History and growth of the Muslim legal system",
+        "Primary sources: Qur’an and Traditions (Sunnah)",
+        "Secondary sources: Ijma and custom",
+        "Juristic deduction: Qiyas, Istehsan, Istedlal, Ijtihad and Taqlid",
+      ],
+      books: [
+        "Coulson — A History of Islamic Law",
+        "Nyazee — Outlines of Islamic Jurisprudence",
+        "Nyazee — Theories of Islamic Law",
+        "Abdur Rahim — The Principles of Islamic Jurisprudence",
+        "Schacht — An Introduction to Islamic Law",
+      ],
+      sourceNote:
+        "Course detail from HEC Final Curriculum LLB.pdf (LLB 5 Years Revised 2015). Titles and credit hours match that PDF; topics and books follow the official course description.",
+    },
+    "Islamic Jurisprudence - II": {
+      title: "Islamic Jurisprudence - II",
+      program: "LLB 5 Years",
+      category: "Major / scheme course",
+      outcomes: [
+        "Explain the practical Islamic legal concepts that continue from Islamic Jurisprudence-I: acts, rights and obligations, legal capacity, ownership and possession.",
+        "Analyse Islamic jurisprudence on family laws, torts and crimes, punishments, procedure and evidence.",
+        "Examine constitutional and administrative dimensions of Islamic law and the rules regulating relations between Muslims and non-Muslims.",
+        "Apply these concepts to problem questions and comparative discussion with Pakistani legal practice as taught.",
+      ],
+      outline: [
+        "Acts, rights and obligations in Islamic law",
+        "Legal capacity (ahliyya)",
+        "Ownership and possession",
+        "Family laws (overview within Islamic jurisprudence)",
+        "Torts and crimes; punishments",
+        "Procedure and evidence",
+        "Constitutional and administrative law in an Islamic framework",
+        "Relations between Muslims and non-Muslims",
+      ],
+      books: [
+        "Ahmad Hassan — Principles of Islamic Jurisprudence",
+        "Mohammad Hashim Kamali — Principles of Islamic Jurisprudence",
+        "Nyazee — Outlines of Islamic Jurisprudence",
+        "Abdur Rahim — The Principles of Islamic Jurisprudence",
+      ],
+      sourceNote:
+        "Course detail from HEC Final Curriculum LLB.pdf (LLB 5 Years Revised 2015). Titles and credit hours match that PDF; topics and books follow the official course description.",
+    },
+  };
+
   function courseLookup(title, program) {
     const catalog = global.ULC_SYLLABUS_CATALOG?.courses || {};
     const t = norm(title);
     const prog = String(program || "").trim();
+
+    // Always win for these PDF courses (fixes stale SW cache showing Western Jurisprudence outline).
+    if (prog === "LLB 5 Years" && LLB5_PDF_DETAIL[t]) {
+      return LLB5_PDF_DETAIL[t];
+    }
 
     function matchInProgram(p) {
       if (!p) return null;
@@ -43,7 +108,14 @@
 
     // Prefer programme-scoped entry (keeps 4Y HEC 2025 CLOs off 5Y courses).
     const scoped = matchInProgram(prog);
-    if (scoped) return scoped;
+    if (scoped) {
+      // Guard: never show bare Western Jurisprudence outline under an Islamic Jurisprudence title.
+      const o0 = (scoped.outline && scoped.outline[0]) || "";
+      if (/islamic jurisprudence/i.test(t) && /natural law,\s*positivism/i.test(o0)) {
+        if (LLB5_PDF_DETAIL[t]) return LLB5_PDF_DETAIL[t];
+      }
+      return scoped;
+    }
 
     // Legacy flat keys (if any) — exact title only, no fuzzy cross-match.
     if (catalog[t]) return catalog[t];
