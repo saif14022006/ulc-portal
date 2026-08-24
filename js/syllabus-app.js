@@ -22,27 +22,41 @@
       .trim();
   }
 
-  function courseLookup(title) {
+  function courseLookup(title, program) {
     const catalog = global.ULC_SYLLABUS_CATALOG?.courses || {};
     const t = norm(title);
+    const prog = String(program || "").trim();
+
+    function matchInProgram(p) {
+      if (!p) return null;
+      const exact = catalog[p + "||" + t];
+      if (exact) return exact;
+      const prefix = p + "||";
+      const tl = t.toLowerCase();
+      for (const k of Object.keys(catalog)) {
+        if (!k.startsWith(prefix)) continue;
+        const titlePart = k.slice(prefix.length);
+        if (titlePart.toLowerCase() === tl) return catalog[k];
+      }
+      return null;
+    }
+
+    // Prefer programme-scoped entry (keeps 4Y HEC 2025 CLOs off 5Y courses).
+    const scoped = matchInProgram(prog);
+    if (scoped) return scoped;
+
+    // Legacy flat keys (if any) — exact title only, no fuzzy cross-match.
     if (catalog[t]) return catalog[t];
     const keys = Object.keys(catalog);
     const tl = t.toLowerCase();
-    const base = stripPart(t).toLowerCase();
     for (const k of keys) {
-      if (k.toLowerCase() === tl) return catalog[k];
+      const titlePart = k.includes("||") ? k.split("||").slice(1).join("||") : k;
+      if (titlePart.toLowerCase() === tl) return catalog[k];
     }
-    for (const k of keys) {
-      if (stripPart(k).toLowerCase() === base) return catalog[k];
-    }
-    for (const k of keys) {
-      const a = k.toLowerCase();
-      if (a.includes(tl) || tl.includes(a) || a.includes(base) || base.includes(a)) {
-        return catalog[k];
-      }
-    }
+
     return {
       title: t,
+      program: prog || "",
       outcomes: [
         "Demonstrate understanding of the core principles of this subject as taught under the university scheme.",
         "Analyse key doctrines, statutes and authorities relevant to the course.",
@@ -106,7 +120,7 @@
       return;
     }
     const { code, title, ch, category, program } = payload;
-    const detail = courseLookup(title);
+    const detail = courseLookup(title, program);
     const sheet = ensureSheet();
     document.getElementById("courseSheetCode").textContent = code || "Course";
     document.getElementById("courseSheetTitle").textContent = title || detail.title;

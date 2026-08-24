@@ -16,17 +16,28 @@
     return norm(title).replace(/\s*[-–]\s*[IVX0-9]+$/i, "").replace(/\s*\(.*?\)\s*$/g, "").trim();
   }
 
-  function courseLookup(title) {
+  function courseLookup(title, program) {
     var catalog = (global.ULC_SYLLABUS_CATALOG || {}).courses || {};
     var t = norm(title);
+    var prog = String(program || "").trim();
+    if (prog) {
+      var exact = catalog[prog + "||" + t];
+      if (exact) return exact;
+      var prefix = prog + "||";
+      var tl = t.toLowerCase();
+      var keys = Object.keys(catalog);
+      for (var i = 0; i < keys.length; i++) {
+        if (!keys[i].startsWith(prefix)) continue;
+        var titlePart = keys[i].slice(prefix.length);
+        if (titlePart.toLowerCase() === tl) return catalog[keys[i]];
+      }
+    }
     if (catalog[t]) return catalog[t];
-    var keys = Object.keys(catalog);
-    var tl = t.toLowerCase(), base = stripPart(t).toLowerCase();
-    for (var i = 0; i < keys.length; i++) { if (keys[i].toLowerCase() === tl) return catalog[keys[i]]; }
-    for (var i = 0; i < keys.length; i++) { if (stripPart(keys[i]).toLowerCase() === base) return catalog[keys[i]]; }
-    for (var i = 0; i < keys.length; i++) {
-      var a = keys[i].toLowerCase();
-      if (a.includes(tl) || tl.includes(a) || a.includes(base) || base.includes(a)) return catalog[keys[i]];
+    var all = Object.keys(catalog);
+    var tl2 = t.toLowerCase();
+    for (var j = 0; j < all.length; j++) {
+      var part = all[j].includes("||") ? all[j].split("||").slice(1).join("||") : all[j];
+      if (part.toLowerCase() === tl2) return catalog[all[j]];
     }
     return null;
   }
@@ -105,9 +116,9 @@
       '</details>';
   }
 
-  function gatherSubjects(titles) {
+  function gatherSubjects(titles, program) {
     return titles.map(function (t) {
-      var c = courseLookup(t);
+      var c = courseLookup(t, program);
       return { title: t, books: c ? (c.booksWithLinks || []) : [] };
     });
   }
@@ -118,7 +129,7 @@
     if (!sems.length) return "";
     return sems.map(function (n) {
       var titles = S[n].map(function (x) { return x[1]; });
-      return semAccordion("Semester " + n, n, gatherSubjects(titles));
+      return semAccordion("Semester " + n, n, gatherSubjects(titles, "LLB 5 Years"));
     }).join("");
   }
 
@@ -127,7 +138,7 @@
     if (!llb4) return "";
     return Object.keys(llb4.semesters).map(function (n) {
       var titles = llb4.semesters[n].map(function (x) { return x.title; });
-      return semAccordion("Semester " + n, n, gatherSubjects(titles));
+      return semAccordion("Semester " + n, n, gatherSubjects(titles, "LLB 4 Years"));
     }).join("");
   }
 
@@ -136,7 +147,7 @@
     if (!L) return "";
     var all = [].concat(L.compulsory || [], L.thesis || [], L.optional || []);
     var titles = all.map(function (x) { return x[1]; });
-    return semAccordion("All LLM Courses", "LLM", gatherSubjects(titles));
+    return semAccordion("All LLM Courses", "LLM", gatherSubjects(titles, "LLM"));
   }
 
   function progAccordion(badge, title, sub, innerHtml, opts) {

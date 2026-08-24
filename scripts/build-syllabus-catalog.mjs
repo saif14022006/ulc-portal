@@ -369,13 +369,12 @@ function normalizeTitle(t) {
     .trim();
 }
 
+/** Exact / alias CLO match only — never fuzzy-match "Criminal Law – I" onto 4Y "Criminal Law". */
 function findClos(title) {
   const t = normalizeTitle(title);
   if (clos[t]) return clos[t].outcomes;
-  // fuzzy aliases
   const aliases = {
     "Alternative Dispute Resolution (ADR)": "Alternate Dispute Resolution",
-    "Introduction to Law and Legal Systems": "Introduction to Law and Legal Systems",
     "Law of Business Organizations -I": "Law of Business Organizations-I",
     "Law of Business Organizations -II": "Law of Business Organizations-II",
     "Islamic Personal Law- II": "Islamic Personal Law-II",
@@ -384,11 +383,12 @@ function findClos(title) {
   if (a && clos[a]) return clos[a].outcomes;
   for (const k of Object.keys(clos)) {
     if (t.toLowerCase() === k.toLowerCase()) return clos[k].outcomes;
-    if (t.toLowerCase().includes(k.toLowerCase()) || k.toLowerCase().includes(t.toLowerCase())) {
-      return clos[k].outcomes;
-    }
   }
   return null;
+}
+
+function courseKey(program, title) {
+  return `${program}||${normalizeTitle(title)}`;
 }
 
 function stripPart(title) {
@@ -434,23 +434,39 @@ function findOutline(title, category) {
 }
 
 const byTitle = {};
-function ensureCourse(title, category) {
-  const key = normalizeTitle(title);
+function ensureCourse(title, category, program) {
+  const prog = program || "General";
+  const key = courseKey(prog, title);
   if (byTitle[key]) return;
-  const outcomes = findClos(key);
+  const bare = normalizeTitle(title);
+  // HEC 2025 CLOs apply only to the 4-year curriculum — never bleed into 5Y / LLM.
+  const outcomes = prog === "LLB 4 Years" ? findClos(bare) : null;
+  let sourceNote;
+  if (outcomes) {
+    sourceNote =
+      "Course Learning Outcomes from HEC LLB Curriculum 2025 (4-year). Outline topics and books are study aids; your university may prescribe a different list.";
+  } else if (prog === "LLB 5 Years" || prog === "LLB 5 Years Elective") {
+    sourceNote =
+      "HEC five-year LLB scheme (Revised 2015). Detailed outcomes are set by the university; outline topics and books below are common study aids and may differ by campus.";
+  } else if (prog === "LLM") {
+    sourceNote =
+      "HEC LL.M. (Revised 2006). Detailed syllabi are set by the offering university; topics and books below are study aids.";
+  } else {
+    sourceNote =
+      "HEC requires departments to prepare detailed syllabi. Outcomes below are generalised study aims; outline topics and books are common references and may differ by university.";
+  }
   byTitle[key] = {
-    title: key,
+    title: bare,
+    program: prog,
     category: category || "",
     outcomes: outcomes || [
       "Demonstrate understanding of the core principles of this subject as taught under the HEC / university scheme.",
       "Analyse key doctrines, statutes and authorities relevant to the course.",
       "Apply learning to problem questions, drafting or advocacy tasks as required.",
     ],
-    outline: findOutline(key, category || ""),
-    books: findBooks(key),
-    sourceNote: outcomes
-      ? "Course Learning Outcomes from HEC LLB Curriculum 2025. Outline topics and books are study aids commonly used for Pakistani LLB courses; your university may prescribe a different list."
-      : "HEC requires departments to prepare detailed syllabi. Outcomes below are generalised study aims; outline topics and books are common references for Pakistani legal education and may differ by university.",
+    outline: findOutline(bare, category || ""),
+    books: findBooks(bare),
+    sourceNote,
   };
 }
 
@@ -492,16 +508,16 @@ const LLM_TITLES = [
 ];
 
 for (const sem of Object.values(scheme.semesters)) {
-  for (const c of sem) ensureCourse(c.title, c.category);
+  for (const c of sem) ensureCourse(c.title, c.category, "LLB 4 Years");
 }
-for (const k of Object.keys(clos)) ensureCourse(k, "Major");
+for (const k of Object.keys(clos)) ensureCourse(k, "Major", "LLB 4 Years");
 for (const titles of Object.values(LLB5)) {
-  for (const t of titles) ensureCourse(t, "LLB 5 Years");
+  for (const t of titles) ensureCourse(t, "Major / scheme course", "LLB 5 Years");
 }
-for (const t of LLB5_ELECTIVES) ensureCourse(t, "LLB 5 Years Elective");
-for (const t of LLM_TITLES) ensureCourse(t, "LLM");
+for (const t of LLB5_ELECTIVES) ensureCourse(t, "Elective", "LLB 5 Years");
+for (const t of LLM_TITLES) ensureCourse(t, "LLM", "LLM");
 for (const list of Object.values(scheme.electiveClusters || {})) {
-  for (const t of list) ensureCourse(t, "LLB 4 Years Elective");
+  for (const t of list) ensureCourse(t, "Elective", "LLB 4 Years");
 }
 
 /* ── Google Drive book PDFs ── */
