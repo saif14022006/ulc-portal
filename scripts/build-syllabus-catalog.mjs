@@ -447,7 +447,7 @@ function ensureCourse(title, category, program) {
       "Course Learning Outcomes from HEC LLB Curriculum 2025 (4-year). Outline topics and books are study aids; your university may prescribe a different list.";
   } else if (prog === "LLB 5 Years" || prog === "LLB 5 Years Elective") {
     sourceNote =
-      "HEC five-year LLB scheme (Revised 2015). Detailed outcomes are set by the university; outline topics and books below are common study aids and may differ by campus.";
+      "Scheme of studies from HEC Final Curriculum LLB.pdf (LLB 5 Years Revised 2015). Course titles and credit hours match that PDF exactly. Detailed outcomes are set by the university; outline topics and books below are common study aids and may differ by campus.";
   } else if (prog === "LLM") {
     sourceNote =
       "HEC LL.M. (Revised 2006). Detailed syllabi are set by the offering university; topics and books below are study aids.";
@@ -470,30 +470,15 @@ function ensureCourse(title, category, program) {
   };
 }
 
-/** LLB 5 Years (HEC Revised 2015 scheme titles used in the app) */
-const LLB5 = {
-  1: ["English – I", "Pakistan Studies", "Introduction to Sociology", "Fundamentals of Economics", "Introduction to Law", "Skills Development"],
-  2: ["English – II", "Islamic Studies / Ethics", "Principles of Political Science", "Legal System of Pakistan", "History (South Asia)", "Law of Torts – I"],
-  3: ["English – III", "Introduction to Logic & Reasoning", "Islamic Jurisprudence – I", "Law of Torts – II", "Law of Contract – I", "Constitutional Law – I (UK)"],
-  4: ["Human Rights Law", "Constitutional Law – II (US)", "Law of Contract – II", "Islamic Jurisprudence – II", "Introduction to Psychology"],
-  5: ["Jurisprudence – I", "Constitutional Law – III (Pakistan)", "Islamic Personal Law – I", "Criminal Law – I", "Law of Property"],
-  6: ["Jurisprudence – II", "Law of Business Organizations", "Islamic Personal Law – II", "Criminal Law – II", "Land Laws"],
-  7: ["Public International Law – I", "Constitutional Developments in Pakistan", "Civil Procedure – I", "Criminal Procedure – I", "Law of Evidence – I", "Legal Drafting – I"],
-  8: ["Public International Law – II", "Equity & Specific Relief", "Civil Procedure – II", "Criminal Procedure – II", "Law of Evidence – II", "Legal Drafting – II"],
-  9: ["Research Methods", "Minor Acts", "Elective – I", "Elective – II", "Moot Cases & Professional Ethics"],
-  10: ["Administrative Law", "Interpretation of Statutes & Legislative Drafting", "Research Project / Dissertation", "Elective – III", "Elective – IV"],
-};
-
-const LLB5_ELECTIVES = [
-  "Alternate Dispute Resolution", "Banking Laws", "Conflict of Laws", "Consumer Protection Laws",
-  "Custom & Tariff Laws", "e-Commerce Law", "Election Laws", "Environmental Laws", "Gender and Law",
-  "Insurance Laws", "Intellectual Property Laws", "International Economic Law", "International Humanitarian Law",
-  "International Institutions", "International Trade Law", "Islamic Commercial Laws", "Labour Laws",
-  "Law and Development", "Law and Energy", "Law and Society in Pakistan", "Local & Special Laws",
-  "Media Laws", "Medical & Forensic Law", "Mergers & Acquisitions", "Islamic Legal Maxims",
-  "Public Interest Litigation", "Securities Regulation", "Shipping & Admiralty Laws", "Taxation Laws",
-  "Telecommunication Laws",
-];
+/** LLB 5 Years — locked to Final Curriculum LLB.pdf (HEC Revised 2015). Source: js/syllabus-data/llb5-scheme.json */
+const llb5Scheme = JSON.parse(fs.readFileSync("js/syllabus-data/llb5-scheme.json", "utf8"));
+const LLB5 = Object.fromEntries(
+  Object.entries(llb5Scheme.semesters).map(([sem, courses]) => [
+    sem,
+    courses.map((c) => c.title),
+  ])
+);
+const LLB5_ELECTIVES = llb5Scheme.electives;
 
 const LLM_TITLES = [
   "Research Methodology",
@@ -512,7 +497,10 @@ for (const sem of Object.values(scheme.semesters)) {
 }
 for (const k of Object.keys(clos)) ensureCourse(k, "Major", "LLB 4 Years");
 for (const titles of Object.values(LLB5)) {
-  for (const t of titles) ensureCourse(t, "Major / scheme course", "LLB 5 Years");
+  for (const t of titles) {
+    if (/^Elective\s*[–-]/i.test(t)) continue;
+    ensureCourse(t, "Major / scheme course", "LLB 5 Years");
+  }
 }
 for (const t of LLB5_ELECTIVES) ensureCourse(t, "Elective", "LLB 5 Years");
 for (const t of LLM_TITLES) ensureCourse(t, "LLM", "LLM");
@@ -628,10 +616,11 @@ for (const entry of Object.values(byTitle)) {
   if (drive.length) entry.booksWithLinks.push(...drive);
 }
 
-const out = `/* Auto-generated — HEC LLB 4Y (2025) + 5Y scheme + LLM study aids. Run: node scripts/build-syllabus-catalog.mjs */
+const out = `/* Auto-generated — HEC LLB 4Y (2025) + 5Y Final Curriculum (Revised 2015) + LLM study aids. Run: node scripts/build-syllabus-catalog.mjs */
 window.ULC_SYLLABUS_CATALOG = ${JSON.stringify(
   {
     llb4: scheme,
+    llb5: llb5Scheme,
     courses: byTitle,
   },
   null,

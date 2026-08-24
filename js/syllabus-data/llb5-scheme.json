@@ -1,0 +1,120 @@
+{
+  "source": "HEC LLB (5 YEARS) REVISED 2015 — Final Curriculum LLB.pdf",
+  "sourceFile": "assets/hec-llb-5year-curriculum.pdf",
+  "totalCreditHours": 166,
+  "internship": {
+    "code": "INTERNSHIP",
+    "title": "Internship",
+    "ch": 3,
+    "note": "After Completion of 8th Semester And Before 10th Semester (During Summer Vacations)"
+  },
+  "semesters": {
+    "1": [
+      { "code": "LLB 111", "title": "English-I", "ch": 3 },
+      { "code": "LLB 112", "title": "Pakistan Studies", "ch": 2 },
+      { "code": "LLB 113", "title": "Introduction to Sociology", "ch": 3 },
+      { "code": "LLB 114", "title": "Fundamentals of Economics", "ch": 3 },
+      { "code": "LLB 115", "title": "Introduction to Law", "ch": 3 },
+      { "code": "LLB 116", "title": "Skills Development", "ch": 3 }
+    ],
+    "2": [
+      { "code": "LLB 121", "title": "English – II", "ch": 3 },
+      { "code": "LLB 122", "title": "Islamic Studies/Ethics", "ch": 2 },
+      { "code": "LLB 123", "title": "Principles of Political Science", "ch": 3 },
+      { "code": "LLB 124", "title": "Legal System of Pakistan", "ch": 3 },
+      { "code": "LLB 125", "title": "History (South Asia)", "ch": 3 },
+      { "code": "LLB 126", "title": "Law of Torts- I", "ch": 3 }
+    ],
+    "3": [
+      { "code": "LLB 211", "title": "English-III", "ch": 3 },
+      { "code": "LLB 212", "title": "Introduction to Logic and Reasoning", "ch": 3 },
+      { "code": "LLB 213", "title": "Islamic Jurisprudence – I", "ch": 3 },
+      { "code": "LLB 214", "title": "Law of Torts-II", "ch": 3 },
+      { "code": "LLB 215", "title": "Law of Contract – I", "ch": 3 },
+      { "code": "LLB 216", "title": "Constitutional Law-I (UK)", "ch": 3 }
+    ],
+    "4": [
+      { "code": "LLB 221", "title": "Human Rights Law", "ch": 3 },
+      { "code": "LLB 222", "title": "Constitutional Law-II (US)", "ch": 3 },
+      { "code": "LLB 223", "title": "Law of Contract-II", "ch": 3 },
+      { "code": "LLB 224", "title": "Islamic Jurisprudence – II", "ch": 3 },
+      { "code": "LLB 225", "title": "Introduction to Psychology", "ch": 3 }
+    ],
+    "5": [
+      { "code": "LLB 311", "title": "Jurisprudence – I", "ch": 3 },
+      { "code": "LLB 312", "title": "Constitutional Law-III (Pakistan)", "ch": 3 },
+      { "code": "LLB 313", "title": "Islamic Personal Law – I", "ch": 3 },
+      { "code": "LLB 314", "title": "Criminal Law-I", "ch": 3 },
+      { "code": "LLB 315", "title": "Law of Property", "ch": 3 }
+    ],
+    "6": [
+      { "code": "LLB 321", "title": "Jurisprudence – II", "ch": 3 },
+      { "code": "LLB 322", "title": "Law of Business Organizations", "ch": 3 },
+      { "code": "LLB 323", "title": "Islamic Personal Law – II", "ch": 3 },
+      { "code": "LLB 324", "title": "Criminal Law – II", "ch": 3 },
+      { "code": "LLB 325", "title": "Land Laws", "ch": 3 }
+    ],
+    "7": [
+      { "code": "LLB 411", "title": "Public International Law – I", "ch": 3 },
+      { "code": "LLB 412", "title": "Constitutional Developments in Pakistan", "ch": 3 },
+      { "code": "LLB 413", "title": "Civil Procedure-I", "ch": 3 },
+      { "code": "LLB 414", "title": "Criminal Procedure – I", "ch": 3 },
+      { "code": "LLB 415", "title": "Law of Evidence – I", "ch": 3 },
+      { "code": "LLB 416", "title": "Legal Drafting – I", "ch": 3 }
+    ],
+    "8": [
+      { "code": "LLB 421", "title": "Public International Law – II", "ch": 3 },
+      { "code": "LLB 422", "title": "Equity and Specific Relief", "ch": 3 },
+      { "code": "LLB 423", "title": "Civil Procedure – II", "ch": 3 },
+      { "code": "LLB 424", "title": "Criminal Procedure – II", "ch": 3 },
+      { "code": "LLB 425", "title": "Law of Evidence – II", "ch": 3 },
+      { "code": "LLB 426", "title": "Legal Drafting – II", "ch": 3 }
+    ],
+    "9": [
+      { "code": "LLB 511", "title": "Research Methods", "ch": 3 },
+      { "code": "LLB 512", "title": "Minor Acts", "ch": 3 },
+      { "code": "LLB XXX", "title": "Elective – I", "ch": 3 },
+      { "code": "LLB XXX", "title": "Elective – II", "ch": 3 },
+      { "code": "LLB 515", "title": "Moot Cases and Professional Ethics", "ch": 3 }
+    ],
+    "10": [
+      { "code": "LLB 521", "title": "Administrative Law", "ch": 3 },
+      { "code": "LLB 522", "title": "Interpretation of Statutes and Legislative Drafting", "ch": 3 },
+      { "code": "LLB 523", "title": "Research Project", "ch": 3 },
+      { "code": "LLB XXX", "title": "Elective – III", "ch": 3 },
+      { "code": "LLB XXX", "title": "Elective – IV", "ch": 3 }
+    ]
+  },
+  "electives": [
+    "Alternate Dispute Resolution",
+    "Banking Laws",
+    "Conflict of Laws",
+    "Consumer Protection Laws",
+    "Custom and Tariff Laws",
+    "e-Commerce Law",
+    "Election Laws",
+    "Environmental Laws",
+    "Gender and Law",
+    "Insurance laws",
+    "Intellectual Property Laws",
+    "International Economic Law",
+    "International Humanitarian Law",
+    "International Institutions",
+    "International Trade Law",
+    "Islamic Commercial Laws",
+    "Labour Laws",
+    "Law and Development",
+    "Law and Energy",
+    "Law and Society in Pakistan",
+    "Local and Special Laws",
+    "Media Laws",
+    "Medical and Forensic Law",
+    "Mergers and Acquisitions",
+    "Islamic Legal Maxims",
+    "Public Interest Litigation",
+    "Securities Regulation",
+    "Shipping and Admiralty Laws",
+    "Taxation Laws",
+    "Telecommunication Laws"
+  ]
+}

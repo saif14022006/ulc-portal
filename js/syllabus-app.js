@@ -178,10 +178,15 @@
   }
 
   function renderLlb5Html() {
+    const llb5 = global.ULC_SYLLABUS_CATALOG?.llb5;
     const SYLLABUS = global.SYLLABUS || {};
-    const ELECTIVES = global.ELECTIVES || [];
+    const ELECTIVES = (llb5 && llb5.electives) || global.ELECTIVES || [];
+    const intern = llb5?.internship;
+    const internNote = intern
+      ? `<div class="intern"><b>Internship (${esc(String(intern.ch))} CH)</b> — ${esc(intern.note)}.</div>`
+      : `<div class="intern"><b>Internship (3 CH)</b> — After Completion of 8th Semester And Before 10th Semester (During Summer Vacations).</div>`;
     return (
-      `<p class="syl-note">HEC five-year LLB scheme (Revised 2015) as used at ULC Toolkit. Tap any course for learning outcomes, outline topics and recommended books.</p>
+      `<p class="syl-note">Scheme locked to <b>Final Curriculum LLB.pdf</b> (HEC LLB 5 Years Revised 2015 · 166 CH). Course titles, codes and credit hours match that PDF and must not be changed. Tap any course for study aids (outcomes/outline/books may still vary by university).</p>
       <div class="sem-acc">` +
       Object.keys(SYLLABUS)
         .map((n) => {
@@ -190,15 +195,13 @@
           let body = subs
             .map((x) => subjBtn(x[0], x[1], x[2], "Major / scheme course", "LLB 5 Years"))
             .join("");
-          if (+n === 8) {
-            body += `<div class="intern"><b>Internship (3 CH)</b> — compulsory 10–12 weeks after Semester 8.</div>`;
-          }
+          if (+n === 8) body += internNote;
           if (+n === 9 || +n === 10) {
             body += `<details class="elec-wrap"><summary>Elective courses — choose any four</summary><div class="elec-list">${ELECTIVES.map(
               (e) =>
                 `<button type="button" class="elec-link" data-course="${esc(
                   JSON.stringify({
-                    code: "Elective",
+                    code: "LLB XXX",
                     title: e,
                     ch: 3,
                     category: "Elective",
@@ -327,7 +330,7 @@
     <details class="syl-prog" id="sylLlb5">
       <summary>
         <div class="syl-badge">5Y</div>
-        <div class="syl-meta"><div class="ttl">LLB 5 Years</div><div class="sub">HEC Revised 2015 · 10 semesters · 166 CH scheme</div></div>
+        <div class="syl-meta"><div class="ttl">LLB 5 Years</div><div class="sub">Final Curriculum LLB.pdf · HEC Revised 2015 · 10 semesters · 166 CH</div></div>
         <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
       </summary>
       <div class="syl-body">${renderLlb5Html()}</div>

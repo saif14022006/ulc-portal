@@ -1507,9 +1507,9 @@ html.ulc-native .ft-playstore{display:none!important}
         <div class="max-narrow">
         <div class="eyebrow">Study tools</div>
         <h2 class="view-title">LLB &amp; LLM Syllabus</h2>
-        <p class="view-sub">HEC curricula for LLB 5 Years, LLB 4 Years (2025), and LLM. Tap a programme, then a course for learning outcomes, outline topics and recommended books.</p>
+        <p class="view-sub">LLB 5 Years follows Final Curriculum LLB.pdf (HEC Revised 2015) exactly. LLB 4 Years follows HEC 2025. LLM follows HEC Revised 2006. Tap a programme, then a course for outcomes, outline and books.</p>
         <div class="syl-root" id="sylRoot"></div>
-        <div class="note">LLB 5 Years follows the HEC five-year scheme (Revised 2015). LLB 4 Years follows the HEC Bachelor of Laws curriculum (2025). LLM follows the HEC LL.M. curriculum (Revised 2006). Course books/outlines may vary by university.</div>
+        <div class="note">LLB 5 Years scheme is locked to HEC Final Curriculum LLB.pdf (Revised 2015 · 166 CH). Do not change course titles, codes or credit hours. LLB 4 Years = HEC 2025. LLM = HEC Revised 2006. Detailed outlines/books may still vary by university.</div>
         </div>
       </section>
 
@@ -2169,17 +2169,18 @@ html.ulc-native .ft-playstore{display:none!important}
 </div>
 
 <script>
+/* LLB 5 Years — locked to HEC Final Curriculum LLB.pdf (Revised 2015). Do not alter titles/CH/codes. Source: js/syllabus-data/llb5-scheme.json */
 const SYLLABUS={
- 1:[["LLB 111","English – I",3],["LLB 112","Pakistan Studies",2],["LLB 113","Introduction to Sociology",3],["LLB 114","Fundamentals of Economics",3],["LLB 115","Introduction to Law",3],["LLB 116","Skills Development",3]],
- 2:[["LLB 121","English – II",3],["LLB 122","Islamic Studies / Ethics",2],["LLB 123","Principles of Political Science",3],["LLB 124","Legal System of Pakistan",3],["LLB 125","History (South Asia)",3],["LLB 126","Law of Torts – I",3]],
- 3:[["LLB 211","English – III",3],["LLB 212","Introduction to Logic & Reasoning",3],["LLB 213","Islamic Jurisprudence – I",3],["LLB 214","Law of Torts – II",3],["LLB 215","Law of Contract – I",3],["LLB 216","Constitutional Law – I (UK)",3]],
- 4:[["LLB 221","Human Rights Law",3],["LLB 222","Constitutional Law – II (US)",3],["LLB 223","Law of Contract – II",3],["LLB 224","Islamic Jurisprudence – II",3],["LLB 225","Introduction to Psychology",3]],
- 5:[["LLB 311","Jurisprudence – I",3],["LLB 312","Constitutional Law – III (Pakistan)",3],["LLB 313","Islamic Personal Law – I",3],["LLB 314","Criminal Law – I",3],["LLB 315","Law of Property",3]],
+ 1:[["LLB 111","English-I",3],["LLB 112","Pakistan Studies",2],["LLB 113","Introduction to Sociology",3],["LLB 114","Fundamentals of Economics",3],["LLB 115","Introduction to Law",3],["LLB 116","Skills Development",3]],
+ 2:[["LLB 121","English – II",3],["LLB 122","Islamic Studies/Ethics",2],["LLB 123","Principles of Political Science",3],["LLB 124","Legal System of Pakistan",3],["LLB 125","History (South Asia)",3],["LLB 126","Law of Torts- I",3]],
+ 3:[["LLB 211","English-III",3],["LLB 212","Introduction to Logic and Reasoning",3],["LLB 213","Islamic Jurisprudence – I",3],["LLB 214","Law of Torts-II",3],["LLB 215","Law of Contract – I",3],["LLB 216","Constitutional Law-I (UK)",3]],
+ 4:[["LLB 221","Human Rights Law",3],["LLB 222","Constitutional Law-II (US)",3],["LLB 223","Law of Contract-II",3],["LLB 224","Islamic Jurisprudence – II",3],["LLB 225","Introduction to Psychology",3]],
+ 5:[["LLB 311","Jurisprudence – I",3],["LLB 312","Constitutional Law-III (Pakistan)",3],["LLB 313","Islamic Personal Law – I",3],["LLB 314","Criminal Law-I",3],["LLB 315","Law of Property",3]],
  6:[["LLB 321","Jurisprudence – II",3],["LLB 322","Law of Business Organizations",3],["LLB 323","Islamic Personal Law – II",3],["LLB 324","Criminal Law – II",3],["LLB 325","Land Laws",3]],
- 7:[["LLB 411","Public International Law – I",3],["LLB 412","Constitutional Developments in Pakistan",3],["LLB 413","Civil Procedure – I",3],["LLB 414","Criminal Procedure – I",3],["LLB 415","Law of Evidence – I",3],["LLB 416","Legal Drafting – I",3]],
- 8:[["LLB 421","Public International Law – II",3],["LLB 422","Equity & Specific Relief",3],["LLB 423","Civil Procedure – II",3],["LLB 424","Criminal Procedure – II",3],["LLB 425","Law of Evidence – II",3],["LLB 426","Legal Drafting – II",3]],
- 9:[["LLB 511","Research Methods",3],["LLB 512","Minor Acts",3],["Elective","Elective – I",3],["Elective","Elective – II",3],["LLB 515","Moot Cases & Professional Ethics",3]],
- 10:[["LLB 521","Administrative Law",3],["LLB 522","Interpretation of Statutes & Legislative Drafting",3],["LLB 523","Research Project / Dissertation",3],["Elective","Elective – III",3],["Elective","Elective – IV",3]]
+ 7:[["LLB 411","Public International Law – I",3],["LLB 412","Constitutional Developments in Pakistan",3],["LLB 413","Civil Procedure-I",3],["LLB 414","Criminal Procedure – I",3],["LLB 415","Law of Evidence – I",3],["LLB 416","Legal Drafting – I",3]],
+ 8:[["LLB 421","Public International Law – II",3],["LLB 422","Equity and Specific Relief",3],["LLB 423","Civil Procedure – II",3],["LLB 424","Criminal Procedure – II",3],["LLB 425","Law of Evidence – II",3],["LLB 426","Legal Drafting – II",3]],
+ 9:[["LLB 511","Research Methods",3],["LLB 512","Minor Acts",3],["LLB XXX","Elective – I",3],["LLB XXX","Elective – II",3],["LLB 515","Moot Cases and Professional Ethics",3]],
+ 10:[["LLB 521","Administrative Law",3],["LLB 522","Interpretation of Statutes and Legislative Drafting",3],["LLB 523","Research Project",3],["LLB XXX","Elective – III",3],["LLB XXX","Elective – IV",3]]
 };
 /* HEC LL.M. Curriculum (Revised 2006) — titles from official HEC PDF */
 const LLM_OPTIONAL=[
@@ -2196,7 +2197,7 @@ const LLM_SYLLABUS={
   optional:LLM_OPTIONAL.map((t)=>["Optional",t,4]),
   note:"HEC LL.M. (Revised 2006): four-semester programme. Research Methodology is compulsory for all. Beside Research Methodology, a student takes three courses in the first year and two in the second year (excluding thesis). Each course is 4 credit hours (24 CH coursework) plus thesis (6 CH). Universities may add optionals according to available expertise, subject to HEC approval."
 };
-const ELECTIVES=["Alternate Dispute Resolution","Banking Laws","Conflict of Laws","Consumer Protection Laws","Custom & Tariff Laws","e-Commerce Law","Election Laws","Environmental Laws","Gender and Law","Insurance Laws","Intellectual Property Laws","International Economic Law","International Humanitarian Law","International Institutions","International Trade Law","Islamic Commercial Laws","Labour Laws","Law and Development","Law and Energy","Law and Society in Pakistan","Local & Special Laws","Media Laws","Medical & Forensic Law","Mergers & Acquisitions","Islamic Legal Maxims","Public Interest Litigation","Securities Regulation","Shipping & Admiralty Laws","Taxation Laws","Telecommunication Laws"];
+const ELECTIVES=["Alternate Dispute Resolution","Banking Laws","Conflict of Laws","Consumer Protection Laws","Custom and Tariff Laws","e-Commerce Law","Election Laws","Environmental Laws","Gender and Law","Insurance laws","Intellectual Property Laws","International Economic Law","International Humanitarian Law","International Institutions","International Trade Law","Islamic Commercial Laws","Labour Laws","Law and Development","Law and Energy","Law and Society in Pakistan","Local and Special Laws","Media Laws","Medical and Forensic Law","Mergers and Acquisitions","Islamic Legal Maxims","Public Interest Litigation","Securities Regulation","Shipping and Admiralty Laws","Taxation Laws","Telecommunication Laws"];
 const ORD=["","1","2","3","4","5","6","7","8","9","10"];
 function semLabel(n){ return n ? ('Semester '+n) : '—'; }
 const DAYS=["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
