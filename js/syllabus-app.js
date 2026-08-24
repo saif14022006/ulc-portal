@@ -103,6 +103,23 @@
       }
     }
 
+    if (prog === "LLB 4 Years") {
+      const bag = global.ULC_SYLLABUS_CATALOG?.llb4?.details || {};
+      const pdf = bag[t];
+      if (pdf && (pdf.outline || pdf.outcomes)) {
+        const scoped = (global.ULC_SYLLABUS_CATALOG?.courses || {})[prog + "||" + t];
+        return {
+          title: t,
+          program: prog,
+          category: scoped?.category || "",
+          outcomes: pdf.outcomes,
+          outline: pdf.outline,
+          books: pdf.books || scoped?.books,
+          sourceNote: pdf.sourceNote || scoped?.sourceNote,
+        };
+      }
+    }
+
     function matchInProgram(p) {
       if (!p) return null;
       const exact = catalog[p + "||" + t];
@@ -337,9 +354,13 @@
       .map((n) => {
         const subs = llb4.semesters[n] || [];
         const cr = subs.reduce((a, x) => a + (+x.ch || 0), 0);
-        const body = subs
+        const intern = llb4.meta?.internship;
+        let body = subs
           .map((x) => subjBtn(x.code, x.title, x.ch, x.category, "LLB 4 Years"))
           .join("");
+        if (+n === 8 && intern) {
+          body += `<div class="intern"><b>Internship (${esc(String(intern.ch))} CH)</b> — ${esc(intern.note)}</div>`;
+        }
         return `<details>
         <summary>
           <div class="sem-num">${n}</div>
@@ -405,7 +426,7 @@
     <details class="syl-prog" id="sylLlb4">
       <summary>
         <div class="syl-badge">4Y</div>
-        <div class="syl-meta"><div class="ttl">LLB 4 Years</div><div class="sub">HEC Curriculum 2025 · 8 semesters · 146 CH min</div></div>
+        <div class="syl-meta"><div class="ttl">LLB 4 Years</div><div class="sub">Hec LL. B 4 Years Curriculum.pdf · HEC 2025 · 8 semesters · 146 CH min</div></div>
         <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
       </summary>
       <div class="syl-body">${renderLlb4Html()}</div>

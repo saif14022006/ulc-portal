@@ -1,9 +1,14 @@
 {
   "meta": {
     "title": "LLB 4 Years",
-    "source": "HEC LLB Curriculum 2025",
+    "source": "HEC LLB Curriculum 2025 — Hec LL. B 4 Years Curriculum.pdf",
+    "sourceFile": "assets/hec-llb-4year-curriculum.pdf",
     "minCredits": 146,
-    "semesters": 8
+    "semesters": 8,
+    "internship": {
+      "ch": 3,
+      "note": "Internship of three (03) credit hours must be completed in accordance with HEC Undergraduate Education Policy V 1.1. This requirement cannot be substituted with additional coursework, capstone, research, or project work."
+    }
   },
   "semesters": {
     "1": [

@@ -498,16 +498,24 @@ function findOutline(title, category) {
   return outlines.defaultMajor;
 }
 
-/** Course detail from Final Curriculum LLB.pdf — js/syllabus-data/llb5-details.json */
+/** PDF course details — llb5-details.json (Revised 2015) + llb4-details.json (HEC 2025). */
 const llb5DetailsFile = JSON.parse(fs.readFileSync("js/syllabus-data/llb5-details.json", "utf8"));
-function findLlb5Detail(title) {
+const llb4DetailsFile = JSON.parse(fs.readFileSync("js/syllabus-data/llb4-details.json", "utf8"));
+function findDetailBag(bag, title) {
   const t = normalizeTitle(title);
-  if (llb5DetailsFile[t]) return llb5DetailsFile[t];
+  if (bag[t]) return bag[t];
+  if (bag[title]) return bag[title];
   const tl = t.toLowerCase();
-  for (const k of Object.keys(llb5DetailsFile)) {
-    if (normalizeTitle(k).toLowerCase() === tl) return llb5DetailsFile[k];
+  for (const k of Object.keys(bag)) {
+    if (normalizeTitle(k).toLowerCase() === tl) return bag[k];
   }
   return null;
+}
+function findLlb5Detail(title) {
+  return findDetailBag(llb5DetailsFile, title);
+}
+function findLlb4Detail(title) {
+  return findDetailBag(llb4DetailsFile, title);
 }
 
 const byTitle = {};
@@ -518,9 +526,15 @@ function ensureCourse(title, category, program) {
   const bare = normalizeTitle(title);
   const d5 =
     prog === "LLB 5 Years" || prog === "LLB 5 Years Elective" ? findLlb5Detail(bare) : null;
-  const outcomes = prog === "LLB 4 Years" ? findClos(bare) : d5?.outcomes || null;
+  const d4 = prog === "LLB 4 Years" ? findLlb4Detail(bare) : null;
+  const outcomes =
+    prog === "LLB 4 Years" ? findClos(bare) || d4?.outcomes || null : d5?.outcomes || null;
   let sourceNote;
-  if (prog === "LLB 4 Years" && outcomes) {
+  if (d4) {
+    sourceNote =
+      d4.sourceNote ||
+      "Course Learning Outcomes from HEC LLB Curriculum 2025 (Hec LL. B 4 Years Curriculum.pdf). Outline topics and books are study aids; departments write the full weekly syllabus.";
+  } else if (prog === "LLB 4 Years" && outcomes) {
     sourceNote =
       "Course Learning Outcomes from HEC LLB Curriculum 2025 (4-year). Outline topics and books are study aids; your university may prescribe a different list.";
   } else if (d5) {
@@ -546,8 +560,8 @@ function ensureCourse(title, category, program) {
       "Analyse key doctrines, statutes and authorities relevant to the course.",
       "Apply learning to problem questions, drafting or advocacy tasks as required.",
     ],
-    outline: d5?.outline || findOutline(bare, category || ""),
-    books: d5?.books || findBooks(bare),
+    outline: d5?.outline || d4?.outline || findOutline(bare, category || ""),
+    books: d5?.books || d4?.books || findBooks(bare),
     sourceNote,
   };
 }
@@ -701,7 +715,7 @@ for (const entry of Object.values(byTitle)) {
 const out = `/* Auto-generated — HEC LLB 4Y (2025) + 5Y Final Curriculum (Revised 2015) + LLM study aids. Run: node scripts/build-syllabus-catalog.mjs */
 window.ULC_SYLLABUS_CATALOG = ${JSON.stringify(
   {
-    llb4: scheme,
+    llb4: { ...scheme, details: llb4DetailsFile },
     llb5: { ...llb5Scheme, details: llb5DetailsFile },
     courses: byTitle,
   },
