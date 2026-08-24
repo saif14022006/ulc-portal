@@ -498,25 +498,17 @@ function findOutline(title, category) {
   return outlines.defaultMajor;
 }
 
-/** Course detail from Final Curriculum LLB.pdf (5Y) — outcomes/outline/books keyed after normalizeTitle. */
-const LLB5_DETAIL = {
-  "Islamic Jurisprudence - I": {
-    outcomes: [
-      "Explain Islamic legal theories and their philosophical, historical and sociological basis.",
-      "Identify the history and growth of the Muslim legal system and the primary and secondary sources of Islamic law (Qur’an, Traditions, Ijma and custom).",
-      "Analyse juristic deduction methods including Qiyas, Istehsan, Istedlal, Ijtihad and Taqlid.",
-      "Apply source and usul concepts to guided problem questions under the HEC five-year scheme.",
-    ],
-  },
-  "Islamic Jurisprudence - II": {
-    outcomes: [
-      "Explain the practical Islamic legal concepts that continue from Islamic Jurisprudence-I: acts, rights and obligations, legal capacity, ownership and possession.",
-      "Analyse Islamic jurisprudence on family laws, torts and crimes, punishments, procedure and evidence.",
-      "Examine constitutional and administrative dimensions of Islamic law and the rules regulating relations between Muslims and non-Muslims.",
-      "Apply these concepts to problem questions and comparative discussion with Pakistani legal practice as taught.",
-    ],
-  },
-};
+/** Course detail from Final Curriculum LLB.pdf — js/syllabus-data/llb5-details.json */
+const llb5DetailsFile = JSON.parse(fs.readFileSync("js/syllabus-data/llb5-details.json", "utf8"));
+function findLlb5Detail(title) {
+  const t = normalizeTitle(title);
+  if (llb5DetailsFile[t]) return llb5DetailsFile[t];
+  const tl = t.toLowerCase();
+  for (const k of Object.keys(llb5DetailsFile)) {
+    if (normalizeTitle(k).toLowerCase() === tl) return llb5DetailsFile[k];
+  }
+  return null;
+}
 
 const byTitle = {};
 function ensureCourse(title, category, program) {
@@ -524,16 +516,16 @@ function ensureCourse(title, category, program) {
   const key = courseKey(prog, title);
   if (byTitle[key]) return;
   const bare = normalizeTitle(title);
-  // HEC 2025 CLOs apply only to the 4-year curriculum — never bleed into 5Y / LLM.
-  const detail5 = prog === "LLB 5 Years" || prog === "LLB 5 Years Elective" ? LLB5_DETAIL[bare] : null;
-  const outcomes =
-    prog === "LLB 4 Years" ? findClos(bare) : detail5?.outcomes || null;
+  const d5 =
+    prog === "LLB 5 Years" || prog === "LLB 5 Years Elective" ? findLlb5Detail(bare) : null;
+  const outcomes = prog === "LLB 4 Years" ? findClos(bare) : d5?.outcomes || null;
   let sourceNote;
   if (prog === "LLB 4 Years" && outcomes) {
     sourceNote =
       "Course Learning Outcomes from HEC LLB Curriculum 2025 (4-year). Outline topics and books are study aids; your university may prescribe a different list.";
-  } else if (detail5) {
+  } else if (d5) {
     sourceNote =
+      d5.sourceNote ||
       "Course detail from HEC Final Curriculum LLB.pdf (LLB 5 Years Revised 2015). Titles and credit hours match that PDF; topics and books follow the official course description.";
   } else if (prog === "LLB 5 Years" || prog === "LLB 5 Years Elective") {
     sourceNote =
@@ -554,8 +546,8 @@ function ensureCourse(title, category, program) {
       "Analyse key doctrines, statutes and authorities relevant to the course.",
       "Apply learning to problem questions, drafting or advocacy tasks as required.",
     ],
-    outline: findOutline(bare, category || ""),
-    books: findBooks(bare),
+    outline: d5?.outline || findOutline(bare, category || ""),
+    books: d5?.books || findBooks(bare),
     sourceNote,
   };
 }
@@ -710,7 +702,7 @@ const out = `/* Auto-generated — HEC LLB 4Y (2025) + 5Y Final Curriculum (Revi
 window.ULC_SYLLABUS_CATALOG = ${JSON.stringify(
   {
     llb4: scheme,
-    llb5: llb5Scheme,
+    llb5: { ...llb5Scheme, details: llb5DetailsFile },
     courses: byTitle,
   },
   null,

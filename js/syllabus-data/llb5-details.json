@@ -1,0 +1,1660 @@
+{
+  "English-I": {
+    "outcomes": [
+      "Enhance language skills and develop critical thinking (HEC Functional English).",
+      "Use grammar, sentence structure, comprehension, paragraph writing and presentation skills as prescribed in Annexure-A.",
+      "Apply Functional English to legal studies and everyday academic communication."
+    ],
+    "outline": [
+      "Basics of grammar; parts of speech and articles",
+      "Sentence structure; active and passive voice",
+      "Phrase, clause and sentence analysis; punctuation and spelling",
+      "Comprehension; discussion and listening",
+      "Translation (Urdu to English); paragraph writing; presentation skills"
+    ],
+    "books": [
+      "A.J. Thomson & A.V. Martinet — Practical English Grammar (Exercises 1 & 2)",
+      "Marie-Christine Boutin et al. — Writing. Intermediate (Oxford Supplementary Skills)",
+      "Brian Tomlinson & Rod Ellis — Reading. Upper Intermediate"
+    ],
+    "sourceNote": "Course detail from HEC Final Curriculum LLB.pdf (Annexure / compulsory HEC course). Scheme titles and credit hours match the 5-year table."
+  },
+  "Pakistan Studies": {
+    "outcomes": [
+      "Develop a vision of historical perspective, government, politics, contemporary Pakistan and ideological background (HEC Annexure-B).",
+      "Study governance, national development and issues posing challenges to Pakistan.",
+      "Apply this framework to constitutional and civic questions relevant to law students."
+    ],
+    "outline": [
+      "Ideological rationale: Sir Syed, Iqbal and Quaid-e-Azam; Muslim separatism; people and land",
+      "Government and politics in Pakistan: 1947–58 through 1999 onward",
+      "Contemporary Pakistan: economy, society, ethnicity, foreign policy and futuristic outlook"
+    ],
+    "books": [
+      "Shahid Javed Burki — State & Society in Pakistan",
+      "S. Akbar Zaidi — Issues in Pakistan’s Economy",
+      "S.M. Burke & Lawrence Ziring — Pakistan’s Foreign Policy",
+      "Safdar Mehmood — Pakistan Political Roots & Development",
+      "Khalid Bin Sayeed — The Political System of Pakistan"
+    ],
+    "sourceNote": "Course detail from HEC Final Curriculum LLB.pdf (Annexure / compulsory HEC course). Scheme titles and credit hours match the 5-year table."
+  },
+  "Introduction to Sociology": {
+    "outcomes": [
+      "The course is designed to introduce students with sociological concepts and the discipline.",
+      "The focus of the course shall be on significant concepts like social systems and structures, socio-economic changes and social processes.",
+      "Apply Introduction to Sociology as taught under HEC Final Curriculum LLB.pdf (LLB 5 Years Revised 2015)."
+    ],
+    "outline": [
+      "The course is designed to introduce students with sociological concepts and the discipline",
+      "The focus of the course shall be on significant concepts like social systems and structures, socio-economic changes and social processes",
+      "The course will also include classical sociological theories especially the theories of Auguste Comte dealing with ‘positivism’ and law of human progress and of Herbert Spencer dealing with the concept of the law of social evolution, concept of society and laissez-faire"
+    ],
+    "books": [
+      "Anderson, Margaret and Howard F. Taylor. Sociology the Essentials, 6 edn. Belmont: Wadsworth, 2011.",
+      "Deva, Indra. (ed.), Sociology of Law. New Delhi: OUP, 2005.",
+      "Gidden, Anthony and Duneier. Introduction to Sociology, 7 edn. New York: Norton, 2009.",
+      "Macionis, John, J. Sociology, 13 edn. Boston: Prentice-Hall,"
+    ],
+    "sourceNote": "Course detail from HEC Final Curriculum LLB.pdf (LLB 5 Years Revised 2015). Outline and books follow the official course description."
+  },
+  "Fundamentals of Economics": {
+    "outcomes": [
+      "The course is designed for the beginners with either no formal background or very little acquaintance with economics.",
+      "The objective is to give students a clear understanding of the basic concepts, tools of analysis and terminologies used both in micro and macro-economics.",
+      "Apply Fundamentals of Economics as taught under HEC Final Curriculum LLB.pdf (LLB 5 Years Revised 2015)."
+    ],
+    "outline": [
+      "The course is designed for the beginners with either no formal background or very little acquaintance with economics",
+      "The objective is to give students a clear understanding of the basic concepts, tools of analysis and terminologies used both in micro and macro-economics",
+      "The course will cover the scope and importance of micro and macro- economics, overview of the social system and economy as integral part of the social system",
+      "The course will also deal with the major issues in Pakistan economy"
+    ],
+    "books": [
+      "Bade, Robin and Parkin, Michael. Foundations of Economics, 5 edn. Boston: Pearson, 2010.",
+      "McConnel and Brue. Microeconomics, 18 edn. New York: McGraw-Hill, 2009.",
+      "Parkin, Michael. Macroeconomics, 7 Boston: Pearson,",
+      "Varian Hall R. Intermediate Microeconomics: Modern Approach, edn. New York: Norton, 2002.",
+      "Zaidi, Akbar. Issues in Pakistan Economy. Karachi: OUP, 1999."
+    ],
+    "sourceNote": "Course detail from HEC Final Curriculum LLB.pdf (LLB 5 Years Revised 2015). Outline and books follow the official course description."
+  },
+  "Introduction to Law": {
+    "outcomes": [
+      "This will be an introductory course for newly admitted students about the nature and sources of law, both Western and Islamic.",
+      "It will cover definitions, functions and purposes of law, territorial nature of law, legal concepts of rights, property, persons etc.",
+      "Apply Introduction to Law as taught under HEC Final Curriculum LLB.pdf (LLB 5 Years Revised 2015)."
+    ],
+    "outline": [
+      "This will be an introductory course for newly admitted students about the nature and sources of law, both Western and Islamic",
+      "It will cover definitions, functions and purposes of law, territorial nature of law, legal concepts of rights, property, persons etc"
+    ],
+    "books": [
+      "Denning, Lord. The Discipline of Law. London: Butterworths,",
+      "Dworkin, Ronald. Taking Rights Seriously. London: Duckworth,",
+      "Fuller, Lon L. The Morality of Law, (re.). Delhi: Universal, 2009. (5.).",
+      "Harris, Phil, An Introduction to Law, 7 edn. Cambridge: Cambridge University Press, 2007.",
+      "Hart, H L A, The Concept of Law, 2 edn. Oxford: OUP, 1997.",
+      "Posner Richard A. Overcoming Law. Delhi: Universal, 2007 (I..)."
+    ],
+    "sourceNote": "Course detail from HEC Final Curriculum LLB.pdf (LLB 5 Years Revised 2015). Outline and books follow the official course description."
+  },
+  "Skills Development": {
+    "outcomes": [
+      "Basically related to the Introduction to Information Technology, Understanding Computer Systems, e-Commerce, Computer Graphics, Computer Security and Controls, MS Office, Internet Browsers Databases, Information Systems importance in Business, e-Banking etc",
+      "Basically related to the Introduction to Information Technology, Understanding Computer Systems, e-Commerce, Computer Graphics, Computer Security and Controls, MS Office, Internet Browsers Databases, Information Systems importance in Business, e-Banking etc.",
+      "Apply Skills Development as taught under HEC Final Curriculum LLB.pdf (LLB 5 Years Revised 2015)."
+    ],
+    "outline": [
+      "Introduction to Information Technology and computer systems",
+      "e-Commerce, computer graphics, computer security and controls",
+      "MS Office, internet browsers and databases",
+      "Information systems in business; e-Banking"
+    ],
+    "books": [
+      "Universities/institutions develop reading material in accordance with the course description (HEC Final Curriculum)."
+    ],
+    "sourceNote": "Course detail from HEC Final Curriculum LLB.pdf (LLB 5 Years Revised 2015). Outline and books follow the official course description."
+  },
+  "English - II": {
+    "outcomes": [
+      "Meet real-life communication needs as set out in HEC English II (Communication Skills).",
+      "Write coherent paragraphs and essays, CVs and applications, and use study/academic skills.",
+      "Present with attention to content, style and pronunciation."
+    ],
+    "outline": [
+      "Paragraph writing: unified and coherent paragraphs",
+      "Essay writing; CV and job application",
+      "Translation skills (Urdu to English)",
+      "Study skills: skimming, scanning, summary, précis and comprehension",
+      "Academic skills: letters, memos, minutes, library and internet",
+      "Presentation skills and personality development"
+    ],
+    "books": [
+      "A.J. Thomson & A.V. Martinet — Practical English Grammar (Exercises 2)",
+      "Marie-Christine Boutin et al. — Writing. Intermediate",
+      "Rob Nolasco — Writing. Upper-Intermediate",
+      "John Langan — Reading and Study Skills"
+    ],
+    "sourceNote": "Course detail from HEC Final Curriculum LLB.pdf (Annexure / compulsory HEC course). Scheme titles and credit hours match the 5-year table."
+  },
+  "Islamic Studies/Ethics": {
+    "outcomes": [
+      "Provide basic information about Islamic Studies and Islamic civilization (HEC Annexure-C).",
+      "Improve understanding of worship, faith and religious life, including selected Qur’anic and Hadith texts.",
+      "Introduce Islamic law & jurisprudence, culture, and contemporary issues as prescribed."
+    ],
+    "outline": [
+      "Introduction to Quranic Studies; selected verses (Al-Baqara, Al-Hujrat, Al-Muminoon, Al-Furqan, Al-An’am, Al-Ahzab, Al-Hashr, Al-Saf)",
+      "Seerat of the Holy Prophet (S.A.W.) in Makkah and Madina",
+      "Introduction to Sunnah and selected Hadith",
+      "Islamic Law & Jurisprudence: concepts, history, sources, sectarianism",
+      "Islamic culture & civilization; Islam & science (as in Annexure-C)"
+    ],
+    "books": [
+      "HEC Islamic Studies (Compulsory) reading list as notified with Annexure-C",
+      "Selected Qur’an and Hadith texts as prescribed"
+    ],
+    "sourceNote": "Course detail from HEC Final Curriculum LLB.pdf (Annexure / compulsory HEC course). Scheme titles and credit hours match the 5-year table."
+  },
+  "Principles of Political Science": {
+    "outcomes": [
+      "The course will deal with basic concepts of Political Science; Definition, Nature, Scope and Sub-fields of Political Science.",
+      "The topics will also include Power, Authority, Legitimacy, Nation and Sovereignty, State: its origin and evolution; Western and Islamic concepts of State, Forms of State: Unitary, Federation, Confederation.",
+      "Apply Principles of Political Science as taught under HEC Final Curriculum LLB.pdf (LLB 5 Years Revised 2015)."
+    ],
+    "outline": [
+      "The course will deal with basic concepts of Political Science; Definition, Nature, Scope and Sub-fields of Political Science",
+      "The topics will also include Power, Authority, Legitimacy, Nation and Sovereignty, State: its origin and evolution; Western and Islamic concepts of State, Forms of State: Unitary, Federation, Confederation",
+      "Organs of Government: Legislature, Executive, Judiciary",
+      "Forms of Government: Parliamentary, Presidential and Authoritarian",
+      "The political concepts and institutions in Islam"
+    ],
+    "books": [
+      "Anderson, Rodee et.al. Introduction to Political Science. Islamabad: National Book Foundation, Latest edn.",
+      "Ebenstein, William. Great Political Thinkers: From Plato to Present, 6 edn. London:Wadesworth,1999.",
+      "Haq, Mazherul. Theory and Practice in Political Science. Lahore: Bookland, 1996.",
+      "Mackenzi, Ian. (ed.), Political Concepts: A Reader and Guide. Edinburgh: Edinburgh University Press, 2005.",
+      "Mahajan, V.D. Political Theory. New Delhi: Chand, 2006.",
+      "Rosenthal, E.J. Political Thought in Medieval Islam. Cambridge: Cambridge University Press, 1958. (2009.).",
+      "Roskin, Michael G. Political Science: An Introduction. London: Prentice Hall, 1997.",
+      "Sayeed, Khalid Bin. Political System of Pakistan. Lahore: Oxford University, Press, 1967."
+    ],
+    "sourceNote": "Course detail from HEC Final Curriculum LLB.pdf (LLB 5 Years Revised 2015). Outline and books follow the official course description."
+  },
+  "Legal System of Pakistan": {
+    "outcomes": [
+      "This course aims to give students a good knowledge of the Pakistani Legal System.",
+      "It covers the historical background of the legal system, the role of the legislature and the court system in Pakistan.",
+      "Apply Legal System of Pakistan as taught under HEC Final Curriculum LLB.pdf (LLB 5 Years Revised 2015)."
+    ],
+    "outline": [
+      "This course aims to give students a good knowledge of the Pakistani Legal System",
+      "It covers the historical background of the legal system, the role of the legislature and the court system in Pakistan",
+      "The composition and functions of the Parliament and the Provincial assemblies, the judicial system of Pakistan including the court structure and the judicial process",
+      "Concepts such as statutory interpretation and judicial precedent are covered together with Civil and Criminal processes"
+    ],
+    "books": [
+      "Karim, (R) Justice Fazal. Access to Justice in Pakistan. Karachi: Pakistan Law House, 2003.",
+      "Lau, Martin. The Role of Islam in the Legal System of Pakistan. London,: Martinus Nijhoff, 2005.",
+      "Mannan, M.A. The Superior Courts of Pakistan. Lahore: Zafar Law, 1973.",
+      "Rizvi, Shabbar Raza. Constitutional Law of Pakistan, 2 re.edn. Lahore: Vanguard Books, 2005.",
+      "Shah, Justice (R) Nasim, Hassan. Essays and Addresses on Constitution, Law and Pakistan Legal System. Lahore: Research Society of Pakistan, 1999.",
+      "The Legal Practitioners and Bar Councils Act, 1973 with Rules."
+    ],
+    "sourceNote": "Course detail from HEC Final Curriculum LLB.pdf (LLB 5 Years Revised 2015). Outline and books follow the official course description."
+  },
+  "History (South Asia)": {
+    "outcomes": [
+      "This course is designed to develop awareness among the students about the intellectual heritage in South Asia.",
+      "To inculcate historical consciousness about South-Asia and to develop among students a holistic historic vision of South-Asian history.",
+      "Apply History (South Asia) as taught under HEC Final Curriculum LLB.pdf (LLB 5 Years Revised 2015)."
+    ],
+    "outline": [
+      "This course is designed to develop awareness among the students about the intellectual heritage in South Asia",
+      "To inculcate historical consciousness about South-Asia and to develop among students a holistic historic vision of South-Asian history",
+      "The course will deal briefly with the dawn of Indian civilization, political fragmentation of South-Asia, the Classical age, the Muslim Rule and the rise of the British East-India Company (1740-1857)"
+    ],
+    "books": [
+      "Bowen, H.V. The Business of Empire: The East India Company and Imperial Britain (1756-1833). Cambridge: Cambridge University Press, 2008",
+      "Lane-Poole, Stanley. Mediaeval India under Muhammedan Rule (A.D. 712-1764). Lahore: Sang-e-Meel, 1997.",
+      "Robins, Nick. The Corporation that Changed the World: How the East India Company Shaped the Modern Multinational. London: Pluto Press, 2006.",
+      "Wallbank, T. Walter. A Short History of India and Pakistan- From Ancient Times to Present. New York: New American Library,",
+      "Yunus, Mohammed and Parmer, Aradhana. South Asia: A Historical Narrative. Oxford: OUP, 2003."
+    ],
+    "sourceNote": "Course detail from HEC Final Curriculum LLB.pdf (LLB 5 Years Revised 2015). Outline and books follow the official course description."
+  },
+  "Law of Torts- I": {
+    "outcomes": [
+      "This course will be introducing basic concepts in the law of torts, which deals with the rights and obligations of private parties arising out of civil wrongs.",
+      "The Course is divided into two modules.",
+      "Apply Law of Torts- I as taught under HEC Final Curriculum LLB.pdf (LLB 5 Years Revised 2015)."
+    ],
+    "outline": [
+      "This course will be introducing basic concepts in the law of torts, which deals with the rights and obligations of private parties arising out of civil wrongs",
+      "The Course is divided into two modules",
+      "This will also include various kinds of wrongs; affecting personal safety and freedom, domestic relations and wrongs to moveable and immoveable property",
+      "The course contents will also include leading and latest cases in Torts"
+    ],
+    "books": [
+      "Baker C.D. Tort, 6 edn. London: Sweet & Maxwell, 1996.",
+      "Basu, Durga Das, The Law of Torts, 12 edn. Kolkata: Kamal Law House, 2006.",
+      "Buckley Richard A. The Law of Negligence, 4 edn. Nagpur: LexisNexis, 2010 (2.).",
+      "Chaudhry A.M. Law of Torts. Lahore: PLD (latest edn)).",
+      "Harpwood, Vivienne. Modern Tort and Law, 7 edn. Oxon: Routledge-Cavendish, 2009.",
+      "Markesinis, B.S. and Deakin, S.F. Tort Law, 3 ed. Oxford: Clarendon Press, 1994.",
+      "Murphy, John. Street on Tort, 12 edn. Oxford: OUP, 2007.",
+      "Rogers, W.V.H. Winfield and Jolowicz on Tort, 18 re. edn. London: Sweet and Maxwell, 2010.",
+      "Schwartz Victor E. et al, Prosser,Wade, and Schwartz’s Torts: Cases and Materials, 12 edn. NewYork: Foundation Press, 2010.",
+      "Singh, Justice JP. Ratanlal and Dhirajlal’s The Law of Torts, edn. Nagpur: LexisNexis, 2010. YEAR-2 SEMESTER-III"
+    ],
+    "sourceNote": "Course detail from HEC Final Curriculum LLB.pdf (LLB 5 Years Revised 2015). Outline and books follow the official course description."
+  },
+  "English-III": {
+    "outcomes": [
+      "Enhance language skills and critical thinking through technical writing and presentation (HEC English III).",
+      "Write essays, research proposals, term papers, technical and progress reports.",
+      "Deliver presentations with academic clarity and consistency of form."
+    ],
+    "outline": [
+      "Presentation skills",
+      "Essay writing: descriptive, narrative, discursive, argumentative",
+      "Academic writing: research/term paper proposal and paper",
+      "Technical report writing",
+      "Progress report writing"
+    ],
+    "books": [
+      "Ron White — Writing. Advanced (Oxford Supplementary Skills)",
+      "John Langan — College Writing Skills",
+      "Laurie G. Kirszner & Stephen R. Mandell — Patterns of College Writing"
+    ],
+    "sourceNote": "Course detail from HEC Final Curriculum LLB.pdf (Annexure / compulsory HEC course). Scheme titles and credit hours match the 5-year table."
+  },
+  "Introduction to Logic and Reasoning": {
+    "outcomes": [
+      "CRITICAL THINKING The objective of this course is to sharpen the intellect of the students, develop their reasoning ability, widen and strengthen their understanding and clear thinking.",
+      "The course will include the inductive and deductive reasoning, informal reasoning.",
+      "Apply Introduction to Logic and Reasoning as taught under HEC Final Curriculum LLB.pdf (LLB 5 Years Revised 2015)."
+    ],
+    "outline": [
+      "CRITICAL THINKING The objective of this course is to sharpen the intellect of the students, develop their reasoning ability, widen and strengthen their understanding and clear thinking",
+      "The course will include the inductive and deductive reasoning, informal reasoning",
+      "For critical thinking topics such as observation, context, criteria and techniques for forming a judgment will be included"
+    ],
+    "books": [
+      "Copi, Irving and Cohan Carl. Introduction to logic, 9 edn. New York: Macmillan, 1994.",
+      "Goatly, Andrew. Critical Reading and Writing: An Introductory Course Book. London: Routledge, 2000.",
+      "Hurley, Patrick J. A Concise Introduction to Logic, 11 edn. Boston: Cengage Boston, 2010."
+    ],
+    "sourceNote": "Course detail from HEC Final Curriculum LLB.pdf (LLB 5 Years Revised 2015). Outline and books follow the official course description."
+  },
+  "Islamic Jurisprudence - I": {
+    "outcomes": [
+      "The course will elaborate –Islamic Legal theories including their philosophical, historical and sociological basis.-.",
+      "The Course will cover the history and the growth of the Muslim legal system, the primary and secondary sources of Islamic Law: a).",
+      "Apply Islamic Jurisprudence - I as taught under HEC Final Curriculum LLB.pdf (LLB 5 Years Revised 2015)."
+    ],
+    "outline": [
+      "The course will elaborate –Islamic Legal theories including their philosophical, historical and sociological basis.-",
+      "The Course will cover the history and the growth of the Muslim legal system, the primary and secondary sources of Islamic Law: a)",
+      "Ijma and customs, Juristic Deduction: a)",
+      "Istehsan or Juristic -preference, c)"
+    ],
+    "books": [
+      "Coulson, N.J. A History of Islamic law. Edinburgh: University Press, 1964, (2006.)",
+      "Engineer, Asghar Ali. Islam: Misgivings and History. New Delhi: Vitasta, 2008.",
+      "Faruki, Kemal A. Islamic Jurisprudence. Karachi: Royal Books, 2003 (.).",
+      "Hassan, Ahmad. The Early Development of Islamic Jurisprudence. Islamabad: Islamic Research Institute, 1970.",
+      "Khadduri, Majid. (Tr.) Al-Shafi’i’s Risala (Treatise on the Foundations of Islamic Jurisprudence. Cambridge: Islamic Text Society, 2008 (.)",
+      "Nyazee, Imran A. Khan. Outlines of Islamic Jurisprudence, edn. Islamabad: Advanced Legal Studies Institute, 2008.",
+      "Nyazee, Imran A. Theories of Islamic Law. Islamabad: Advanced Legal Studies Institute, 2007.",
+      "Rahim, Abdur. The Principles of Islamic Jurisprudence. New Delhi: Kitab Bhavan 2006.(.).",
+      "Schact, Joseph. An Introduction to Islamic Law. Oxford: OUP, 1983."
+    ],
+    "sourceNote": "Course detail from HEC Final Curriculum LLB.pdf (LLB 5 Years Revised 2015). Outline and books follow the official course description."
+  },
+  "Law of Torts-II": {
+    "outcomes": [
+      "This is the second module of the Law of Torts.",
+      "In this module law of easements will also be included.",
+      "Apply Law of Torts-II as taught under HEC Final Curriculum LLB.pdf (LLB 5 Years Revised 2015)."
+    ],
+    "outline": [
+      "This is the second module of the Law of Torts",
+      "In this module law of easements will also be included",
+      "The remaining topics relating to Law of Torts will be covered in this module",
+      "The course will look at the question of nuisance, negligence, contributory negligence, the wrongs of malice and fraud, defamation and various defences to torts",
+      "Easements will include the continuous and discontinuous, apparent and non-apparent easements, imposition, acquisition and transfer of easements, the incidents of easements, the disturbance of easements, the extinction, suspension and revival of easements and licenses",
+      "Important leading cases shall be part of the course contents"
+    ],
+    "books": [
+      "Baker C.D. Tort, 6 edn. London: Sweet & Maxwell, 1996.",
+      "Basu, Durga Das, The Law of Torts, 12 edn. Kolkata: Kamal Law House, 2006.",
+      "Buckley Richard A. The Law of Negligence, 4 edn. Nagpur: LexisNexis, 2010 (2.).",
+      "Chaudhry A.M. Law of Torts. Lahore: PLD (latest edn)).",
+      "Harpwood, Vivienne. Modern Tort and Law, 7 edn. Oxon: Routledge-Cavendish, 2009.",
+      "Markesinis, B.S. and Deakin, S.F. Tort Law, 3 ed. Oxford: Clarendon Press, 1994.",
+      "Murphy, John. Street on Tort, 12 edn. Oxford: OUP, 2007.",
+      "Rogers, W.V.H. Winfield and Jolowicz on Tort, 18 re. edn. London: Sweet and Maxwell, 2010.",
+      "Schwartz Victor E. et al, Prosser, Wade, and Schwartz’s Torts: Cases and Materials, 12 edn. New York: Foundation Press,",
+      "Singh, Justice JP. Ratanlal and Dhirajlal’s The Law of Torts, 26 edn. Nagpur: LexisNexis, 2010.",
+      "The Easement Act, 1882."
+    ],
+    "sourceNote": "Course detail from HEC Final Curriculum LLB.pdf (LLB 5 Years Revised 2015). Outline and books follow the official course description."
+  },
+  "Law of Contract - I": {
+    "outcomes": [
+      "The component is designed to give students a thorough grounding in the civil law of obligations.",
+      "In Semester-I, the course will cover the law of contract, which involves the study of legally binding agreements.",
+      "Apply Law of Contract - I as taught under HEC Final Curriculum LLB.pdf (LLB 5 Years Revised 2015)."
+    ],
+    "outline": [
+      "The component is designed to give students a thorough grounding in the civil law of obligations",
+      "In Semester-I, the course will cover the law of contract, which involves the study of legally binding agreements",
+      "The fundamental rules concerning the formation of a contract, the legal effects of its terms and its discharge will be critically examined"
+    ],
+    "books": [
+      "Beatson, Sir, Jack et al. Anson’s Law of Contract, 29 edn. Oxford: OUP, 2010.",
+      "Furmston, M.P. Cheshire, Fifoot and Furmston’s Law of Contract. Oxford: OUP, 2007.",
+      "Koffman, Laurence & Macdonald, Elizabeth. Law of Contract, 7 edn. Oxford: OUP, 2010.",
+      "Samuel, Geoffrey. Contract Law: Cases and Materials. London: Sweet & Maxwell, 2007.",
+      "Singh, Justice JP. Ratanlal& Dhirajlal’s The Law of Torts, 26 edn. Nagpur: LexisNexis, 2010.",
+      "Sujan, M.A. Frustration of Contract, 2 edn. Delhi: Universal,",
+      "The Contract Act, 1872. (Sections 1-147)"
+    ],
+    "sourceNote": "Course detail from HEC Final Curriculum LLB.pdf (LLB 5 Years Revised 2015). Outline and books follow the official course description."
+  },
+  "Constitutional Law-I (UK)": {
+    "outcomes": [
+      "The course will examine the remarkable unwritten constitution of the UK, the Separation of Powers, Rule of Law, Parliamentary Supremacy and the Independence of Judiciary under the British constitutional conventions.",
+      "Course contents shall include the Nature and Development of the British Constitution, the Conventions of the Constitution and will look at the Institution of Government; the Monarchy, the Legislature and the Executive.",
+      "Apply Constitutional Law-I (UK) as taught under HEC Final Curriculum LLB.pdf (LLB 5 Years Revised 2015)."
+    ],
+    "outline": [
+      "The course will examine the remarkable unwritten constitution of the UK, the Separation of Powers, Rule of Law, Parliamentary Supremacy and the Independence of Judiciary under the British constitutional conventions",
+      "Course contents shall include the Nature and Development of the British Constitution, the Conventions of the Constitution and will look at the Institution of Government; the Monarchy, the Legislature and the Executive"
+    ],
+    "books": [
+      "Allen, Michael and Thomson, Brian. Cases and Materials: Constitutional and Administrative Law. Oxford: OUP, 2005.",
+      "Bagehot, Walter & Taylor, Miles. The English Constitution (Oxford World Classics). Oxford: OUP, 2009.",
+      "Barnet, Hilaire. Constitutional and Administrative Law, 8 edn. Oxon: Routledge, 2011.",
+      "Cownie, Fiona et al, English Legal System in Context, 4 edn. Oxford: OUP, 2007.",
+      "Dicey, A.V. Introduction to the Study of the Law of Constitution, 10 edn. Delhi: Universal, 2003 (4.). YEAR-2 SEMESTER-1V"
+    ],
+    "sourceNote": "Course detail from HEC Final Curriculum LLB.pdf (LLB 5 Years Revised 2015). Outline and books follow the official course description."
+  },
+  "Human Rights Law": {
+    "outcomes": [
+      "Human rights law is a distinct and fast developing area of law.",
+      "Pakistan has signed and ratified various core International Human Rights Instruments and is required to follow the principles and directions laid down in these instruments.",
+      "Apply Human Rights Law as taught under HEC Final Curriculum LLB.pdf (LLB 5 Years Revised 2015)."
+    ],
+    "outline": [
+      "Human rights law is a distinct and fast developing area of law",
+      "Pakistan has signed and ratified various core International Human Rights Instruments and is required to follow the principles and directions laid down in these instruments",
+      "The course is designed to impart knowledge about meaning, scope and importance of human rights",
+      "The origin of human rights as a product of natural law derived from different philosophical and religious basis and its development",
+      "The course examines and raises a number of challenging questions for lawyers: the implementation of human rights, the universality and cultural debate etc",
+      "The focus of the course would be on International Bill of Human Rights, the enforcement mechanism both under the UN Chartered based bodies and the treaty based system"
+    ],
+    "books": [
+      "Bhansali, Prof. SR. Basu’s Human Rights in Constitutional Law. New Delhi: LexisNexis, 2008.",
+      "Brownlie, Sir Ian & Goodwin Guys. Brownlie’s Documents on Human Rights, 6 edn. Oxford: OUP, 2010.",
+      "Fenwick, Helen. Civil Liberties. London: Cavendish, 1994.",
+      "Judgments on Human Rights and Public Interest Litigation by Supreme Court of Pakistan. Lahore: PLD, 1999.",
+      "Smith, Rhona K.M. Texts and Materials on International Human Rights, 2 edn. Oxon: Rutledge, 2010. Useful Websites:",
+      "(UN Human Rights)",
+      "(University of Minnesota HRs Library)",
+      "( Human Rights Commission of Pakistan)"
+    ],
+    "sourceNote": "Course detail from HEC Final Curriculum LLB.pdf (LLB 5 Years Revised 2015). Outline and books follow the official course description."
+  },
+  "Constitutional Law-II (US)": {
+    "outcomes": [
+      "This course will deal with the fundamental principles upon which the American republic is conducted.",
+      "It will examine the working of the Executive, Legislative and the Judicial Branches of the US Constitution.",
+      "Apply Constitutional Law-II (US) as taught under HEC Final Curriculum LLB.pdf (LLB 5 Years Revised 2015)."
+    ],
+    "outline": [
+      "This course will deal with the fundamental principles upon which the American republic is conducted",
+      "It will examine the working of the Executive, Legislative and the Judicial Branches of the US Constitution",
+      "The historical background will include the developments from Articles of Confederation to the framing of the Constitution in the Constitutional Convention of 1789",
+      "The course will especially cover the topics of federalism, separation of powers, checks and balances and the power of judicial review",
+      "Topics like Cooperative Federalism, Horizontal Federalism, Constitutional Construction, Exclusive Powers, Implied Powers and Inherent Powers will also be included in the lecture-plans",
+      "The Course will also include the first ten amendments to the US Constitution known as ‘Bills of Rights"
+    ],
+    "books": [
+      "Cooke, Jacob E. (ed.) Hamilton, Alexander, James Madison, and John Jay. THE FEDERALIST. Middletown. Wesleyan: University Press, 1961.",
+      "Lockhort, William B. et al. The American constitution: cases, comments, questions, 6 edn. St. Paul: West, 1986.",
+      "Stone, Seidman, Sunstein and Tushnet. Constitutional Law 2 edn, Boston: Little, Brown and Company, 1991.",
+      "Rienow, Robert. Introduction to Government, 3 re. edn. New York: Knopf, 1964.",
+      "The Federalist Papers. Toronto: Bantam Books. 1982.",
+      "Whe are, KC. Federal Government, 4 edn. London: OUP,",
+      "Leading Cases:",
+      "Coleman v. Miller 307 US 433 (1939)",
+      "Eakin v. Raub 12 S&R 330 (1825)",
+      "Marbury v. Madison 1 Cranch 137 (1803)"
+    ],
+    "sourceNote": "Course detail from HEC Final Curriculum LLB.pdf (LLB 5 Years Revised 2015). Outline and books follow the official course description."
+  },
+  "Law of Contract-II": {
+    "outcomes": [
+      "This will be the second part of the Law of Contract.",
+      "In this component the focus would be on law of Bailments, Agency and Sale of Goods.",
+      "Apply Law of Contract-II as taught under HEC Final Curriculum LLB.pdf (LLB 5 Years Revised 2015)."
+    ],
+    "outline": [
+      "This will be the second part of the Law of Contract",
+      "In this component the focus would be on law of Bailments, Agency and Sale of Goods",
+      "The course will cover the mutual obligations of a principal and agent, formation of contract of sale, passing of property, rules of delivery and rights and obligations of the sellers and buyers",
+      "This course will reinforce the fundamental concepts that will be helpful in other modules such as in Business and Commercial law, Labour and Employment Law etc"
+    ],
+    "books": [
+      "Anthony L. Liuzz, Essentials of Business Law, 7 edn. New York: McGraw-Hill, 2010.",
+      "Gregory, William A. The Law of Agency and Partnership, 3 edn. St. Paul: West, 2001.",
+      "Kapoor, Dr. S.K. Law of Sale of Goods, 8 edn. Delhi: Universal,",
+      "Manan, M.A. Pollock and Mulla: The Sale of Goods Act, 1930 with Commentary. Lahore: PLD, 1996.",
+      "Text of the Sale of Goods Act, 1932.",
+      "The Contract Act, 1872 ( Sections 148-238)"
+    ],
+    "sourceNote": "Course detail from HEC Final Curriculum LLB.pdf (LLB 5 Years Revised 2015). Outline and books follow the official course description."
+  },
+  "Islamic Jurisprudence - II": {
+    "outcomes": [
+      "This course will discuss the remaining part of the Islamic Jurisprudence- I.",
+      "It will focus on the practical side of Islamic legal concepts such as, Acts, Rights and Obligations, Legal Capacity, Ownership and Possession Family laws, Torts and Crimes, Punishments, Procedure and Evidence, Constitutional and Administrative Law.",
+      "Apply Islamic Jurisprudence - II as taught under HEC Final Curriculum LLB.pdf (LLB 5 Years Revised 2015)."
+    ],
+    "outline": [
+      "This course will discuss the remaining part of the Islamic Jurisprudence- I",
+      "It will focus on the practical side of Islamic legal concepts such as, Acts, Rights and Obligations, Legal Capacity, Ownership and Possession Family laws, Torts and Crimes, Punishments, Procedure and Evidence, Constitutional and Administrative Law",
+      "The law regulating relations between Muslims and non-Muslims will also be covered"
+    ],
+    "books": [
+      "Hassan, Ahmad. Principles of Islamic Jurisprudence. Islamabad: Islamic Research Institute, 1993.",
+      "Kamali, Mohammad Hashim. Principles of Islamic Jurisprudence. edn. London: Islamic Text Society, 2005.",
+      "Nyazee, Imran A. Khan. Outlines of Islamic Jurisprudence, 4 edn. Islamabad: Advanced Legal Studies Institute, 2008.",
+      "Rahim, Abdur. The Principles of Islamic Jurisprudence. New Delhi: Kitab Bhavan 2006 (.)."
+    ],
+    "sourceNote": "Course detail from HEC Final Curriculum LLB.pdf (LLB 5 Years Revised 2015). Outline and books follow the official course description."
+  },
+  "Introduction to Psychology": {
+    "outcomes": [
+      "This is an introductory course as prepared by the NCRC of HEC.",
+      "The main aim of this course is to familiarize students with history, main concepts, methods, and theoretical frameworks in psychology.",
+      "Apply Introduction to Psychology as taught under HEC Final Curriculum LLB.pdf (LLB 5 Years Revised 2015)."
+    ],
+    "outline": [
+      "This is an introductory course as prepared by the NCRC of HEC",
+      "The main aim of this course is to familiarize students with history, main concepts, methods, and theoretical frameworks in psychology",
+      "The course will help students appreciate the human nature and its related concepts, thereby will gain insight into human behavior and human relationships",
+      "After successful completion of this course the students will be able to: Have a grasp over basic concepts and theoretical perspectives explaining human behavior",
+      "They will be able to appreciate the complexity of human behaviour and relationships",
+      "They will be able to understand Psychology as science and empirical methods used for understanding different aspects of human behavior"
+    ],
+    "books": [
+      "Atkinson R. C., & Smith, E. E. (2000).Introduction to psychology (13th ed.). NY: Harcourt Brace College Publishers.",
+      "Coon, D., &Mutterer, J. (2008).Introduction to psychology: Gateways to mind and behavior (12th ed.). USA: Wadsworth Cengage Learning.",
+      "Fernald, L. D., & Fernald, P.S (2005).Introduction to psychology. USA; WMC Brown Publishers. Fredrickson, B., Nolen-Hoeksema, S., Loftus, G., & Wagenaar, W. (2009). Atkinson & Hilgard’s introduction to psychology…",
+      "Glassman, W.E. (2000). Approaches to psychology. Open University Press. Hayes, N. (2000). Foundation of psychology (3rd ed.). UK: Thomson Learning.",
+      "Kalat, J. W. (2010). Introduction to psychology. USA: Cengage Learning, Inc. Lahey, B. B. (2004). Psychology: An introduction (8th ed.). UK: McGraw-Hill Companies, Inc.",
+      "Leahey,T. H. (1992). A history of psychology: Main currents in psychological thought. New Jersey: Prentice-Hall International, Inc.Myers, D. G. (2011). Psychology (10th ed.). USA: Wadsworth Publishers.",
+      "Ormord, J. E. (1995). Educational psychology: Developing learners. USA: Prentice Hall, Inc. Rathus, S. (2011). Psychology: Concepts and connections (10th ed.). USA: Wadsworth Cengage Learning. YEAR-3 SEMESTER –V"
+    ],
+    "sourceNote": "Course detail from HEC Final Curriculum LLB.pdf (LLB 5 Years Revised 2015). Outline and books follow the official course description."
+  },
+  "Jurisprudence - I": {
+    "outcomes": [
+      "This course introduces students to theories of classical and contemporary jurisprudence and the issues debated within them.",
+      "Jurisprudence provides a discipline of thought and is extremely helpful in improving the logical analysis of the legal concepts.",
+      "Apply Jurisprudence - I as taught under HEC Final Curriculum LLB.pdf (LLB 5 Years Revised 2015)."
+    ],
+    "outline": [
+      "This course introduces students to theories of classical and contemporary jurisprudence and the issues debated within them",
+      "Jurisprudence provides a discipline of thought and is extremely helpful in improving the logical analysis of the legal concepts",
+      "The focus of course will be on the nature, origin and development of law and legal concepts",
+      "In this component the focus will be on legal theories such as Natural Law theory, Positive theory, the nature of legal reasoning, legal realism, sources of law and Precedents",
+      "This is a vital course designed to cultivate in students the ability to reason persuasively and encourage students to develop a clear picture of the overall conceptual framework within which legal thoughts operate"
+    ],
+    "books": [
+      "Austin, John. The Province of Jurisprudence Determined and the Uses of the Study of Jurisprudence with an Introduction by H.L.A. Hart. Indianapolis: Hackett, 1998.",
+      "Friedmann, W. Legal Theory, 8 edn. London: Stevenson, 2008 (.).",
+      "Harris, J.W. Legal Philosophies, 2 edn. London: LexisNexis, 2005.",
+      "Hayman, Robert L and Levit, Nancy et al. (ed.) Jurisprudence: Classical and Contemporary: From Natural Law to Postmodernism. St. Paul: West, 2002.",
+      "Holland, Sir Thomas E. The Elements of Jurisprudence, 13 edn. New Delhi: Universal, 2010 (.).",
+      "Leimer, Edger B. Jurisprudence: The Philosophy of Method and Law 6 edn. California: Harvard University Press, 2009.",
+      "Nyazee, Imran Ahsan. Jurisprudence, Islamabad: Advanced Studies Legal Institute, 2007.",
+      "Posner, Richard A. Frontiers of Legal Theory. Delhi: Universal, 2010 (2.).",
+      "Rawals, John. A Theory of Justice, 3 edn. Delhi: Universal, 2008 (.).",
+      "Raz, Joseph. The Concept of a Legal System: An Introduction to the Theory of Legal System, 2 edn. Oxford: Clarendon, 1980.",
+      "Stone, Julius. Social Dimensions of Law & Justice, New Delhi: Universal, 2012(3 )",
+      "Wacks, Raymond. Jurisprudence, 5 edn. Oxford: OUP,"
+    ],
+    "sourceNote": "Course detail from HEC Final Curriculum LLB.pdf (LLB 5 Years Revised 2015). Outline and books follow the official course description."
+  },
+  "Constitutional Law-III (Pakistan)": {
+    "outcomes": [
+      "This will cover the entire Constitution of Pakistan 1973.",
+      "However, emphasis would be on the fundamental rights, the nature of federalism under the constitution, distribution of powers, the rights and various remedies, the supremacy of parliament and the independence of judiciary.",
+      "Apply Constitutional Law-III (Pakistan) as taught under HEC Final Curriculum LLB.pdf (LLB 5 Years Revised 2015)."
+    ],
+    "outline": [
+      "This will cover the entire Constitution of Pakistan 1973",
+      "However, emphasis would be on the fundamental rights, the nature of federalism under the constitution, distribution of powers, the rights and various remedies, the supremacy of parliament and the independence of judiciary"
+    ],
+    "books": [
+      "Ishaque, Khalid M. Constitutional Limitations, 2 edn. Karachi: Pakistan Law House, 2008.",
+      "Karim, Justice ( R) Fazal. Judicial Review of Public Actions. Islamabad: Pakistan Law House, 2006.",
+      "Mahmood, Shaukat and Shaukat, Nadeem. Constitution of the Islamic Republic of Pakistan, 3 re edn. Lahore: Legal Research Centre, 1996.",
+      "Munir, Muhammad. Constitution of the Islamic Republic of Pakistan: Being a Commentary on the Constitution of Pakistan,",
+      "Lahore, Law Pub., 1975.",
+      "Rizvi, Syed Shabbar Raza. Constitutional Law of Pakistan: Text, Case Law and Analytical Commentary. 2 re edn. Lahore: Vanguard, 2005.",
+      "The Text of the Constitution of the Islamic Republic of Pakistan, 1973 (as amended)."
+    ],
+    "sourceNote": "Course detail from HEC Final Curriculum LLB.pdf (LLB 5 Years Revised 2015). Outline and books follow the official course description."
+  },
+  "Islamic Personal Law - I": {
+    "outcomes": [
+      "The course will focus on Muslim Personal laws of Pakistan.",
+      "The course is divided in to two modules; in this module both the classical and codified Islamic personal laws dealing with marriages, divorce, maintenance, custody of children and parentage will be discussed.",
+      "Apply Islamic Personal Law - I as taught under HEC Final Curriculum LLB.pdf (LLB 5 Years Revised 2015)."
+    ],
+    "outline": [
+      "The course will focus on Muslim Personal laws of Pakistan",
+      "The course is divided in to two modules; in this module both the classical and codified Islamic personal laws dealing with marriages, divorce, maintenance, custody of children and parentage will be discussed",
+      "The course will also include contemporary Islamic personal laws as applied in selected Muslim states"
+    ],
+    "books": [
+      "Ali, Syed Amir. Principles of Mohammedan Law, rev and enl.edn. Allahabad: Allahabad Law Emporium, 1983.",
+      "An-Na’im, Abdullahi A. Islamic Family Law in a Changing World. London: Zed Books, 2002.",
+      "Fayzee, AAA. Outlines of Mohammadan Law. Oxford: OUP,",
+      "Mahmood, Tahir. Asaf AA Fayzee: Cases in the Muhammadan law of India, Pakistan and Bangladesh. Oxford: OUP, 2005.",
+      "Mahmood, Tahir. Muslim Personal Law. New Delhi: Vikas,",
+      "Mannan, Dr. M.A. DF Mulla’s Principles of Mohammedan Law. Lahore: PLD 2010.",
+      "Mansoori, Dr. Muhammad Tahir. Family Law in Islam: Theory and Application. Islamabad: Shariah Academy, 2006.",
+      "Nizam, Sheikh. (comp.) Fatawi Alamgiryat. Calcutta: Education Press, 1825-35.",
+      "Text of Guardians and Wards Act, 1890, CMRA, 1929, DMMA, 1939, MFLO, 1961, Family Court Act, 1964, etc."
+    ],
+    "sourceNote": "Course detail from HEC Final Curriculum LLB.pdf (LLB 5 Years Revised 2015). Outline and books follow the official course description."
+  },
+  "Criminal Law-I": {
+    "outcomes": [
+      "The Criminal Law course introduces students to the general principles of criminal law and to the social, political and moral context in which they have developed.",
+      "The course concentrates on fatal and non-fatal offences against the person and offences against property as well as the range of defences that may be available on a criminal charge.",
+      "Apply Criminal Law-I as taught under HEC Final Curriculum LLB.pdf (LLB 5 Years Revised 2015)."
+    ],
+    "outline": [
+      "The Criminal Law course introduces students to the general principles of criminal law and to the social, political and moral context in which they have developed",
+      "The course concentrates on fatal and non-fatal offences against the person and offences against property as well as the range of defences that may be available on a criminal charge",
+      "The course also will devote time to questions of reforms particularly with regard to Hudud Laws",
+      "The course considers the basic scheme of substantive criminal law together with criminal liability and the significance of act, intent, causation, and result; justification and excuse; and the rationale of punishment",
+      "The course will generally include all provisions of the Pakistan Penal Code, 1860"
+    ],
+    "books": [
+      "Card, Richard. Card, Cross and Jones Criminal Law, 18 edn. New York: OUP, 2008.",
+      "Mahmood, Shaukat and Shaukat, Nadeem. The Pakistan Penal Code, 1860: Exhaustive Commentary Incorporating Case-law of Pakistan, Bangladesh, Burma, India, UK on Pakistan Penal Code. 9 re edn. Lahore: Legal Research…",
+      "Nyazee, Imran Ahsan. General Principles of Criminal Law: Islamic and Western. Islamabad: Advance Legal Studies Institute, 1998.",
+      "Ormerod, David. Smith and Hogan Criminal Law, 13 edn. New York: OUP, 2011.",
+      "Thakkar, Justice C.K. et al. Ratanlal Dhirajlal’s Law of Crimes, edn. New Delhi: Law House, 2007.",
+      "The Text of the Pakistan Penal Code, 1860 (As amended)"
+    ],
+    "sourceNote": "Course detail from HEC Final Curriculum LLB.pdf (LLB 5 Years Revised 2015). Outline and books follow the official course description."
+  },
+  "Law of Property": {
+    "outcomes": [
+      "The course is designed to teach students the basic principles of property law with particular reference to land.",
+      "The course will deal both with the urban and rural property matters.",
+      "Apply Law of Property as taught under HEC Final Curriculum LLB.pdf (LLB 5 Years Revised 2015)."
+    ],
+    "outline": [
+      "The course is designed to teach students the basic principles of property law with particular reference to land",
+      "The course will deal both with the urban and rural property matters",
+      "It will deal with the meaning of ownership of land, sale and purchase of immovable property, mutation of property/ownership, co-ownership, leases and various kinds of mortgages",
+      "The course will also include all the provisions of Registration Act, 1908, as amended"
+    ],
+    "books": [
+      "Bhalla, Sandeep. Co-ownership, Joint Property and Partition. Allahabad: Orient, 2005.",
+      "The Transfer of Property Act, 1882.",
+      "Land Acquisition Act, 1894",
+      "The Registration Act, 1908. YEAR-3 SEMESTER-VI"
+    ],
+    "sourceNote": "Course detail from HEC Final Curriculum LLB.pdf (LLB 5 Years Revised 2015). Outline and books follow the official course description."
+  },
+  "Jurisprudence - II": {
+    "outcomes": [
+      "This is the second part of the course.",
+      "In this module certain main institutions of law will be considered such as property, ownership and possession; contract, legal personality, negligence and risk; responsibility and punishment, evidence and procedure.",
+      "Apply Jurisprudence - II as taught under HEC Final Curriculum LLB.pdf (LLB 5 Years Revised 2015)."
+    ],
+    "outline": [
+      "This is the second part of the course",
+      "In this module certain main institutions of law will be considered such as property, ownership and possession; contract, legal personality, negligence and risk; responsibility and punishment, evidence and procedure"
+    ],
+    "books": [
+      "Finnis, John. Natural Law and Natural Rights. 2 edn.Oxford: OUP, 2011.",
+      "Glanville, Williams L. Jurisprudence by John Salmond, 10 edn. London: Sweet and Maxwell, 1947.",
+      "Holland, Sir Thomas E. The Elements of Jurisprudence, 13 edn. New Delhi: Universal, 2010 (.).",
+      "Mahajan, V.D. Jurisprudence and Legal Theory, 5 edn. Lucknow: Eastern, 2007.",
+      "Paton, G.W. A Text Book of Jurisprudence, 4 edn. Oxford: OUP, 1973."
+    ],
+    "sourceNote": "Course detail from HEC Final Curriculum LLB.pdf (LLB 5 Years Revised 2015). Outline and books follow the official course description."
+  },
+  "Law of Business Organizations": {
+    "outcomes": [
+      "The course will cover the formation of Business Organizations and their functioning.",
+      "The course contents will include the Company Law and Partnership Act.",
+      "Apply Law of Business Organizations as taught under HEC Final Curriculum LLB.pdf (LLB 5 Years Revised 2015)."
+    ],
+    "outline": [
+      "The course will cover the formation of Business Organizations and their functioning",
+      "The course contents will include the Company Law and Partnership Act",
+      "The Company law will include principles of company law, their incorporation, kinds, the doctrine of ultra vires, resolutions and their legal status, liabilities and winding up",
+      "The course will also include the law of Partnerships; the formation and functioning of Firms, legal status and liability of a firm, its dissolution and the liabilities of partners",
+      "The effect of the Registration and non-registration of firms",
+      "It will also touch the new concept of Limited Liability Partnerships and relevant provisions of the Security and Exchange Commission of Pakistan"
+    ],
+    "books": [
+      "Chaudhry, A.M. A Handbook of Company Law. Lahore: PLD,",
+      "Dube, Indrajit. Corporate Governance. Nagpur: LexisNexis,",
+      "Manan, Dr. M.A. The Partnership Act, 1932.Lahore: PLD, 1994.",
+      "Minkes, John and Minkes, Leonard. (ed.) Corporate and White- Collar Crime. London: Sage, 2008.",
+      "Simpson, Sally S. Corporate Crime, Law and Social Control. Cambridge: Cambridge University Press, 2002.",
+      "Text of the Companies Ordinance, 1984.",
+      "The Securities and Exchange Commission of Pakistan Act,",
+      "Wadud, Q.A. Law of the Commission, Securities and Exchange. Karachi: Royal, 1998."
+    ],
+    "sourceNote": "Course detail from HEC Final Curriculum LLB.pdf (LLB 5 Years Revised 2015). Outline and books follow the official course description."
+  },
+  "Islamic Personal Law - II": {
+    "outcomes": [
+      "This is an important component of Islamic Personal Law.",
+      "The course will focus on Islamic law of Inheritance, including transfer of property through Gifts, Wills and Wakaf and their legal implications.",
+      "Apply Islamic Personal Law - II as taught under HEC Final Curriculum LLB.pdf (LLB 5 Years Revised 2015)."
+    ],
+    "outline": [
+      "This is an important component of Islamic Personal Law",
+      "The course will focus on Islamic law of Inheritance, including transfer of property through Gifts, Wills and Wakaf and their legal implications"
+    ],
+    "books": [
+      "Coulson, N.J. Succession in the Muslim Family. Cambridge: Cambridge University Press, 1971.",
+      "Khan, Hamid. Islamic Law of Inheritance, 3 edn. Karachi: OUP, 2007.",
+      "Mannan, Dr. M.A. DF Mulla’s Principles of Mohammedan Law. Lahore: PLD, 2010.",
+      "Qazi, Noman and Kamboh, Asghar Manual of Waqf Laws in Pakistan. Lahore, Four Star, 2011.",
+      "Relevant provisions of the Succession Act, 1925."
+    ],
+    "sourceNote": "Course detail from HEC Final Curriculum LLB.pdf (LLB 5 Years Revised 2015). Outline and books follow the official course description."
+  },
+  "Criminal Law - II": {
+    "outcomes": [
+      "This is in continuation of Criminal Law-I.",
+      "On successful completion of the course, students should be able to state and explain the general principles of criminal liability under English and Islamic criminal law, the substantive elements of major offences and general defences to criminal liability.",
+      "Apply Criminal Law - II as taught under HEC Final Curriculum LLB.pdf (LLB 5 Years Revised 2015)."
+    ],
+    "outline": [
+      "This is in continuation of Criminal Law-I",
+      "On successful completion of the course, students should be able to state and explain the general principles of criminal liability under English and Islamic criminal law, the substantive elements of major offences and general defences to criminal liability",
+      "The course will include substantive criminal law as contained in the Pakistan Penal Code and the Hudud laws and other related enactments"
+    ],
+    "books": [
+      "Ormerod, David. Smith and Hogan Criminal Law: Cases and Materials, 10 edn. Oxford: OUP, 2009.",
+      "Text of the Hudud Ordinances, 1979 (as amended).",
+      "Zafar, Emmanuel. Law and Practice of Islamic Hudood, 3 edn. Lahore: Khyber Law Publishers, 2005."
+    ],
+    "sourceNote": "Course detail from HEC Final Curriculum LLB.pdf (LLB 5 Years Revised 2015). Outline and books follow the official course description."
+  },
+  "Land Laws": {
+    "outcomes": [
+      "The course is designed to teach students about the land revenue law as practiced in Pakistan.",
+      "The course contents will include the provision of Land Revenue Act and the laws of tenancy and pre-emption.",
+      "Apply Land Laws as taught under HEC Final Curriculum LLB.pdf (LLB 5 Years Revised 2015)."
+    ],
+    "outline": [
+      "The course is designed to teach students about the land revenue law as practiced in Pakistan",
+      "The course contents will include the provision of Land Revenue Act and the laws of tenancy and pre-emption",
+      "Students will also be taught about the important provisions of the law relating to Colonization of Government Lands",
+      "After successful completion of the course, students will be able to understand the major issues involved in land related matters"
+    ],
+    "books": [
+      "Land Acquisition Act, 1925.",
+      "Pre-emption Act of the Province concerned.",
+      "Tenancy Act of the Province concerned.",
+      "Colonization of Government Lands Act, 1912. YEAR-4 SEMESTER-VII"
+    ],
+    "sourceNote": "Course detail from HEC Final Curriculum LLB.pdf (LLB 5 Years Revised 2015). Outline and books follow the official course description."
+  },
+  "Public International Law - I": {
+    "outcomes": [
+      "Public international law studies traditional topics of an international law course such as nature and origin, sources, subjects of int.",
+      "law, recognition, territory, jurisdiction, state responsibility, interstate courts and tribunals, international personality, sovereignty, recognition, diplomatic immunity, extradition, state responsibility, dispute settlement, and the law of the sea.",
+      "Apply Public International Law - I as taught under HEC Final Curriculum LLB.pdf (LLB 5 Years Revised 2015)."
+    ],
+    "outline": [
+      "Public international law studies traditional topics of an international law course such as nature and origin, sources, subjects of int",
+      "law, recognition, territory, jurisdiction, state responsibility, interstate courts and tribunals, international personality, sovereignty, recognition, diplomatic immunity, extradition, state responsibility, dispute settlement, and the law of the sea",
+      "The students will be able to grasp the basic concepts involved in International Law and its functioning"
+    ],
+    "books": [
+      "Brownlie, Ian. Principles of Public International Law, 7 edn. Oxford: OUP, 2008.",
+      "Cassese, Antonio. International Law, 2 edn. Oxford: OUP,",
+      "Crawford, J. (comp.) The International Law Commission’s Articles on State Responsibility, Cambridge: Cambridge University Press, 2002.",
+      "Harris, D.J. Cases and Materials on International Law, 7 edn. London: Sweet & Maxwell, 2010.",
+      "Higgins, Rosalyn. Themes and Theories: Selected Essays, Speeches and Writings in International Law. Oxford: OUP,",
+      "Murphy, Sean D. Principles of International Law. St. Paul: Thomson/West, 2006.",
+      "Shaw, Malcolm N. International Law, 6 edn. Cambridge: Cambridge University Press, 2008.",
+      "Steiner, Henery. Alston, Philip and Goodman Ryan. International Human Rights in Context: Text and Materials, edn. Oxford: OUP, 2007. Useful Websites:",
+      "History of International Law:http://www.yale.edu/lawweb/avalon/avalon.htm (Yale University Avalon Project)",
+      "Sources: http://www.un.org/law/ilc/",
+      "European Journal of International Law:http://www.ejil.org",
+      "Air and Space Law: http://www.iasl.mcgill.ca (McGill University Institute of Air and Space Law)"
+    ],
+    "sourceNote": "Course detail from HEC Final Curriculum LLB.pdf (LLB 5 Years Revised 2015). Outline and books follow the official course description."
+  },
+  "Constitutional Developments in Pakistan": {
+    "outcomes": [
+      "The course is designed to give a comprehensive insight about the constitutional developments of Pakistan.",
+      "Starting from the Government of India Act, 1935 till to date, all important events leading to constitutional developments in Pakistan will be the focus of course.",
+      "Apply Constitutional Developments in Pakistan as taught under HEC Final Curriculum LLB.pdf (LLB 5 Years Revised 2015)."
+    ],
+    "outline": [
+      "The course is designed to give a comprehensive insight about the constitutional developments of Pakistan",
+      "Starting from the Government of India Act, 1935 till to date, all important events leading to constitutional developments in Pakistan will be the focus of course",
+      "Failure of the constitutional machinery and leading constitutional cases on the subject; starting from Molvi Tamizudin Khan to the Dissolution of Assemblies and the constitutional petitions challenging the powers of Parliament to amend the Constitution will be part of the course"
+    ],
+    "books": [
+      "Ahmad, Riaz. Constitutional and Political Developments in Pakistan: 1951-54. Karachi: Pak American, 1981.",
+      "Choudhry, G.W. Constitutional Development in Pakistan. New York: Institute of Pacific Relations, 1959.",
+      "Jennings, Sir Ivor. Constitutional Problems in Pakistan,",
+      "Cambridge: Cambridge University Press, 1957.",
+      "Khan, Hamid. Constitutional and Political History of Pakistan. Oxford: OUP, 2001.",
+      "Mahmood, Dr. Safdar. Constitutional Foundations of Pakistan, 2 edn. Lahore: Jang Publishers, 1989.",
+      "Sayeed, Khalid Bin. The Political System of Pakistan. Karachi: OUP, 1967.",
+      "Seervai, HM. Partition of India; Legend and Reality. Karachi: OUP, 2005.",
+      "Wheeler, Richard S. The Politics of Pakistan: A Constitutional Quest. Ithaca: Cornell University Press, 1970."
+    ],
+    "sourceNote": "Course detail from HEC Final Curriculum LLB.pdf (LLB 5 Years Revised 2015). Outline and books follow the official course description."
+  },
+  "Civil Procedure-I": {
+    "outcomes": [
+      "The course is designed to give students a complete understanding about the procedure that is followed in civil courts in Pakistan.",
+      "In view of the extensive civil procedure, the course is divided in two modules.",
+      "Apply Civil Procedure-I as taught under HEC Final Curriculum LLB.pdf (LLB 5 Years Revised 2015)."
+    ],
+    "outline": [
+      "The course is designed to give students a complete understanding about the procedure that is followed in civil courts in Pakistan",
+      "In view of the extensive civil procedure, the course is divided in two modules",
+      "The course contents will include the jurisdiction of civil courts, their functioning, rules of institution of civil suits, orders, decree and judgments; execution of decrees, and appeal, review and revision",
+      "It will include all provisions of the Code of Civil Procedure, 1908"
+    ],
+    "books": [
+      "Chari, S.A. Law of Summons and Notices. Hyderabad: Asia Law House, 1996.",
+      "Khan, Aamer Raza. Civil Procedure Code, 10 edn. Lahore: Irfan Press, 2010.",
+      "Nizami, M.M.H. The Code of Civil Procedure with Commentary. Lahore: PLD, 2009.",
+      "Sial, Umer Farooq. Law of Injunctions. Lahore: Imran Law,"
+    ],
+    "sourceNote": "Course detail from HEC Final Curriculum LLB.pdf (LLB 5 Years Revised 2015). Outline and books follow the official course description."
+  },
+  "Criminal Procedure - I": {
+    "outcomes": [
+      "The course is expected to guide and prepare students in the procedure that is followed in criminal cases by courts in Pakistan.",
+      "Like the course of Civil Procedure, this course is also divided into two modules to give students a rigorous coaching in criminal procedure.",
+      "Apply Criminal Procedure - I as taught under HEC Final Curriculum LLB.pdf (LLB 5 Years Revised 2015)."
+    ],
+    "outline": [
+      "The course is expected to guide and prepare students in the procedure that is followed in criminal cases by courts in Pakistan",
+      "Like the course of Civil Procedure, this course is also divided into two modules to give students a rigorous coaching in criminal procedure",
+      "The course will include all provisions of the Criminal Procedure Code, 1898"
+    ],
+    "books": [
+      "Karim, Justice (R) Fazal. The Law of Criminal Procedure. Karachi: Pakistan Law House, 2010.",
+      "Khan, Munir Ahmad. Murder Trial, Lahore: Law Book Land,",
+      "Narayana, Justice P.S. Law of Appeals, 5 edn. Hyderabad: Asia Law House, 2006 (Chapter 13, dealing with Criminal Appeals).",
+      "Nizami, M.M.H. The Code of Criminal Procedure with Commentary. Lahore: PLD, 2009.",
+      "The Text of Criminal Procedure Code 1898 (as amended) with commentary.",
+      "Turner, J.W. Cecil. Kenny’s Outlines of Criminal Law, 19 edn. New Delhi: Universal, 2010 (.)."
+    ],
+    "sourceNote": "Course detail from HEC Final Curriculum LLB.pdf (LLB 5 Years Revised 2015). Outline and books follow the official course description."
+  },
+  "Law of Evidence - I": {
+    "outcomes": [
+      "This is an important course for law students to understand the application of the rules of evidence.",
+      "The course will cover both the substantive as well as procedural rules of evidence; theories and policies of the Law of Evidence.",
+      "Apply Law of Evidence - I as taught under HEC Final Curriculum LLB.pdf (LLB 5 Years Revised 2015)."
+    ],
+    "outline": [
+      "This is an important course for law students to understand the application of the rules of evidence",
+      "The course will cover both the substantive as well as procedural rules of evidence; theories and policies of the Law of Evidence",
+      "It will cover admissibility of evidence, modes of proof and the production and effect of evidence",
+      "The objectives are to inculcate a critical appreciation of the issues and to prepare students for professional practice",
+      "The course is absolutely necessary for students to grasp the rules of evidence before joining legal profession"
+    ],
+    "books": [
+      "Chaturvedi, Gopal. S Field’s Law on Oral and Documentary Evidence, 2 edn. Delhi: Delhi Law House, 2002.",
+      "Chaturvedi, Gopal. S Field’s Law Relating to Estoppel 3 edn. Delhi: Delhi Law House, 2003.",
+      "Chaturvedi, Gopal. S. Field’s Law on Admissions and Confessions, 2 edn. Delhi: Delhi Law House, 2003.",
+      "Mahmood, Shaukat. The Law of Evidence: An exhaustive commentary on Qanun-e-Shahadat Order, 1984, 2 edn. Lahore: Legal Research Centre, 1991.",
+      "Murphy, Peter. Murphy on Evidence. Oxford: OUP, 2009.",
+      "Rahman, Justice Khalilur. Principles & Digest of the Qanun- e-Shahadat, Commentary adapted from Justice Monir’s Principles and Digest of the Law of Evidence, 6 edn. Lahore: PLD, 1993.",
+      "Rao, Kesava. Law of Evidence, 18 edn. Nagpur: LexisNexis, 2009.",
+      "The Text of the Qanun-e-Shahadat Order, 1984 with commentary.",
+      "Zafar, Emmanuel. Art of Cross Examination. Lahore: Eastern Law Book, 1995."
+    ],
+    "sourceNote": "Course detail from HEC Final Curriculum LLB.pdf (LLB 5 Years Revised 2015). Outline and books follow the official course description."
+  },
+  "Legal Drafting - I": {
+    "outcomes": [
+      "Legal Writing and Drafting is unquestionably essential for law students before joining professional practice.",
+      "The course will focus on developing writing and drafting skills of students to formulate cogent arguments for their clients’ positions and to provide legal support for such positions.",
+      "Apply Legal Drafting - I as taught under HEC Final Curriculum LLB.pdf (LLB 5 Years Revised 2015)."
+    ],
+    "outline": [
+      "Legal Writing and Drafting is unquestionably essential for law students before joining professional practice",
+      "The course will focus on developing writing and drafting skills of students to formulate cogent arguments for their clients’ positions and to provide legal support for such positions",
+      "Legal drafting is central to professional practice hence the course has been divided into two modules",
+      "In this component of the course students will learn about the drafting of plaints, written statements, drafting contracts and agreements and other legal instruments"
+    ],
+    "books": [
+      "Gopal, Shiva. Conveyancing, Precedents and Forms,6 edn. Lucknow: Eastern, 2007 (.).",
+      "Inayatullah, M. Law of Conveyancing: Law and Precedents, edn. Lahore: PLD, 2009.",
+      "Inayatullah, M. Law of Pleadings: Law and Precedents. Lahore: PLD, (Latest ed.)",
+      "Kothari, Dr. G.M. Drafting, Conveyancing and Pleadings. Bombay: Tripathi, 2003",
+      "Narayana, Justice P.S. Pleadings and Practice, 6 edn. Hyderabad: Asia Law, 2010. YEAR-4 SEMESTER-VIII"
+    ],
+    "sourceNote": "Course detail from HEC Final Curriculum LLB.pdf (LLB 5 Years Revised 2015). Outline and books follow the official course description."
+  },
+  "Public International Law - II": {
+    "outcomes": [
+      "This is the second module of Public International Law.",
+      "This part will focus on Law of Treaties, International Institutions, International Criminal Law including the functioning of the ICC, International Human Rights Law and Enforcement Mechanism and International Humanitarian Law.",
+      "Apply Public International Law - II as taught under HEC Final Curriculum LLB.pdf (LLB 5 Years Revised 2015)."
+    ],
+    "outline": [
+      "This is the second module of Public International Law",
+      "This part will focus on Law of Treaties, International Institutions, International Criminal Law including the functioning of the ICC, International Human Rights Law and Enforcement Mechanism and International Humanitarian Law",
+      "The students will be able to understand the working of International Institutions and the developments in International Criminal Law and International Human Rights Law"
+    ],
+    "books": [
+      "Aust, Anthony. Modern Treaty Law and Practice, 2 edn. Cambridge: Cambridge University Press, 2007.",
+      "Cassese, Antonio, International Criminal Law, 2 edn. Oxford: OUP, 2008.",
+      "Cryer, Robert. et al, An Introduction to International Criminal Law and Procedure, 2 edn. Cambridge: Cambridge University Press, 2010.",
+      "Detter, Ingrid. The Law of War, 2 edn. Cambridge: Cambridge University Press, 2000.",
+      "Hingorani, R.C. (ed.) Humanitarian Law. New Delhi: Oxford &IBH, 1987.",
+      "Sands, Philippe. Bowett’s Law of International Institutions, 6 edn. London: Sweet & Maxwell, 2009.",
+      "Shah, Niaz A. Islamic Law and the Law of Armed Conflict: The Conflict in Pakistan, Oxen: Routledge, 2011.",
+      "Shaw, Malcolm N. International Law. Cambridge: Cambridge University Press, 2010.",
+      "Than, Claire D. & Shorts, Edwin. International Criminal Law and Human Rights. London: Sweet & Maxwell, 2003.",
+      "Yoram, Dinstein. The Conduct of Hostilities under the Law of International Armed Conflict, 2 edn. Cambridge: Cambridge University Press 2010. Useful Websites:",
+      "International Humanitarian Law: http://www.icrc.org/eng/war-and- law/index.jsp",
+      "International Institutions: http://un.org/"
+    ],
+    "sourceNote": "Course detail from HEC Final Curriculum LLB.pdf (LLB 5 Years Revised 2015). Outline and books follow the official course description."
+  },
+  "Equity and Specific Relief": {
+    "outcomes": [
+      "The course is designed to teach students the maxims of equity and specific relief.",
+      "The course discusses the Maxims of Equity in depth and along with doctrine and principles of Equity along the provisions of the Specific Relief Act, 1877 dealing with the specific performance of the contract, declaration decrees, injunctions and leading cases.",
+      "Apply Equity and Specific Relief as taught under HEC Final Curriculum LLB.pdf (LLB 5 Years Revised 2015)."
+    ],
+    "outline": [
+      "The course is designed to teach students the maxims of equity and specific relief",
+      "The course discusses the Maxims of Equity in depth and along with doctrine and principles of Equity along the provisions of the Specific Relief Act, 1877 dealing with the specific performance of the contract, declaration decrees, injunctions and leading cases",
+      "Hanbury & Martin: Modern Equity, 18 edn",
+      "(ed.), A Collection of Legal Maxims in Law and Equity, with English Translation",
+      "The Text of the Specific Relief Act, 1877 with commentary"
+    ],
+    "books": [
+      "Kersley, R.H. Broom’s Legal Maxims, 10 edn. Karachi: Pakistan Law House, 1998.",
+      "Khan, Raja Said Akbar. The Specific Relief Act. Lahore: PLD, 2009 (re).",
+      "Martin, Jill E. Hanbury & Martin: Modern Equity, 18 edn. London: Sweet & Maxwell, 2009.",
+      "McGhee, John. (ed.), Snell’s Equity: 2 Supplement. London: Sweet & Maxwell, 2006.",
+      "Peloubet, S.S. (ed.), A Collection of Legal Maxims in Law and Equity, with English Translation. Littleton: Krauss, 2010.",
+      "The Text of the Specific Relief Act, 1877 with commentary."
+    ],
+    "sourceNote": "Course detail from HEC Final Curriculum LLB.pdf (LLB 5 Years Revised 2015). Outline and books follow the official course description."
+  },
+  "Civil Procedure - II": {
+    "outcomes": [
+      "This is the second module of the Civil Procedure course.",
+      "The course contents have been described under Civil Procedure-I.",
+      "Apply Civil Procedure - II as taught under HEC Final Curriculum LLB.pdf (LLB 5 Years Revised 2015)."
+    ],
+    "outline": [
+      "Continuation of Civil Procedure-I (CPC 1908: jurisdiction, suits, orders, decrees, execution, appeal, review, revision)",
+      "Limitation period for civil suits under the Limitation Act, 1908"
+    ],
+    "books": [
+      "Hayat, Muhamad Aslam. Commentary on the Limitation Act,",
+      "Lahore: Eastern Law Book, 2009.",
+      "Khan, Raja Said Akbar. The Limitation Act, (re.). Lahore: PLD,",
+      "Narayana, Justice P.S. Law of Appeals, 5 edn. Hyderabad: Asia Law House, 2006 (Chapter 1-12 dealing with Civil Appeals).",
+      "Rao, Y. Rama. Treatise on Law of Execution. Hyderabad: Asia Law House, 2008.",
+      "The Text of Limitation Act 1908 (as amended)"
+    ],
+    "sourceNote": "Course detail from HEC Final Curriculum LLB.pdf (LLB 5 Years Revised 2015). Outline and books follow the official course description."
+  },
+  "Criminal Procedure - II": {
+    "outcomes": [
+      "This is the second module of the course and is expected to guide and prepare students in the procedure that is followed in criminal cases by courts in Pakistan.",
+      "Like the course of Civil Procedure, this course is also divided into two modules to give students a rigorous coaching in criminal procedure.",
+      "Apply Criminal Procedure - II as taught under HEC Final Curriculum LLB.pdf (LLB 5 Years Revised 2015)."
+    ],
+    "outline": [
+      "This is the second module of the course and is expected to guide and prepare students in the procedure that is followed in criminal cases by courts in Pakistan",
+      "Like the course of Civil Procedure, this course is also divided into two modules to give students a rigorous coaching in criminal procedure",
+      "The component will also include Medical Jurisprudence with reference to autopsy and physical injuries",
+      "The course will be conducted by qualified medical doctors, preferably by surgeons"
+    ],
+    "books": [
+      "Davies, Michael. Textbook on Medical Law, 2 edn. London: Blackstone, 1998.",
+      "Dogra, Prof. T.D. Lyon’s Medical Jurisprudence & Toxicology, edn. Delhi: Delhi Law House, 2010.",
+      "Howard, Philip and Bogle, James. Medical Law and Ethics. Oxford: Blackwell, 2005.",
+      "Koehler, Steven A. and Wecht, Cyril H. Postmortem: Establishing the Cause of Death. Buffalo: Firefly Books, 2006.",
+      "Subrahmanyam, B.V. (ed.), Modi’s Medical Jurisprudence and Toxicology, New Delhi: Butterworths, 2001."
+    ],
+    "sourceNote": "Course detail from HEC Final Curriculum LLB.pdf (LLB 5 Years Revised 2015). Outline and books follow the official course description."
+  },
+  "Law of Evidence - II": {
+    "outcomes": [
+      "This will be the second part of the Law of Evidence described above.",
+      "Second module of Law of Evidence-I.",
+      "Apply Law of Evidence - II as taught under HEC Final Curriculum LLB.pdf (LLB 5 Years Revised 2015)."
+    ],
+    "outline": [
+      "Second module of Law of Evidence-I",
+      "Substantive and procedural rules of evidence; admissibility, modes of proof, production and effect of evidence",
+      "Qanun-e-Shahadat Order, 1984 as prescribed"
+    ],
+    "books": [
+      "Chaturvedi, Gopal. S Field’s Law on Oral and Documentary Evidence, 2 edn. Delhi: Delhi Law House, 2002.",
+      "Chaturvedi, Gopal. S Field’s Law Relating to Estoppel 3 edn. Delhi: Delhi Law House, 2003.",
+      "Chaturvedi, Gopal. S. Field’s Law on Admissions and Confessions, 2 edn. Delhi: Delhi Law House, 2003.",
+      "Mahmood, Shaukat. The Law of Evidence: An exhaustive commentary on Qanun-e-Shahadat Order, 1984, 2 edn. Lahore: Legal Research Centre, 1991.",
+      "Murphy, Peter. Murphy on Evidence. Oxford: OUP, 2009.",
+      "Rahman, Justice Khalilur. Principles & Digest of the Qanun- e-Shahadat, Commentary adapted from Justice Monir’s Principles and Digest of the Law of Evidence, 6 edn. Lahore: PLD, 1993.",
+      "Rao, Kesava. Law of Evidence, 18 edn. Nagpur: LexisNexis, 2009.",
+      "The Text of the Qanun-e-Shahadat Order, 1984 with commentary.",
+      "Zafar, Emmanuel. Art of Cross Examination. Lahore: Eastern Law Book, 1995."
+    ],
+    "sourceNote": "Course detail from HEC Final Curriculum LLB.pdf (LLB 5 Years Revised 2015). Outline and books follow the official course description."
+  },
+  "Legal Drafting - II": {
+    "outcomes": [
+      "This is the second part of the course on legal drafting.",
+      "In this component students will learn about drafting legal instruments such as Deeds of Sale, Agreements, Affidavits, Gifts, Guarantee, Notices, Mortgages and Leases.",
+      "Apply Legal Drafting - II as taught under HEC Final Curriculum LLB.pdf (LLB 5 Years Revised 2015)."
+    ],
+    "outline": [
+      "This is the second part of the course on legal drafting",
+      "In this component students will learn about drafting legal instruments such as Deeds of Sale, Agreements, Affidavits, Gifts, Guarantee, Notices, Mortgages and Leases",
+      "Instructions will be given on effective legal drafting skills through lectures and written exercises",
+      "Practical Approach to Deeds and Documents, 2 edn",
+      "The Art of Pleadings and Conveyancing (English and Urdu)",
+      " To enhance the practical skills of students and improve theoretical knowledge acquired during semester VII and VIII, compulsory court- visits will be arranged under the proper supervision of faculty- members"
+    ],
+    "books": [
+      "Bhandari. M.C. Practical Approach to Deeds and Documents, 2 edn. New Delhi: Ashoka Law House, 2008.",
+      "Chaudhry, Nasim Sabir. The Art of Pleadings and Conveyancing (English and Urdu). Lahore: Imran Law, n.d.",
+      "Kumar, H.L. Legal Drafting. New Delhi: Universal, 2010.  To enhance the practical skills of students and improve theoretical knowledge acquired during semester VII and VIII, compulsory court- visits will be arranged…"
+    ],
+    "sourceNote": "Course detail from HEC Final Curriculum LLB.pdf (LLB 5 Years Revised 2015). Outline and books follow the official course description."
+  },
+  "Research Methods": {
+    "outcomes": [
+      "This is a compulsory course for all students and is introduced to develop the writing, research and analytical skills of law students.",
+      "The course will focus on basic research strategy and how to find and use primary and secondary legal sources.",
+      "Apply Research Methods as taught under HEC Final Curriculum LLB.pdf (LLB 5 Years Revised 2015)."
+    ],
+    "outline": [
+      "This is a compulsory course for all students and is introduced to develop the writing, research and analytical skills of law students",
+      "The course will focus on basic research strategy and how to find and use primary and secondary legal sources",
+      "The objective of the course is to have a strong research-oriented ethos in law colleges/institutions to enable law students to undertake both theoretical and practical research in all fields of law and legal studies",
+      "The course is extremely useful, for law students will be required to submit their written work for each and every module/ course"
+    ],
+    "books": [
+      "Mckie, Suzanne. Legal Research: How to find and Understand Law. London: Cavendish, 1993.",
+      "Olson, Kent C. Principles of Legal Research. St. Paul: West,",
+      "Panneerselvam, R. Research Methodology. New Delhi: PHI Learning, 2009.",
+      "Pawar, Manohar. (ed.) Data Collecting Methods and Experiences: A Guide for Social Researchers. New Delhi: New Dawn, 2004.",
+      "Singh, Yogesh Kumar. Research Methodology. New Delhi: APH,",
+      "Sloan, Amy E. Basic Legal Research: Tools and Strategies, 4 edn. Austin: Wolters Kluwer, 2009.",
+      "Statsky, William P. Legal Research, Writing, And Analysis.2 edn. St. Paul: West Publishing, 1982."
+    ],
+    "sourceNote": "Course detail from HEC Final Curriculum LLB.pdf (LLB 5 Years Revised 2015). Outline and books follow the official course description."
+  },
+  "Minor Acts": {
+    "outcomes": [
+      "The Course of Minor Acts has been added to the list of core courses with a view to familiarize law students with practical knowledge of some important areas which fresh law graduates come across in their practical and professional field.",
+      "These laws include the Civil Court Ordinance, the rent related laws, the law of limitation, the court fee and suit valuation matters and the arbitration issues.",
+      "Apply Minor Acts as taught under HEC Final Curriculum LLB.pdf (LLB 5 Years Revised 2015)."
+    ],
+    "outline": [
+      "The Course of Minor Acts has been added to the list of core courses with a view to familiarize law students with practical knowledge of some important areas which fresh law graduates come across in their practical and professional field",
+      "These laws include the Civil Court Ordinance, the rent related laws, the law of limitation, the court fee and suit valuation matters and the arbitration issues"
+    ],
+    "books": [
+      "The Civil Court Ordinance, 1962",
+      "The Rent Laws of the respective provinces/ areas.",
+      "The Limitation Act, 1908",
+      "The Court Fees (1870) and Suit Valuation (1887) Acts",
+      "The Arbitration Act, 1940"
+    ],
+    "sourceNote": "Course detail from HEC Final Curriculum LLB.pdf (LLB 5 Years Revised 2015). Outline and books follow the official course description."
+  },
+  "Elective - I": {
+    "outcomes": [
+      "Students will be required to take one of the elective courses laid down in the list of optional/elective courses.",
+      "Choose one course from the HEC elective list offered by the university.",
+      "Apply Elective - I as taught under HEC Final Curriculum LLB.pdf (LLB 5 Years Revised 2015)."
+    ],
+    "outline": [
+      "Choose one course from the HEC elective list offered by the university",
+      "If a course is taught in two modules, the second module of the same course is compulsory"
+    ],
+    "books": [
+      "Reading list as prescribed by the offering department for the chosen elective"
+    ],
+    "sourceNote": "Course detail from HEC Final Curriculum LLB.pdf (LLB 5 Years Revised 2015). Outline and books follow the official course description."
+  },
+  "Elective - II": {
+    "outcomes": [
+      "Students will be required to take an optional course from the elective courses laid down in the list of optional/ elective courses.",
+      "Choose one course from the HEC elective list offered by the university.",
+      "Apply Elective - II as taught under HEC Final Curriculum LLB.pdf (LLB 5 Years Revised 2015)."
+    ],
+    "outline": [
+      "Choose one course from the HEC elective list offered by the university",
+      "If a course is taught in two modules, the second module of the same course is compulsory"
+    ],
+    "books": [
+      "Reading list as prescribed by the offering department for the chosen elective"
+    ],
+    "sourceNote": "Course detail from HEC Final Curriculum LLB.pdf (LLB 5 Years Revised 2015). Outline and books follow the official course description."
+  },
+  "Moot Cases and Professional Ethics": {
+    "outcomes": [
+      "This is one of the compulsory courses for all law students.",
+      "The course comprises the Moot Cases and the Professional Ethics involved in the legal profession and law practice.",
+      "Apply Moot Cases and Professional Ethics as taught under HEC Final Curriculum LLB.pdf (LLB 5 Years Revised 2015)."
+    ],
+    "outline": [
+      "This is one of the compulsory courses for all law students",
+      "The course comprises the Moot Cases and the Professional Ethics involved in the legal profession and law practice",
+      "The objective of the Moot Cases is to introduce students to basic trial techniques and skills, including the basics of presentations in court, mode of address, to conduct examination-in-chief, cross examination and submissions on facts",
+      "The practical skills learned in this module will complement those learned in earlier semesters",
+      "The course will give students a taste of the real world litigation practice",
+      "The second part of the course deals with professional ethics which will lay emphasis on adherence to basic legal ethics that is generally required for students who wish to practice law"
+    ],
+    "books": [
+      "Hart, William and Blanchard, Roderick. Litigation and Trial Practice, 6 edn. Clifton Park: Thomson/ Delmar, 2006.",
+      "Menon. N.R. Madhava, Clinical Legal Education. Lucknow: Eastern, 2006 (.).",
+      "Snape, John and Watt, Gary. How to Moot: A student’s Guide to Mooting. Oxford: OUP, 2010.",
+      "Anand, C.L. Professional Ethics of the Bar, 2 edn. Allahabad: Law Book Co, 1987.",
+      "Pakistan Bar Council’s Canons of Professional Conduct and Etiquette, 1976.",
+      "UN Basic Principles on the Role of Lawyers, 1990. http://www1.umn.edu/humanrts/instree/i3bprl.htm",
+      "UN Guidelines on the Role of Prosecutors, 1990. http://www1.umn.edu/humanrts/instree/i4grp.htm",
+      "UN Basic Principles on the Independence of the Judiciary, 1985. http://www1.umn.edu/humanrts/instree/i5bpij.htm YEAR-5 SEMESTER-X"
+    ],
+    "sourceNote": "Course detail from HEC Final Curriculum LLB.pdf (LLB 5 Years Revised 2015). Outline and books follow the official course description."
+  },
+  "Administrative Law": {
+    "outcomes": [
+      "The course will cover the general principles of administrative law as practiced in Pakistan.",
+      "The theories of natural justice, delegated legislation, administrative discretion and judicial review of administrative actions will be the main focus of the course In addition to that students will learn about the civil service laws and rules.",
+      "Apply Administrative Law as taught under HEC Final Curriculum LLB.pdf (LLB 5 Years Revised 2015)."
+    ],
+    "outline": [
+      "The course will cover the general principles of administrative law as practiced in Pakistan",
+      "The theories of natural justice, delegated legislation, administrative discretion and judicial review of administrative actions will be the main focus of the course In addition to that students will learn about the civil service laws and rules",
+      "It will also look at the mechanism of administrative rules of procedure relating to efficiency and discipline related matters and the functioning of civil service tribunal"
+    ],
+    "books": [
+      "Cornelius, A.R. Law and Judiciary in Pakistan (SM Haider ed.) Lahore: Lahore Law Times, 1981. (Selected Topics on Administrative Law and Administrative Tribunals).",
+      "Jain, M.P and Jain, S.N. Principles of Administrative Law, 6 (enl.) edn. New Delhi: Wardhwa, 2007.",
+      "Karim, Justice (R) Fazal. Judicial Control of Administrative Actions. Islamabad: Pakistan Law House, 2006.",
+      "Khan, Hamid. Principles of Administrative Law: A comparative Study. Lahore: PLD, 2000.",
+      "Massey, I.P. Administrative Law, 7 edn. Delhi: Eastern, 2008.",
+      "Nagi, Mazhar Ilyas. Civil Service Laws. Karachi: Pakistan Law House, 2005.",
+      "Wade, H.W.R. and Forsyth, Administrative Law, 10 edn. Oxford: OUP, 2009.",
+      "Zafar, Emmanuel. Administrative Law. Lahore: Eastern, 1998.",
+      "The Text of Service Tribunal Act, 1973 with commentary.",
+      "The Text of the Civil Servants Act, 1973 with commentary.",
+      "The Text of the Government Servants (Efficiency and Discipline) Rules, 1973."
+    ],
+    "sourceNote": "Course detail from HEC Final Curriculum LLB.pdf (LLB 5 Years Revised 2015). Outline and books follow the official course description."
+  },
+  "Interpretation of Statutes and Legislative Drafting": {
+    "outcomes": [
+      "The objective of the course is to inculcate in law students the art of interpretation of statutes and to train them to effectively involve in legislative drafting.",
+      "The course contents will include the general rules and basic principles of construction, main parts of a statute, the intent of legislature, prospective and retrospective statutes, repeal and expiry of statutes etc.",
+      "Apply Interpretation of Statutes and Legislative Drafting as taught under HEC Final Curriculum LLB.pdf (LLB 5 Years Revised 2015)."
+    ],
+    "outline": [
+      "The objective of the course is to inculcate in law students the art of interpretation of statutes and to train them to effectively involve in legislative drafting",
+      "The course contents will include the general rules and basic principles of construction, main parts of a statute, the intent of legislature, prospective and retrospective statutes, repeal and expiry of statutes etc",
+      "In Legislative Drafting, topics like basic techniques of legislative drafting, main parts of legislation, subordinate legislation and enquiry into legislative policy of bills tabled in the parliament will be part of the course contents",
+      "The course will also include the general principles of interpretation as laid down in the General Clauses Act, 1897"
+    ],
+    "books": [
+      "Atre, BR. The Legislative Drafting 3 edn. New Delhi: Universal, 2013.",
+      "Crawford, Earl T. The Construction of Statutes. Karachi: Pakistan Law House, 1998.",
+      "Geoffery Bowman, KCB QC, Sir. The Art of Legislative Drafting: http:/www.cabinetoffice.gov.uk/media/190031/dale.pdf",
+      "Kashyap, Subhash C. Parliamentary Procedure 3 edn. New Delhi: Universal, 2014.",
+      "Rao, M.N. and Dhanda, Amita. Bindvas Interpretation of Statutes, 10 edn. New Delhi: LexisNexis, 2007.",
+      "Sarathi,Vepa P. Interpretation of Statutes, 4 edn. Lucknow: Eastern Book, 2003.",
+      "The General Clauses Act, 1897 with commentary.",
+      "Zafar, S.M. Understanding Statutes: Canons of Construction, edn. Lahore: PLD, 2008."
+    ],
+    "sourceNote": "Course detail from HEC Final Curriculum LLB.pdf (LLB 5 Years Revised 2015). Outline and books follow the official course description."
+  },
+  "Research Project": {
+    "outcomes": [
+      "All law students will be required to take a research project and write a long dissertation of about 8000-10000 words on a legal topic.",
+      "Students may take the project preferably in groups or individually.",
+      "Apply Research Project as taught under HEC Final Curriculum LLB.pdf (LLB 5 Years Revised 2015)."
+    ],
+    "outline": [
+      "Compulsory research project after successful completion of 9th semester",
+      "Long dissertation of about 8,000–10,000 words on an assigned legal topic",
+      "Individual or group work under an allotted supervisor; proposal after 8th semester"
+    ],
+    "books": [
+      "Reading list as prescribed in HEC Final Curriculum LLB.pdf for this course"
+    ],
+    "sourceNote": "Course detail from HEC Final Curriculum LLB.pdf (LLB 5 Years Revised 2015). Outline and books follow the official course description."
+  },
+  "Elective - III": {
+    "outcomes": [
+      "Students will be required to take an optional course from the elective courses laid down in the list of optional/ elective courses.",
+      "Choose one course from the HEC elective list offered by the university.",
+      "Apply Elective - III as taught under HEC Final Curriculum LLB.pdf (LLB 5 Years Revised 2015)."
+    ],
+    "outline": [
+      "Choose one course from the HEC elective list offered by the university",
+      "If a course is taught in two modules, the second module of the same course is compulsory"
+    ],
+    "books": [
+      "Reading list as prescribed by the offering department for the chosen elective"
+    ],
+    "sourceNote": "Course detail from HEC Final Curriculum LLB.pdf (LLB 5 Years Revised 2015). Outline and books follow the official course description."
+  },
+  "Elective - IV": {
+    "outcomes": [
+      "Students will be required to take an optional course from the elective courses laid down in the list of optional/ elective courses.",
+      "Choose one course from the HEC elective list offered by the university.",
+      "Apply Elective - IV as taught under HEC Final Curriculum LLB.pdf (LLB 5 Years Revised 2015)."
+    ],
+    "outline": [
+      "Choose one course from the HEC elective list offered by the university",
+      "If a course is taught in two modules, the second module of the same course is compulsory"
+    ],
+    "books": [
+      "Reading list as prescribed by the offering department for the chosen elective"
+    ],
+    "sourceNote": "Course detail from HEC Final Curriculum LLB.pdf (LLB 5 Years Revised 2015). Outline and books follow the official course description."
+  },
+  "Internship": {
+    "outcomes": [
+      "A practical experience at legal offices of 10 to 12 weeks will be compulsory for all students.",
+      "Compulsory 10 to 12 weeks after Semester 8 and before Semester 10 (summer vacations).",
+      "Apply Internship as taught under HEC Final Curriculum LLB.pdf (LLB 5 Years Revised 2015)."
+    ],
+    "outline": [
+      "Compulsory 10 to 12 weeks after Semester 8 and before Semester 10 (summer vacations)",
+      "Placement with law firms, courts, companies, government offices, NGOs, banks or other recognised entities",
+      "Assessed by report, self-assessment, faculty assessment and host organisation assessment"
+    ],
+    "books": [
+      "Internship report guidelines as notified by the university"
+    ],
+    "sourceNote": "Course detail from HEC Final Curriculum LLB.pdf (LLB 5 Years Revised 2015). Outline and books follow the official course description."
+  },
+  "Alternate Dispute Resolution": {
+    "outcomes": [
+      "Alternate Dispute Resolution is an elective on the HEC LLB (5 Years) list. Students take any four electives in Semesters 9 and 10.",
+      "If the university teaches this subject in two modules, both modules of the same course are compulsory.",
+      "Detailed weekly syllabus is set by the offering department under HEC guidelines."
+    ],
+    "outline": [
+      "Content as offered by the university for this HEC elective",
+      "If split into two modules, complete both"
+    ],
+    "books": [
+      "Department / university reading list for this elective"
+    ],
+    "sourceNote": "Listed as an elective in HEC Final Curriculum LLB.pdf (LLB 5 Years Revised 2015). Detailed outline is set by the offering university."
+  },
+  "Banking Laws": {
+    "outcomes": [
+      "Banking Laws is an elective on the HEC LLB (5 Years) list. Students take any four electives in Semesters 9 and 10.",
+      "If the university teaches this subject in two modules, both modules of the same course are compulsory.",
+      "Detailed weekly syllabus is set by the offering department under HEC guidelines."
+    ],
+    "outline": [
+      "Content as offered by the university for this HEC elective",
+      "If split into two modules, complete both"
+    ],
+    "books": [
+      "Department / university reading list for this elective"
+    ],
+    "sourceNote": "Listed as an elective in HEC Final Curriculum LLB.pdf (LLB 5 Years Revised 2015). Detailed outline is set by the offering university."
+  },
+  "Conflict of Laws": {
+    "outcomes": [
+      "Conflict of Laws is an elective on the HEC LLB (5 Years) list. Students take any four electives in Semesters 9 and 10.",
+      "If the university teaches this subject in two modules, both modules of the same course are compulsory.",
+      "Detailed weekly syllabus is set by the offering department under HEC guidelines."
+    ],
+    "outline": [
+      "Content as offered by the university for this HEC elective",
+      "If split into two modules, complete both"
+    ],
+    "books": [
+      "Department / university reading list for this elective"
+    ],
+    "sourceNote": "Listed as an elective in HEC Final Curriculum LLB.pdf (LLB 5 Years Revised 2015). Detailed outline is set by the offering university."
+  },
+  "Consumer Protection Laws": {
+    "outcomes": [
+      "Consumer Protection Laws is an elective on the HEC LLB (5 Years) list. Students take any four electives in Semesters 9 and 10.",
+      "If the university teaches this subject in two modules, both modules of the same course are compulsory.",
+      "Detailed weekly syllabus is set by the offering department under HEC guidelines."
+    ],
+    "outline": [
+      "Content as offered by the university for this HEC elective",
+      "If split into two modules, complete both"
+    ],
+    "books": [
+      "Department / university reading list for this elective"
+    ],
+    "sourceNote": "Listed as an elective in HEC Final Curriculum LLB.pdf (LLB 5 Years Revised 2015). Detailed outline is set by the offering university."
+  },
+  "Custom and Tariff Laws": {
+    "outcomes": [
+      "Custom and Tariff Laws is an elective on the HEC LLB (5 Years) list. Students take any four electives in Semesters 9 and 10.",
+      "If the university teaches this subject in two modules, both modules of the same course are compulsory.",
+      "Detailed weekly syllabus is set by the offering department under HEC guidelines."
+    ],
+    "outline": [
+      "Content as offered by the university for this HEC elective",
+      "If split into two modules, complete both"
+    ],
+    "books": [
+      "Department / university reading list for this elective"
+    ],
+    "sourceNote": "Listed as an elective in HEC Final Curriculum LLB.pdf (LLB 5 Years Revised 2015). Detailed outline is set by the offering university."
+  },
+  "e-Commerce Law": {
+    "outcomes": [
+      "e-Commerce Law is an elective on the HEC LLB (5 Years) list. Students take any four electives in Semesters 9 and 10.",
+      "If the university teaches this subject in two modules, both modules of the same course are compulsory.",
+      "Detailed weekly syllabus is set by the offering department under HEC guidelines."
+    ],
+    "outline": [
+      "Content as offered by the university for this HEC elective",
+      "If split into two modules, complete both"
+    ],
+    "books": [
+      "Department / university reading list for this elective"
+    ],
+    "sourceNote": "Listed as an elective in HEC Final Curriculum LLB.pdf (LLB 5 Years Revised 2015). Detailed outline is set by the offering university."
+  },
+  "Election Laws": {
+    "outcomes": [
+      "Election Laws is an elective on the HEC LLB (5 Years) list. Students take any four electives in Semesters 9 and 10.",
+      "If the university teaches this subject in two modules, both modules of the same course are compulsory.",
+      "Detailed weekly syllabus is set by the offering department under HEC guidelines."
+    ],
+    "outline": [
+      "Content as offered by the university for this HEC elective",
+      "If split into two modules, complete both"
+    ],
+    "books": [
+      "Department / university reading list for this elective"
+    ],
+    "sourceNote": "Listed as an elective in HEC Final Curriculum LLB.pdf (LLB 5 Years Revised 2015). Detailed outline is set by the offering university."
+  },
+  "Environmental Laws": {
+    "outcomes": [
+      "Environmental Laws is an elective on the HEC LLB (5 Years) list. Students take any four electives in Semesters 9 and 10.",
+      "If the university teaches this subject in two modules, both modules of the same course are compulsory.",
+      "Detailed weekly syllabus is set by the offering department under HEC guidelines."
+    ],
+    "outline": [
+      "Content as offered by the university for this HEC elective",
+      "If split into two modules, complete both"
+    ],
+    "books": [
+      "Department / university reading list for this elective"
+    ],
+    "sourceNote": "Listed as an elective in HEC Final Curriculum LLB.pdf (LLB 5 Years Revised 2015). Detailed outline is set by the offering university."
+  },
+  "Gender and Law": {
+    "outcomes": [
+      "Gender and Law is an elective on the HEC LLB (5 Years) list. Students take any four electives in Semesters 9 and 10.",
+      "If the university teaches this subject in two modules, both modules of the same course are compulsory.",
+      "Detailed weekly syllabus is set by the offering department under HEC guidelines."
+    ],
+    "outline": [
+      "Content as offered by the university for this HEC elective",
+      "If split into two modules, complete both"
+    ],
+    "books": [
+      "Department / university reading list for this elective"
+    ],
+    "sourceNote": "Listed as an elective in HEC Final Curriculum LLB.pdf (LLB 5 Years Revised 2015). Detailed outline is set by the offering university."
+  },
+  "Insurance laws": {
+    "outcomes": [
+      "Insurance laws is an elective on the HEC LLB (5 Years) list. Students take any four electives in Semesters 9 and 10.",
+      "If the university teaches this subject in two modules, both modules of the same course are compulsory.",
+      "Detailed weekly syllabus is set by the offering department under HEC guidelines."
+    ],
+    "outline": [
+      "Content as offered by the university for this HEC elective",
+      "If split into two modules, complete both"
+    ],
+    "books": [
+      "Department / university reading list for this elective"
+    ],
+    "sourceNote": "Listed as an elective in HEC Final Curriculum LLB.pdf (LLB 5 Years Revised 2015). Detailed outline is set by the offering university."
+  },
+  "Intellectual Property Laws": {
+    "outcomes": [
+      "Intellectual Property Laws is an elective on the HEC LLB (5 Years) list. Students take any four electives in Semesters 9 and 10.",
+      "If the university teaches this subject in two modules, both modules of the same course are compulsory.",
+      "Detailed weekly syllabus is set by the offering department under HEC guidelines."
+    ],
+    "outline": [
+      "Content as offered by the university for this HEC elective",
+      "If split into two modules, complete both"
+    ],
+    "books": [
+      "Department / university reading list for this elective"
+    ],
+    "sourceNote": "Listed as an elective in HEC Final Curriculum LLB.pdf (LLB 5 Years Revised 2015). Detailed outline is set by the offering university."
+  },
+  "International Economic Law": {
+    "outcomes": [
+      "International Economic Law is an elective on the HEC LLB (5 Years) list. Students take any four electives in Semesters 9 and 10.",
+      "If the university teaches this subject in two modules, both modules of the same course are compulsory.",
+      "Detailed weekly syllabus is set by the offering department under HEC guidelines."
+    ],
+    "outline": [
+      "Content as offered by the university for this HEC elective",
+      "If split into two modules, complete both"
+    ],
+    "books": [
+      "Department / university reading list for this elective"
+    ],
+    "sourceNote": "Listed as an elective in HEC Final Curriculum LLB.pdf (LLB 5 Years Revised 2015). Detailed outline is set by the offering university."
+  },
+  "International Humanitarian Law": {
+    "outcomes": [
+      "International Humanitarian Law is an elective on the HEC LLB (5 Years) list. Students take any four electives in Semesters 9 and 10.",
+      "If the university teaches this subject in two modules, both modules of the same course are compulsory.",
+      "Detailed weekly syllabus is set by the offering department under HEC guidelines."
+    ],
+    "outline": [
+      "Content as offered by the university for this HEC elective",
+      "If split into two modules, complete both"
+    ],
+    "books": [
+      "Department / university reading list for this elective"
+    ],
+    "sourceNote": "Listed as an elective in HEC Final Curriculum LLB.pdf (LLB 5 Years Revised 2015). Detailed outline is set by the offering university."
+  },
+  "International Institutions": {
+    "outcomes": [
+      "International Institutions is an elective on the HEC LLB (5 Years) list. Students take any four electives in Semesters 9 and 10.",
+      "If the university teaches this subject in two modules, both modules of the same course are compulsory.",
+      "Detailed weekly syllabus is set by the offering department under HEC guidelines."
+    ],
+    "outline": [
+      "Content as offered by the university for this HEC elective",
+      "If split into two modules, complete both"
+    ],
+    "books": [
+      "Department / university reading list for this elective"
+    ],
+    "sourceNote": "Listed as an elective in HEC Final Curriculum LLB.pdf (LLB 5 Years Revised 2015). Detailed outline is set by the offering university."
+  },
+  "International Trade Law": {
+    "outcomes": [
+      "International Trade Law is an elective on the HEC LLB (5 Years) list. Students take any four electives in Semesters 9 and 10.",
+      "If the university teaches this subject in two modules, both modules of the same course are compulsory.",
+      "Detailed weekly syllabus is set by the offering department under HEC guidelines."
+    ],
+    "outline": [
+      "Content as offered by the university for this HEC elective",
+      "If split into two modules, complete both"
+    ],
+    "books": [
+      "Department / university reading list for this elective"
+    ],
+    "sourceNote": "Listed as an elective in HEC Final Curriculum LLB.pdf (LLB 5 Years Revised 2015). Detailed outline is set by the offering university."
+  },
+  "Islamic Commercial Laws": {
+    "outcomes": [
+      "Islamic Commercial Laws is an elective on the HEC LLB (5 Years) list. Students take any four electives in Semesters 9 and 10.",
+      "If the university teaches this subject in two modules, both modules of the same course are compulsory.",
+      "Detailed weekly syllabus is set by the offering department under HEC guidelines."
+    ],
+    "outline": [
+      "Content as offered by the university for this HEC elective",
+      "If split into two modules, complete both"
+    ],
+    "books": [
+      "Department / university reading list for this elective"
+    ],
+    "sourceNote": "Listed as an elective in HEC Final Curriculum LLB.pdf (LLB 5 Years Revised 2015). Detailed outline is set by the offering university."
+  },
+  "Labour Laws": {
+    "outcomes": [
+      "Labour Laws is an elective on the HEC LLB (5 Years) list. Students take any four electives in Semesters 9 and 10.",
+      "If the university teaches this subject in two modules, both modules of the same course are compulsory.",
+      "Detailed weekly syllabus is set by the offering department under HEC guidelines."
+    ],
+    "outline": [
+      "Content as offered by the university for this HEC elective",
+      "If split into two modules, complete both"
+    ],
+    "books": [
+      "Department / university reading list for this elective"
+    ],
+    "sourceNote": "Listed as an elective in HEC Final Curriculum LLB.pdf (LLB 5 Years Revised 2015). Detailed outline is set by the offering university."
+  },
+  "Law and Development": {
+    "outcomes": [
+      "Law and Development is an elective on the HEC LLB (5 Years) list. Students take any four electives in Semesters 9 and 10.",
+      "If the university teaches this subject in two modules, both modules of the same course are compulsory.",
+      "Detailed weekly syllabus is set by the offering department under HEC guidelines."
+    ],
+    "outline": [
+      "Content as offered by the university for this HEC elective",
+      "If split into two modules, complete both"
+    ],
+    "books": [
+      "Department / university reading list for this elective"
+    ],
+    "sourceNote": "Listed as an elective in HEC Final Curriculum LLB.pdf (LLB 5 Years Revised 2015). Detailed outline is set by the offering university."
+  },
+  "Law and Energy": {
+    "outcomes": [
+      "Law and Energy is an elective on the HEC LLB (5 Years) list. Students take any four electives in Semesters 9 and 10.",
+      "If the university teaches this subject in two modules, both modules of the same course are compulsory.",
+      "Detailed weekly syllabus is set by the offering department under HEC guidelines."
+    ],
+    "outline": [
+      "Content as offered by the university for this HEC elective",
+      "If split into two modules, complete both"
+    ],
+    "books": [
+      "Department / university reading list for this elective"
+    ],
+    "sourceNote": "Listed as an elective in HEC Final Curriculum LLB.pdf (LLB 5 Years Revised 2015). Detailed outline is set by the offering university."
+  },
+  "Law and Society in Pakistan": {
+    "outcomes": [
+      "Law and Society in Pakistan is an elective on the HEC LLB (5 Years) list. Students take any four electives in Semesters 9 and 10.",
+      "If the university teaches this subject in two modules, both modules of the same course are compulsory.",
+      "Detailed weekly syllabus is set by the offering department under HEC guidelines."
+    ],
+    "outline": [
+      "Content as offered by the university for this HEC elective",
+      "If split into two modules, complete both"
+    ],
+    "books": [
+      "Department / university reading list for this elective"
+    ],
+    "sourceNote": "Listed as an elective in HEC Final Curriculum LLB.pdf (LLB 5 Years Revised 2015). Detailed outline is set by the offering university."
+  },
+  "Local and Special Laws": {
+    "outcomes": [
+      "Local and Special Laws is an elective on the HEC LLB (5 Years) list. Students take any four electives in Semesters 9 and 10.",
+      "If the university teaches this subject in two modules, both modules of the same course are compulsory.",
+      "Detailed weekly syllabus is set by the offering department under HEC guidelines."
+    ],
+    "outline": [
+      "Content as offered by the university for this HEC elective",
+      "If split into two modules, complete both"
+    ],
+    "books": [
+      "Department / university reading list for this elective"
+    ],
+    "sourceNote": "Listed as an elective in HEC Final Curriculum LLB.pdf (LLB 5 Years Revised 2015). Detailed outline is set by the offering university."
+  },
+  "Media Laws": {
+    "outcomes": [
+      "Media Laws is an elective on the HEC LLB (5 Years) list. Students take any four electives in Semesters 9 and 10.",
+      "If the university teaches this subject in two modules, both modules of the same course are compulsory.",
+      "Detailed weekly syllabus is set by the offering department under HEC guidelines."
+    ],
+    "outline": [
+      "Content as offered by the university for this HEC elective",
+      "If split into two modules, complete both"
+    ],
+    "books": [
+      "Department / university reading list for this elective"
+    ],
+    "sourceNote": "Listed as an elective in HEC Final Curriculum LLB.pdf (LLB 5 Years Revised 2015). Detailed outline is set by the offering university."
+  },
+  "Medical and Forensic Law": {
+    "outcomes": [
+      "Medical and Forensic Law is an elective on the HEC LLB (5 Years) list. Students take any four electives in Semesters 9 and 10.",
+      "If the university teaches this subject in two modules, both modules of the same course are compulsory.",
+      "Detailed weekly syllabus is set by the offering department under HEC guidelines."
+    ],
+    "outline": [
+      "Content as offered by the university for this HEC elective",
+      "If split into two modules, complete both"
+    ],
+    "books": [
+      "Department / university reading list for this elective"
+    ],
+    "sourceNote": "Listed as an elective in HEC Final Curriculum LLB.pdf (LLB 5 Years Revised 2015). Detailed outline is set by the offering university."
+  },
+  "Mergers and Acquisitions": {
+    "outcomes": [
+      "Mergers and Acquisitions is an elective on the HEC LLB (5 Years) list. Students take any four electives in Semesters 9 and 10.",
+      "If the university teaches this subject in two modules, both modules of the same course are compulsory.",
+      "Detailed weekly syllabus is set by the offering department under HEC guidelines."
+    ],
+    "outline": [
+      "Content as offered by the university for this HEC elective",
+      "If split into two modules, complete both"
+    ],
+    "books": [
+      "Department / university reading list for this elective"
+    ],
+    "sourceNote": "Listed as an elective in HEC Final Curriculum LLB.pdf (LLB 5 Years Revised 2015). Detailed outline is set by the offering university."
+  },
+  "Islamic Legal Maxims": {
+    "outcomes": [
+      "Islamic Legal Maxims is an elective on the HEC LLB (5 Years) list. Students take any four electives in Semesters 9 and 10.",
+      "If the university teaches this subject in two modules, both modules of the same course are compulsory.",
+      "Detailed weekly syllabus is set by the offering department under HEC guidelines."
+    ],
+    "outline": [
+      "Content as offered by the university for this HEC elective",
+      "If split into two modules, complete both"
+    ],
+    "books": [
+      "Department / university reading list for this elective"
+    ],
+    "sourceNote": "Listed as an elective in HEC Final Curriculum LLB.pdf (LLB 5 Years Revised 2015). Detailed outline is set by the offering university."
+  },
+  "Public Interest Litigation": {
+    "outcomes": [
+      "Public Interest Litigation is an elective on the HEC LLB (5 Years) list. Students take any four electives in Semesters 9 and 10.",
+      "If the university teaches this subject in two modules, both modules of the same course are compulsory.",
+      "Detailed weekly syllabus is set by the offering department under HEC guidelines."
+    ],
+    "outline": [
+      "Content as offered by the university for this HEC elective",
+      "If split into two modules, complete both"
+    ],
+    "books": [
+      "Department / university reading list for this elective"
+    ],
+    "sourceNote": "Listed as an elective in HEC Final Curriculum LLB.pdf (LLB 5 Years Revised 2015). Detailed outline is set by the offering university."
+  },
+  "Securities Regulation": {
+    "outcomes": [
+      "Securities Regulation is an elective on the HEC LLB (5 Years) list. Students take any four electives in Semesters 9 and 10.",
+      "If the university teaches this subject in two modules, both modules of the same course are compulsory.",
+      "Detailed weekly syllabus is set by the offering department under HEC guidelines."
+    ],
+    "outline": [
+      "Content as offered by the university for this HEC elective",
+      "If split into two modules, complete both"
+    ],
+    "books": [
+      "Department / university reading list for this elective"
+    ],
+    "sourceNote": "Listed as an elective in HEC Final Curriculum LLB.pdf (LLB 5 Years Revised 2015). Detailed outline is set by the offering university."
+  },
+  "Shipping and Admiralty Laws": {
+    "outcomes": [
+      "Shipping and Admiralty Laws is an elective on the HEC LLB (5 Years) list. Students take any four electives in Semesters 9 and 10.",
+      "If the university teaches this subject in two modules, both modules of the same course are compulsory.",
+      "Detailed weekly syllabus is set by the offering department under HEC guidelines."
+    ],
+    "outline": [
+      "Content as offered by the university for this HEC elective",
+      "If split into two modules, complete both"
+    ],
+    "books": [
+      "Department / university reading list for this elective"
+    ],
+    "sourceNote": "Listed as an elective in HEC Final Curriculum LLB.pdf (LLB 5 Years Revised 2015). Detailed outline is set by the offering university."
+  },
+  "Taxation Laws": {
+    "outcomes": [
+      "Taxation Laws is an elective on the HEC LLB (5 Years) list. Students take any four electives in Semesters 9 and 10.",
+      "If the university teaches this subject in two modules, both modules of the same course are compulsory.",
+      "Detailed weekly syllabus is set by the offering department under HEC guidelines."
+    ],
+    "outline": [
+      "Content as offered by the university for this HEC elective",
+      "If split into two modules, complete both"
+    ],
+    "books": [
+      "Department / university reading list for this elective"
+    ],
+    "sourceNote": "Listed as an elective in HEC Final Curriculum LLB.pdf (LLB 5 Years Revised 2015). Detailed outline is set by the offering university."
+  },
+  "Telecommunication Laws": {
+    "outcomes": [
+      "Telecommunication Laws is an elective on the HEC LLB (5 Years) list. Students take any four electives in Semesters 9 and 10.",
+      "If the university teaches this subject in two modules, both modules of the same course are compulsory.",
+      "Detailed weekly syllabus is set by the offering department under HEC guidelines."
+    ],
+    "outline": [
+      "Content as offered by the university for this HEC elective",
+      "If split into two modules, complete both"
+    ],
+    "books": [
+      "Department / university reading list for this elective"
+    ],
+    "sourceNote": "Listed as an elective in HEC Final Curriculum LLB.pdf (LLB 5 Years Revised 2015). Detailed outline is set by the offering university."
+  }
+}

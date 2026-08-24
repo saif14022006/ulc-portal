@@ -87,9 +87,20 @@
     const t = norm(title);
     const prog = String(program || "").trim();
 
-    // Always win for these PDF courses (fixes stale SW cache showing Western Jurisprudence outline).
-    if (prog === "LLB 5 Years" && LLB5_PDF_DETAIL[t]) {
-      return LLB5_PDF_DETAIL[t];
+    if (prog === "LLB 5 Years") {
+      const bag = global.ULC_SYLLABUS_CATALOG?.llb5?.details || {};
+      const pdf = bag[t] || LLB5_PDF_DETAIL[t];
+      if (pdf && (pdf.outline || pdf.outcomes)) {
+        return {
+          title: t,
+          program: prog,
+          category: "Major / scheme course",
+          outcomes: pdf.outcomes,
+          outline: pdf.outline,
+          books: pdf.books,
+          sourceNote: pdf.sourceNote,
+        };
+      }
     }
 
     function matchInProgram(p) {
